@@ -1,18 +1,10 @@
 #include "assertions.h"
 
-void __expect(MiniTest *mt, int actual, int negated, int expected) {
-  if (mt->current->current_assertion->assert_result == TEST_FAILURE) { return; }
-  if (negated) {
-    if (actual != expected) {
-      mt->current->current_assertion->assert_result = TEST_PASS;
-    } else {
-      mt->current->current_assertion->assert_result = TEST_FAILURE;
-    }
-  } else {
-    if (actual == expected) {
-      mt->current->current_assertion->assert_result = TEST_PASS;
-    } else {
-      mt->current->current_assertion->assert_result = TEST_FAILURE;
-    }
-  }
-}
+mt_expect_definition(int,    int,    (actual == expected), "%i");
+mt_expect_definition(char,   char,   (actual == expected), "%c");
+mt_expect_definition(short,  short,  (actual == expected), "%i");
+mt_expect_definition(long,   long,   (actual == expected), "%l");
+mt_expect_definition(double, double, (actual == expected), "%f");
+mt_expect_definition(float,  float,  (actual == expected), "%f");
+mt_expect_definition(ptr,    void*,  (actual == expected), "%p");
+mt_expect_definition(str,    char*,  (strcmp(actual,expected)==0), "%s");
