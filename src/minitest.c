@@ -15,6 +15,9 @@ static void run_it_blocks(int depth, MiniTestBlockArray *blocks);
 static void init_block_array(MiniTestBlockArray *a, size_t initialSize);
 static void insert_block_array(MiniTestBlockArray *a, MiniTestBlock *block);
 static char* type_to_string(int t);
+static void clear(MiniTest *mt);
+static void free_suite(MiniTestSuite *suite);
+static void free_block(MiniTestBlock *block);
 
 // ============================
 //        Implementation
@@ -99,6 +102,10 @@ static void register_block(int test_type, MiniTest *mt, const char *name) {
   MiniTestBlock *block = malloc(sizeof(MiniTestBlock));
   block->name = malloc(strlen(name) + 1);
   strcpy(block->name, name);
+  block->it_blocks.used = 0;
+  block->children.used = 0;
+  block->assert_message = NULL;
+  
 
   if (test_type == IT_TYPE) {
     mt->current->current_assertion = block;
@@ -179,6 +186,53 @@ static void run() {
   run_suite(minitest.current);
 }
 
+static void free_block(MiniTestBlock *block) {
+  if (block == NULL) { return; }
+
+  for(int i = 0; i < block->it_blocks.used; i++) {
+    free_block(block->it_blocks.array[i]);
+    block->it_blocks.array[i] = NULL;
+  }
+
+  for(int i = 0; i < block->children.used; i++) {
+    free_block(block->children.array[i]);
+    block->children.array[i] = NULL;
+  }
+
+  free(block->name);
+  if(block->assert_message) {
+    free(block->assert_message);
+  }
+  free(block);
+
+  block = NULL;
+}
+
+static void free_suite(MiniTestSuite *suite) {
+  if (suite == NULL) { return; }
+
+  free_suite(suite->next);
+
+  for(int i = 0; i < suite->blocks.used; i++) {
+    free_block(suite->blocks.array[i]);
+  }
+
+  free(suite->name);
+
+  suite->current_block = NULL;
+  suite->current_assertion = NULL;
+  suite->next = NULL;
+  suite->previous = NULL;
+
+  free(suite);
+
+  suite = NULL;
+}
+
+static void clear(MiniTest *mt) {
+  free_suite(mt->suites);
+}
+
 MiniTest minitest = {
   .assertions = 0,
   .test_cases = 0,
@@ -189,5 +243,6 @@ MiniTest minitest = {
   .register_suite = register_suite,
   .register_block = register_block,
   .step_back = step_back,
-  .run = run
+  .run = run,
+  .clear = clear
 };

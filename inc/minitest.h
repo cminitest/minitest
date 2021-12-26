@@ -60,6 +60,7 @@ typedef struct MiniTestStruct {
   void (*step_back)(struct MiniTestStruct*);
   void (*register_block)(int, struct MiniTestStruct*, const char*);
   void (*run)();
+  void (*clear)(struct MiniTestStruct*);
 
 } MiniTest;
 

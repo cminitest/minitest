@@ -4,6 +4,18 @@ describe("MiniTest") do
 
   context("assertions") do
 
+    context("equal") do
+      it("is truthy") do
+        expect("string") to equal("string")
+      end
+    end
+
+    context("not equal") do
+      it("is truthy") do
+        expect("Bender") to not equal("Fry")
+      end
+    end
+
     context("int") do
       when("a valid assertion is made") do
         it("is truthy") do
