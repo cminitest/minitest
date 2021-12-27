@@ -156,6 +156,10 @@ static void run_it_blocks(int depth, MiniTestBlockArray *blocks) {
     char *bullet = block->assert_result == TEST_PENDING ? PENDING_BULLET : block->assert_result == TEST_PASS ? SUCCESS_BULLET : FAILURE_BULLET;
 
     printf("%*c %s %s it %s %s\n", depth*2, ' ', color, bullet, block->name, CONSOLE_DEFAULT);
+
+    if (block->assert_result == TEST_FAILURE) {
+      printf("%*c %s %s %s\n", depth*2, ' ', color, block->assert_message, CONSOLE_DEFAULT);
+    }
   }
 }
 

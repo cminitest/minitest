@@ -112,6 +112,9 @@ Assertion macros require C11 and above. The assertion library allows the expecta
 ```c
 expect("hello world") to equal("hello world")
 expect("hello Bender") to not equal("hello Fry")
+expect(NULL) to be_null
+expect(0) to be_false
+expect(1) to be_true
 ```
 
 ### Assertion Support

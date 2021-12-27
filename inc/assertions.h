@@ -3,9 +3,20 @@
 
 #include "minitest.h"
 
+#ifndef MT_MAX_ASSERTION_BUFFER
+#define MT_MAX_ASSERTION_BUFFER 0x400
+#endif
+
+#define mt_template_value "%s"
+char* mt_assert_template(int neg, char* format);
+
 #define to    0
 #define not   +1
 #define equal(expected)      ,expected);
+#define be_null  ,NULL);
+#define be_false ,0);
+#define be_true  ,1);
+
 #define expect_result minitest.current->current_assertion->assert_result
 
 #define mt_expect_forward(suffix, type) \
@@ -22,6 +33,12 @@
     } else {                                                                        \
       mt->failures += 1;                                                            \
       mt->current->current_assertion->assert_result = TEST_FAILURE;                 \
+      mt->current->current_assertion->assert_message = malloc(MT_MAX_ASSERTION_BUFFER); \
+      char *template = mt_assert_template(negated, format);                             \
+      snprintf(                                                                         \
+        mt->current->current_assertion->assert_message, MT_MAX_ASSERTION_BUFFER,        \
+        template, actual, expected                                                      \
+      ); free(template);                                                                \
     }                                                                               \
   }                                                                                 \
 

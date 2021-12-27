@@ -16,6 +16,38 @@ describe("MiniTest")
       end
     end
 
+    context("be_null")
+      it("is truthy")
+        expect(NULL) to be_null
+      end
+    end
+
+    context("be_false")
+      it("is truthy")
+        expect(0) to be_false
+      end
+    end
+
+    context("be_true")
+      it("is truthy")
+        expect(1) to be_true
+      end
+    end
+
+    when("an invalid assertion is made")
+      context("equal")
+        it("fails")
+          expect(1) to equal(0)
+        end
+      end
+
+      context("not equal")
+        it("fails")
+          expect(0) to not equal(0)
+        end
+      end
+    end
+
     context("int")
       when("a valid assertion is made")
         it("is truthy")
@@ -27,8 +59,6 @@ describe("MiniTest")
       when("an invalid assertion is made")
         it("fails")
           expect(1) to equal(0)
-          
-          if (expect_result == TEST_FAILURE) { expect_result = TEST_PASS; }
         end
       end
     end
@@ -45,7 +75,7 @@ describe("MiniTest")
         it("fails")
           expect('a') to equal('b')
           
-          if (expect_result == TEST_FAILURE) { expect_result = TEST_PASS; }
+          
         end
       end
     end
@@ -64,7 +94,7 @@ describe("MiniTest")
           short x = 3;
           expect(x) to equal(0)
           
-          if (expect_result == TEST_FAILURE) { expect_result = TEST_PASS; }
+          
         end
       end
     end
@@ -83,7 +113,7 @@ describe("MiniTest")
           long x = 3;
           expect(x) to equal(0)
           
-          if (expect_result == TEST_FAILURE) { expect_result = TEST_PASS; }
+          
         end
       end
     end
@@ -102,7 +132,7 @@ describe("MiniTest")
          double x = 3.3;
           expect(x) to equal(0)
           
-          if (expect_result == TEST_FAILURE) { expect_result = TEST_PASS; }
+          
         end
       end
     end
@@ -121,7 +151,7 @@ describe("MiniTest")
           float x = 3.14159f;
           expect(x) to equal(0)
           
-          if (expect_result == TEST_FAILURE) { expect_result = TEST_PASS; }
+          
         end
       end
     end
@@ -140,7 +170,7 @@ describe("MiniTest")
           void *x; void *n;
           expect(x) to equal(n)
           
-          if (expect_result == TEST_FAILURE) { expect_result = TEST_PASS; }
+          
         end
       end
     end
@@ -158,7 +188,7 @@ describe("MiniTest")
         it("fails")
           char *s = "hello world";
           expect(s) to equal("hello")
-          if (expect_result == TEST_FAILURE) { expect_result = TEST_PASS; }
+          
         end
       end
     end
