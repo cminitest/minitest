@@ -1,31 +1,31 @@
 #include "minitest.h"
 
-describe("MiniTest") do
+describe("MiniTest")
 
-  context("assertions") do
+  context("assertions")
 
-    context("equal") do
-      it("is truthy") do
+    context("equal")
+      it("is truthy")
         expect("string") to equal("string")
       end
     end
 
-    context("not equal") do
-      it("is truthy") do
+    context("not equal")
+      it("is truthy")
         expect("Bender") to not equal("Fry")
       end
     end
 
-    context("int") do
-      when("a valid assertion is made") do
-        it("is truthy") do
+    context("int")
+      when("a valid assertion is made")
+        it("is truthy")
           expect(1) to equal(1)
           expect(expect_result) to equal(TEST_PASS)
         end
       end
 
-      when("an invalid assertion is made") do
-        it("fails") do
+      when("an invalid assertion is made")
+        it("fails")
           expect(1) to equal(0)
           
           if (expect_result == TEST_FAILURE) { expect_result = TEST_PASS; }
@@ -33,16 +33,16 @@ describe("MiniTest") do
       end
     end
 
-    context("char") do
-      when("a valid assertion is made") do
-        it("is truthy") do
+    context("char")
+      when("a valid assertion is made")
+        it("is truthy")
           expect('a') to equal('a')
           expect(expect_result) to equal(TEST_PASS)
         end
       end
 
-      when("an invalid assertion is made") do
-        it("fails") do
+      when("an invalid assertion is made")
+        it("fails")
           expect('a') to equal('b')
           
           if (expect_result == TEST_FAILURE) { expect_result = TEST_PASS; }
@@ -50,17 +50,17 @@ describe("MiniTest") do
       end
     end
 
-    context("short") do
-      when("a valid assertion is made") do
-        it("is truthy") do
+    context("short")
+      when("a valid assertion is made")
+        it("is truthy")
           short x = 2;
           expect(x) to equal(x)
           expect(expect_result) to equal(TEST_PASS)
         end
       end
 
-      when("an invalid assertion is made") do
-        it("fails") do
+      when("an invalid assertion is made")
+        it("fails")
           short x = 3;
           expect(x) to equal(0)
           
@@ -69,17 +69,17 @@ describe("MiniTest") do
       end
     end
 
-    context("long") do
-      when("a valid assertion is made") do
-        it("is truthy") do
+    context("long")
+      when("a valid assertion is made")
+        it("is truthy")
           long x = 2;
           expect(x) to equal(x)
           expect(expect_result) to equal(TEST_PASS)
         end
       end
 
-      when("an invalid assertion is made") do
-        it("fails") do
+      when("an invalid assertion is made")
+        it("fails")
           long x = 3;
           expect(x) to equal(0)
           
@@ -88,18 +88,18 @@ describe("MiniTest") do
       end
     end
 
-    context("double") do
-      when("a valid assertion is made") do
-        it("is truthy") do
-          double x = 2.5;
+    context("double")
+      when("a valid assertion is made")
+        it("is truthy")
+         double x = 2.5;
           expect(x) to equal(x)
           expect(expect_result) to equal(TEST_PASS)
         end
       end
 
-      when("an invalid assertion is made") do
-        it("fails") do
-          double x = 3.3;
+      when("an invalid assertion is made")
+        it("fails")
+         double x = 3.3;
           expect(x) to equal(0)
           
           if (expect_result == TEST_FAILURE) { expect_result = TEST_PASS; }
@@ -107,17 +107,17 @@ describe("MiniTest") do
       end
     end
 
-    context("float") do
-      when("a valid assertion is made") do
-        it("is truthy") do
+    context("float")
+      when("a valid assertion is made")
+        it("is truthy")
           float x = 3.14159f;
           expect(x) to equal(x)
           expect(expect_result) to equal(TEST_PASS)
         end
       end
 
-      when("an invalid assertion is made") do
-        it("fails") do
+      when("an invalid assertion is made")
+        it("fails")
           float x = 3.14159f;
           expect(x) to equal(0)
           
@@ -126,17 +126,17 @@ describe("MiniTest") do
       end
     end
 
-    context("pointers") do
-      when("a valid assertion is made") do
-        it("is truthy") do
+    context("pointers")
+      when("a valid assertion is made")
+        it("is truthy")
           void *x = NULL;
           expect(x) to equal(x)
           expect(expect_result) to equal(TEST_PASS)
         end
       end
 
-      when("an invalid assertion is made") do
-        it("fails") do
+      when("an invalid assertion is made")
+        it("fails")
           void *x; void *n;
           expect(x) to equal(n)
           
@@ -145,17 +145,17 @@ describe("MiniTest") do
       end
     end
 
-    context("char*") do
-      when("a valid assertion is made") do
-        it("is truthy") do
+    context("char*")
+      when("a valid assertion is made")
+        it("is truthy")
           char *s = "hello world";
           expect(s) to equal(s)
           expect(expect_result) to equal(TEST_PASS)
         end
       end
 
-      when("an invalid assertion is made") do
-        it("fails") do
+      when("an invalid assertion is made")
+        it("fails")
           char *s = "hello world";
           expect(s) to equal("hello")
           if (expect_result == TEST_FAILURE) { expect_result = TEST_PASS; }

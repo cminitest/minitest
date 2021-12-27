@@ -1,3 +1,4 @@
 *.o
 debug
 build.sh
+.DS_Store

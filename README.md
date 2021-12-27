@@ -9,7 +9,6 @@ A behavior-driven test library for C.
 
 ### Todo
 
-- "do" macro needs to be replaced
 - Suites use gcc's `__attribute__((constructor))` to register a suite, this needs to be updated to ensure this library works without extensions to the C language.
 
 ## Example
@@ -19,15 +18,15 @@ Minitest has supporting unit tests written in Minitest. Further examples can be 
 ```c
 #include "minitest.h"
 
-describe("MiniTest") do
+describe("MiniTest")
 
-  it("is defined") do
+  it("is defined")
     expect(&minitest) to equal(&minitest)
   end
 
-  context(".register_block") do
-    when("a block has not had any it blocks defined") do
-      it("creates a new array with 1 element") do
+  context(".register_block")
+    when("a block has not had any it blocks defined")
+      it("creates a new array with 1 element")
         minitest.register_block(IT_TYPE, &minitest, "it block test");
         expect(minitest.current->it_blocks.size) to equal(1);
       end
@@ -57,7 +56,7 @@ Under Development.
 Describe initializes a test suite. It describes a module, structure, and/or set of functions. A describe block is required before all other constructs.
 
 ```c
-describe("My Test Suite") do
+describe("My Test Suite")
   // any C code or test constructs here
 end
 ```
@@ -67,7 +66,7 @@ end
 Context blocks establish the context in which you are testing.
 
 ```c
-context(".greet") do
+context(".greet")
   // any C code or test constructs here
 end
 ```
@@ -77,11 +76,11 @@ end
 When and given blocks describe behavior under certain constraints.
 
 ```c
-when("the user enters in an empty name") do
+when("the user enters in an empty name")
   // any C code or test constructs here
 end
 
-given("the user enters in an empty name") do
+given("the user enters in an empty name")
   // any C code or test constructs here
 end
 ```
@@ -91,7 +90,7 @@ end
 And blocks further describe behavior under certain constraints.
 
 ```c
-and("the user submits the form") do
+and("the user submits the form")
   // any C code or test constructs here
 end
 ```
@@ -101,7 +100,7 @@ end
 It blocks assert the behavior of the scenario. They may be defined in any block.
 
 ```
-it("returns 'Hello Bender!'") do
+it("returns 'Hello Bender!'")
   expect(greet("Bender")) to equal("Hello Bender!")
 end
 ```

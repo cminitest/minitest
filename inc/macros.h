@@ -29,7 +29,7 @@
 #define MT_DEFINE_UNIQUE_NAME( name, line ) MT_CREATE_UNIQUE_NAME( name, line )
 #define MT_UNIQUE_NAME( name ) MT_DEFINE_UNIQUE_NAME( name, __COUNTER__ )
 
-#define do  {
+//#define do  {
 #define end minitest.step_back(&minitest); }
 
 //
@@ -40,7 +40,7 @@
   static void __attribute__((constructor)) MT_CONSTRUCTOR_NAME(TestName)(void) {\
     minitest.register_suite(&minitest, suite, TestName); \
   } \
-  static void TestName(void)
+  static void TestName(void) {
 
 #define MT_DEFINE_SUITE( suite, ... ) \
   MT_REGISTER_SUITE( suite, MT_UNIQUE_NAME( MINITEST_ ), __VA_ARGS__ )
@@ -52,7 +52,7 @@
 // behavior blocks
 //
 #define MT_REGISTER_TEST_CASE( test_type, test_case, TestName, ... ) \
-  minitest.register_block(test_type, &minitest, test_case);
+  minitest.register_block(test_type, &minitest, test_case); {
 #define MT_DEFINE_TEST_CASE( test_type, test_case, ... ) \
   MT_REGISTER_TEST_CASE( test_type, test_case, MT_UNIQUE_NAME( MINITEST_ ), __VA_ARGS__ )
 #define MT_TEST_CASE( test_case_type, testcase, ... ) MT_DEFINE_TEST_CASE( test_case_type, testcase, __VA_ARGS__ )
