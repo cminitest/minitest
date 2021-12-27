@@ -9,6 +9,7 @@ A behavior-driven test library for C.
 
 ### Todo
 
+- "do" macro needs to be replaced
 - Suites use gcc's `__attribute__((constructor))` to register a suite, this needs to be updated to ensure this library works without extensions to the C language.
 
 ## Example
