@@ -27,7 +27,7 @@
 #define MT_CONSTRUCTOR_NAME( TestName ) __construct_ ## TestName
 #define MT_CREATE_UNIQUE_NAME( name, line ) name##line
 #define MT_DEFINE_UNIQUE_NAME( name, line ) MT_CREATE_UNIQUE_NAME( name, line )
-#define MT_UNIQUE_NAME( name ) MT_DEFINE_UNIQUE_NAME( name, __LINE__ )
+#define MT_UNIQUE_NAME( name ) MT_DEFINE_UNIQUE_NAME( name, __COUNTER__ )
 
 #define do  {
 #define end minitest.step_back(&minitest); }

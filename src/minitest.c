@@ -18,6 +18,7 @@ static char* type_to_string(int t);
 static void clear(MiniTest *mt);
 static void free_suite(MiniTestSuite *suite);
 static void free_block(MiniTestBlock *block);
+static void print_summary(MiniTest *mt, double time_spent);
 
 // ============================
 //        Implementation
@@ -43,8 +44,10 @@ static char* type_to_string(int t) {
       return "and";
     case WHEN_TYPE:
       return "when";
+    case ROOT_TYPE:
+      return "root";
     default:
-      return "test";
+      return "undefined";
   }
 }
 
@@ -105,9 +108,9 @@ static void register_block(int test_type, MiniTest *mt, const char *name) {
   block->it_blocks.used = 0;
   block->children.used = 0;
   block->assert_message = NULL;
-  
 
   if (test_type == IT_TYPE) {
+    mt->test_cases += 1;
     mt->current->current_assertion = block;
     mt->current->it_flag = 1;
     if(!mt->current->current_block->it_blocks.size) {
@@ -161,6 +164,7 @@ static void run_blocks(MiniTestBlockArray *blocks) {
 
   for (int i = 0; i < blocks->used; i++) {
     MiniTestBlock *block = blocks->array[i];
+
     if(block->block_type != ROOT_TYPE) {
       printf("%*c %s %s %s %s\n", block->depth*2, ' ', CONSOLE_GREEN, type_to_string(block->block_type), CONSOLE_DEFAULT, block->name);
     }
@@ -170,11 +174,13 @@ static void run_blocks(MiniTestBlockArray *blocks) {
 }
 
 static void run_suite(MiniTestSuite *suite) {
+  minitest.current = suite;
+
   if (!suite) { return; }
 
-  suite->suite();
-
   printf("%s describe %s %s:\n", CONSOLE_YELLOW, CONSOLE_DEFAULT, suite->name);
+
+  suite->suite();
 
   run_blocks(&(suite->blocks));
 
@@ -182,8 +188,32 @@ static void run_suite(MiniTestSuite *suite) {
 }
 
 static void run() {
-  minitest.current = minitest.suites;
-  run_suite(minitest.current);
+  double time_spent = 0.0;
+  clock_t start_t = clock();
+
+  run_suite(minitest.suites);
+
+  clock_t end_t = clock();
+  time_spent += (double)(end_t - start_t) / CLOCKS_PER_SEC;
+
+  print_summary(&minitest, time_spent);
+}
+
+static void print_summary(MiniTest *mt, double time_spent) {
+  printf(
+    "\nFinished tests in %fs, %f tests/s, %f assertions/s.\n\n",
+    time_spent,
+    (mt->test_cases/time_spent),
+    (mt->assertions/time_spent)
+  );
+  printf(
+    "%d tests, %d assertions, %s%d failures%s\n\n",
+    mt->test_cases,
+    mt->assertions,
+    CONSOLE_RED,
+    mt->failures,
+    CONSOLE_DEFAULT
+  );
 }
 
 static void free_block(MiniTestBlock *block) {
@@ -231,6 +261,12 @@ static void free_suite(MiniTestSuite *suite) {
 
 static void clear(MiniTest *mt) {
   free_suite(mt->suites);
+  mt->suites = NULL;
+  mt->current = NULL;
+  mt->assertions = 0;
+  mt->test_cases = 0;
+  mt->passes = 0;
+  mt->failures = 0;
 }
 
 MiniTest minitest = {

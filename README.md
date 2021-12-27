@@ -13,6 +13,8 @@ A behavior-driven test library for C.
 
 ## Example
 
+Minitest has supporting unit tests written in Minitest. Further examples can be found <a href="https://github.com/Vandise/minitest/blob/master/test/assertions_test.c">here</a> and <a href="https://github.com/Vandise/minitest/blob/master/test/core_test.c">here</a>.
+
 ```c
 #include "minitest.h"
 
@@ -30,25 +32,99 @@ describe("MiniTest") do
       end
     end
   end
-
-  context("expect(int)") do
-    given("an equal assertion") do
-      it("is truthy") do
-        expect(1) to equal(1)
-      end
-    end
-
-    given("a not equal assertion") do
-      it("is truthy") do
-        expect(1) to not equal(0)
-      end
-    end
-
-    given("the assertion is invalid") do
-      it("is false") do
-        expect(0) to not equal(0)
-      end
-    end
-  end
 end
 ```
+
+### Output
+
+```
+describe Minitest:
+  ✔ it is defined
+  context .register_block
+    when a block has not had any it blocks defined
+      ✔ it creates a new array with 1 element
+```
+
+## Installation
+
+Under Development.
+
+## How do I use the library?
+
+### describe
+
+Describe initializes a test suite. It describes a module, structure, and/or set of functions. A describe block is required before all other constructs.
+
+```c
+describe("My Test Suite") do
+  // any C code or test constructs here
+end
+```
+
+### context
+
+Context blocks establish the context in which you are testing.
+
+```c
+context(".greet") do
+  // any C code or test constructs here
+end
+```
+
+### when / given
+
+When and given blocks describe behavior under certain constraints.
+
+```c
+when("the user enters in an empty name") do
+  // any C code or test constructs here
+end
+
+given("the user enters in an empty name") do
+  // any C code or test constructs here
+end
+```
+
+### and
+
+And blocks further describe behavior under certain constraints.
+
+```c
+and("the user submits the form") do
+  // any C code or test constructs here
+end
+```
+
+### it
+
+It blocks assert the behavior of the scenario. They may be defined in any block.
+
+```
+it("returns 'Hello Bender!'") do
+  expect(greet("Bender")) to equal("Hello Bender!")
+end
+```
+
+## Assertions
+
+Assertion macros require C11 and above. The assertion library allows the expectation of something being equal, or not equal.
+
+```c
+expect("hello world") to equal("hello world")
+expect("hello Bender") to not equal("hello Fry")
+```
+
+### Assertion Support
+
+- int
+- char
+- short
+- long
+- double
+- float
+- void*
+- char*
+- size_t
+- unsigned int
+
+And more to come.

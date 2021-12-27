@@ -13,11 +13,14 @@
 
 #define mt_expect_definition(suffix, type, comparator, format)                      \
   void __expect_##suffix(MiniTest *mt, type actual, int negated, type expected) {   \
+    mt->assertions += 1;                                                            \
     if (mt->current->current_assertion->assert_result == TEST_FAILURE) { return; }  \
     int result = negated ? !(comparator) : (comparator);                            \
     if (result) {                                                                   \
+      mt->passes += 1;                                                              \
       mt->current->current_assertion->assert_result = TEST_PASS;                    \
     } else {                                                                        \
+      mt->failures += 1;                                                            \
       mt->current->current_assertion->assert_result = TEST_FAILURE;                 \
     }                                                                               \
   }                                                                                 \
@@ -30,6 +33,8 @@ mt_expect_forward(double, double);
 mt_expect_forward(float,  float);
 mt_expect_forward(ptr,    void*);
 mt_expect_forward(str,    char*);
+mt_expect_forward(sizet,  size_t);
+mt_expect_forward(uint,  unsigned int);
 
 #define expect_generic(actual) _Generic(actual,                  \
                                         int: __expect_int,       \
@@ -39,7 +44,9 @@ mt_expect_forward(str,    char*);
                                         double: __expect_double, \
                                         float: __expect_float,   \
                                         void*: __expect_ptr,     \
-                                        char*: __expect_str      \
+                                        char*: __expect_str,     \
+                                        size_t: __expect_sizet,  \
+                                        unsigned int: __expect_uint   \
                                       ) \
 
 #define __expect_call(mt, actual) expect_generic(actual)(mt, (actual),
