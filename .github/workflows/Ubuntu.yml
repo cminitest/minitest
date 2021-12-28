@@ -1,0 +1,30 @@
+name: Ubuntu
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: autoconf
+      run: autoconf
+
+    - name: configure
+      run: sudo ./configure
+
+    - name: make sharedlib
+      run: make sharedlib
+
+    - name: make install
+      run: make install
+
+    - name: Apply Permissions
+      run: sudo chown $(whoami) -R /usr/local/lib/libminitest* && sudo chown $(whoami) -R /usr/local/include/minitest*
+
+    - name: make testsuite
+      run: make testsuite
+
+    - name: run tests
+      run: ./bin/testsuite
