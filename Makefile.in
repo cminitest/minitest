@@ -8,10 +8,12 @@ TESTFILES   := test/main.c test/assertions_test.c test/core_test.c
 HFILES			:= inc/assertions.h inc/macros.h inc/minitest.h
 OBJECTS     := assertions.o minitest.o
 CFLAGS			:= @CFLAGS@
+ADDFLAGS    := -O2
 
 ifeq ($(UNAME), Linux)
 SYSLIBDIR := /usr/lib
 SYSINCDIR := /usr/include
+ADDFLAGS  := $(ADDFLAGS) -fPIC
 endif
 
 ifeq ($(UNAME), Darwin)
@@ -27,7 +29,7 @@ endif
 all: sharedlib install testsuite
 
 sharedlib:
-	$(CC) $(CFLAGS) -c $(CFILES)
+	$(CC) $(CFLAGS) $(ADDFLAGS) -c $(CFILES)
 	$(CC) -shared $(OBJECTS) -o lib/$(LIBNAME).$(LIBEXT)
 
 install:
