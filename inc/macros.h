@@ -35,18 +35,18 @@
 //
 // DESCRIBE blocks
 //
-#define MT_REGISTER_SUITE( suite, TestName, ... ) \
-  static void TestName(void); \
-  static void __attribute__((constructor)) MT_CONSTRUCTOR_NAME(TestName)(void) {\
-    minitest.register_suite(&minitest, suite, TestName); \
+#define MT_REGISTER_SUITE( suite, handle, TestName, ... ) \
+  static void handle(void); \
+  static void __attribute__((constructor)) MT_CONSTRUCTOR_NAME(handle)(void) {\
+    minitest.register_suite(&minitest, suite, handle); \
   } \
-  static void TestName(void) {
+  static void handle(void) {
 
-#define MT_DEFINE_SUITE( suite, ... ) \
-  MT_REGISTER_SUITE( suite, MT_UNIQUE_NAME( MINITEST_ ), __VA_ARGS__ )
-#define MT_SUITE( suite, ... ) MT_DEFINE_SUITE( suite, __VA_ARGS__ )
+#define MT_DEFINE_SUITE( suite, handle, ... ) \
+  MT_REGISTER_SUITE( suite, handle, MT_UNIQUE_NAME( MINITEST_ ), __VA_ARGS__ )
+#define MT_SUITE( suite, handle, ... ) MT_DEFINE_SUITE( suite, handle, __VA_ARGS__ )
 
-#define describe( suite, ... ) MT_SUITE( suite, __VA_ARGS__ )
+#define describe( suite, handle, ... ) MT_SUITE( suite, handle, __VA_ARGS__ )
 
 //
 // behavior blocks

@@ -1,6 +1,6 @@
 #include "minitest/minitest.h"
 
-describe("MiniTest")
+describe("MiniTest", minitest_assertions)
 
   context("assertions")
 
