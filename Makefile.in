@@ -1,15 +1,46 @@
+UNAME       := $(shell uname)
+
 CC          := @CC@
-LIBNAME			:= minitest
+LIBNAME			:= libminitest
 LIBEXT      := so
 CFILES      := src/assertions.c src/minitest.c
+TESTFILES   := test/main.c test/assertions_test.c test/core_test.c
+HFILES			:= inc/assertions.h inc/macros.h inc/minitest.h
 OBJECTS     := assertions.o minitest.o
-INC					:= -Iinc/
+CFLAGS			:= @CFLAGS@
 
-all: sharedlib
+ifeq ($(UNAME), Linux)
+SYSLIBDIR := /usr/lib
+SYSINCDIR := /usr/include
+endif
+
+ifeq ($(UNAME), Darwin)
+SYSLIBDIR := /usr/local/lib
+SYSINCDIR := /usr/local/include
+endif
+
+ifeq ($(UNAME), MINGW)
+SYSLIBDIR := /usr/lib
+SYSINCDIR := /c/MinGW/msys/1.0/local/include
+endif
+
+all: sharedlib install testsuite
 
 sharedlib:
-	$(CC) $(INC) -c $(CFILES)
+	$(CC) $(CFLAGS) -c $(CFILES)
 	$(CC) -shared $(OBJECTS) -o lib/$(LIBNAME).$(LIBEXT)
+
+install:
+	cp lib/$(LIBNAME).$(LIBEXT) $(SYSLIBDIR)
+	mkdir $(SYSINCDIR)/minitest
+	cp $(HFILES) $(SYSINCDIR)/minitest
+
+uninstall:
+	rm $(SYSLIBDIR)/$(LIBNAME).$(LIBEXT)
+	rm -rf $(SYSINCDIR)/minitest
+
+testsuite:
+	$(CC) -o bin/testsuite $(TESTFILES) -lminitest
 
 clean:
 	rm *.o
@@ -19,3 +50,4 @@ clean:
 	rm configure
 	rm Makefile
 	rm -rf autom4te.cache
+	rm bin/testsuite

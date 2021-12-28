@@ -1,4 +1,4 @@
-#include "minitest.h"
+#include "minitest/minitest.h"
 
 int main() {
   minitest.run();
