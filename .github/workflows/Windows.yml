@@ -11,54 +11,30 @@ jobs:
     - name: Install MSYS2
       run: choco install msys2
 
-    - name: Build and install tools
-      run: C:\tools\msys64\usr\bin\bash -lc "pacman -Sy autoconf make gcc git automake libtool ruby --noconfirm"
-      env:
-        HOME: ${{ runner.workspace }}/minitest
-        MINGW_INSTALLS: ${{ matrix.task.installs }}
-        CI: true
-
-    - name: Build uname
+    - name: Check uname
       run: C:\tools\msys64\usr\bin\bash -lc "uname"
       env:
         HOME: ${{ runner.workspace }}/minitest
         MINGW_INSTALLS: ${{ matrix.task.installs }}
         CI: true
 
-    - name: Autoconf
-      run: C:\tools\msys64\usr\bin\bash -lc "autoconf"
+    - name: Debug
+      run: C:\tools\msys64\usr\bin\bash -lc "ls -al /c/MinGW/"
       env:
         HOME: ${{ runner.workspace }}/minitest
         MINGW_INSTALLS: ${{ matrix.task.installs }}
         CI: true
 
-    - name: Configure
-      run: C:\tools\msys64\usr\bin\bash -lc "./configure"
+    - name: Debug 2
+      run: C:\tools\msys64\usr\bin\bash -lc "ls -al /c/MinGW/msys/"
       env:
         HOME: ${{ runner.workspace }}/minitest
         MINGW_INSTALLS: ${{ matrix.task.installs }}
         CI: true
 
-    - name: make sharedlib
-      run: C:\tools\msys64\usr\bin\bash -lc "make sharedlib"
+    - name: Debug 3
+      run: C:\tools\msys64\usr\bin\bash -lc "ls -al /c/MinGW/msys/1.0/"
       env:
         HOME: ${{ runner.workspace }}/minitest
         MINGW_INSTALLS: ${{ matrix.task.installs }}
         CI: true
-
-    - name: make install
-      run: C:\tools\msys64\usr\bin\bash -lc "make install"
-      env:
-        HOME: ${{ runner.workspace }}/minitest
-        MINGW_INSTALLS: ${{ matrix.task.installs }}
-        CI: true
-
-    - name: make testsuite
-      run: C:\tools\msys64\usr\bin\bash -lc "make testsuite"
-      env:
-        HOME: ${{ runner.workspace }}/minitest
-        MINGW_INSTALLS: ${{ matrix.task.installs }}
-        CI: true
-
-    - name: Run Tests
-      run: ./bin/testsuite.exe
