@@ -18,6 +18,13 @@ jobs:
         MINGW_INSTALLS: ${{ matrix.task.installs }}
         CI: true
 
+    - name: Build uname
+      run: C:\tools\msys64\usr\bin\bash -lc "uname"
+      env:
+        HOME: ${{ runner.workspace }}/minitest
+        MINGW_INSTALLS: ${{ matrix.task.installs }}
+        CI: true
+
     - name: Autoconf
       run: C:\tools\msys64\usr\bin\bash -lc "autoconf"
       env:
