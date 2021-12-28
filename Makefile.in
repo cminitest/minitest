@@ -13,6 +13,7 @@ ADDFLAGS    := -O2
 ifeq ($(OS), Windows_NT)
   SYSLIBDIR := /usr/lib
   SYSINCDIR := /usr/include
+  ADDFLAGS  := $(ADDFLAGS) -L/usr/lib
 else
   ifeq ($(UNAME), Linux)
     SYSLIBDIR := /usr/local/lib
