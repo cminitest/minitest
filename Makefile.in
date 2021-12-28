@@ -11,8 +11,8 @@ CFLAGS			:= @CFLAGS@
 ADDFLAGS    := -O2
 
 ifeq ($(OS), Windows_NT)
-  SYSLIBDIR := /c/MinGW/msys/1.0/lib
-  SYSINCDIR := /c/MinGW/msys/1.0/include
+  SYSLIBDIR := /mingw64/lib
+  SYSINCDIR := /mingw64/include
 else
   ifeq ($(UNAME), Linux)
     SYSLIBDIR := /usr/local/lib

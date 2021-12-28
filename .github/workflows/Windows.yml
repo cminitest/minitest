@@ -25,23 +25,47 @@ jobs:
         MINGW_INSTALLS: ${{ matrix.task.installs }}
         CI: true
 
-    - name: Debug
-      run: C:\tools\msys64\usr\bin\bash -lc "ls -al /mingw64"
+    - name: Print GCC Information
+      run: C:\tools\msys64\usr\bin\bash -lc "echo | gcc -E -Wp,-v -"
       env:
         HOME: ${{ runner.workspace }}/minitest
         MINGW_INSTALLS: ${{ matrix.task.installs }}
         CI: true
 
-    - name: Debug 2
-      run: C:\tools\msys64\usr\bin\bash -lc "ls -al /mingw64/lib"
+    - name: Autoconf
+      run: C:\tools\msys64\usr\bin\bash -lc "autoconf"
       env:
         HOME: ${{ runner.workspace }}/minitest
         MINGW_INSTALLS: ${{ matrix.task.installs }}
         CI: true
 
-    - name: Debug 3
-      run: C:\tools\msys64\usr\bin\bash -lc "ls -al /MinGW"
+    - name: Configure
+      run: C:\tools\msys64\usr\bin\bash -lc "./configure"
       env:
         HOME: ${{ runner.workspace }}/minitest
         MINGW_INSTALLS: ${{ matrix.task.installs }}
         CI: true
+
+    - name: make sharedlib
+      run: C:\tools\msys64\usr\bin\bash -lc "make sharedlib"
+      env:
+        HOME: ${{ runner.workspace }}/minitest
+        MINGW_INSTALLS: ${{ matrix.task.installs }}
+        CI: true
+
+    - name: make install
+      run: C:\tools\msys64\usr\bin\bash -lc "make install"
+      env:
+        HOME: ${{ runner.workspace }}/minitest
+        MINGW_INSTALLS: ${{ matrix.task.installs }}
+        CI: true
+
+    - name: make testsuite
+      run: C:\tools\msys64\usr\bin\bash -lc "make testsuite"
+      env:
+        HOME: ${{ runner.workspace }}/minitest
+        MINGW_INSTALLS: ${{ matrix.task.installs }}
+        CI: true
+
+    - name: Run Tests
+      run: ./bin/testsuite.exe
