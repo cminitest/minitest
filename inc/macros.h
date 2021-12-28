@@ -36,11 +36,11 @@
 // DESCRIBE blocks
 //
 #define MT_REGISTER_SUITE( suite, handle, TestName, ... ) \
-  static void handle(void); \
+  static void handle(MiniTest* mt); \
   static void __attribute__((constructor)) MT_CONSTRUCTOR_NAME(handle)(void) {\
     minitest.register_suite(&minitest, suite, handle); \
   } \
-  static void handle(void) {
+  static void handle(MiniTest* mt) {
 
 #define MT_DEFINE_SUITE( suite, handle, ... ) \
   MT_REGISTER_SUITE( suite, handle, MT_UNIQUE_NAME( MINITEST_ ), __VA_ARGS__ )

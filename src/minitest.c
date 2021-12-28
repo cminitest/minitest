@@ -8,7 +8,7 @@ static void register_suite(MiniTest *mt, const char *name, void *test_case);
 static void step_back(MiniTest *mt);
 static void register_block(int test_type, MiniTest *mt, const char *name);
 
-static void run_suite(MiniTestSuite *suite);
+static void run_suite(MiniTestSuite *suite, MiniTest *mt);
 static void run_blocks(MiniTestBlockArray *blocks);
 static void run_it_blocks(int depth, MiniTestBlockArray *blocks);
 
@@ -177,25 +177,25 @@ static void run_blocks(MiniTestBlockArray *blocks) {
   }
 }
 
-static void run_suite(MiniTestSuite *suite) {
+static void run_suite(MiniTestSuite *suite, MiniTest *mt) {
   minitest.current = suite;
 
   if (!suite) { return; }
 
   printf("%s describe %s %s:\n", CONSOLE_YELLOW, CONSOLE_DEFAULT, suite->name);
 
-  suite->suite();
+  suite->suite(mt);
 
   run_blocks(&(suite->blocks));
 
-  run_suite(suite->next);
+  run_suite(suite->next, mt);
 }
 
 static void run() {
   double time_spent = 0.0;
   clock_t start_t = clock();
 
-  run_suite(minitest.suites);
+  run_suite(minitest.suites, &minitest);
 
   clock_t end_t = clock();
   time_spent += (double)(end_t - start_t) / CLOCKS_PER_SEC;

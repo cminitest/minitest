@@ -2,6 +2,6 @@
 
 int main() {
   minitest.run();
-  minitest.clear(&minitest);
+  //minitest.clear(&minitest);
   return 0;
 }
