@@ -1,0 +1,21 @@
+CC          := @CC@
+LIBNAME			:= minitest
+LIBEXT      := so
+CFILES      := src/assertions.c src/minitest.c
+OBJECTS     := assertions.o minitest.o
+INC					:= -Iinc/
+
+all: sharedlib
+
+sharedlib:
+	$(CC) $(INC) -c $(CFILES)
+	$(CC) -shared $(OBJECTS) -o lib/$(LIBNAME).$(LIBEXT)
+
+clean:
+	rm *.o
+	rm lib/$(LIBNAME).$(LIBEXT)
+	rm config.log
+	rm config.status
+	rm configure
+	rm Makefile
+	rm -rf autom4te.cache
