@@ -18,7 +18,7 @@ Minitest has supporting unit tests written in Minitest. Further examples can be 
 ```c
 #include "minitest/minitest.h"
 
-describe("MiniTest")
+describe("MiniTest", minitest_suite)
   it("is defined")
     expect(&minitest) to equal(&minitest)
   end
@@ -85,7 +85,7 @@ int add(int n1, int n2) {
   return n1 + n2;
 }
 
-describe("My Program")
+describe("My Program", my_program_suite)
   context(".add")
     it("returns the sum of two numbers")
       expect(add(2,2)) to equal(4)
@@ -116,8 +116,10 @@ $> gcc -o testsuite main.c -lminitest
 
 Describe initializes a test suite. It describes a module, structure, and/or set of functions. A describe block is required before all other constructs.
 
+The first argument is the description of the test suite, the second is the function handle/identifier that will be created.
+
 ```c
-describe("My Test Suite")
+describe("My Test Suite", my_test_suite)
   // any C code or test constructs here
 end
 ```

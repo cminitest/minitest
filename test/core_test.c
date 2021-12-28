@@ -83,6 +83,9 @@ describe("MiniTest Core", minitest_core)
 
     context(".clear")
       /*
+
+      TODO: this causes a segment fault on windows
+
       subject.clear(&subject);
 
       it("clears the test suite")
