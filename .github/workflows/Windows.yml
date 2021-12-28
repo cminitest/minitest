@@ -100,10 +100,14 @@ jobs:
         MINGW_INSTALLS: ${{ matrix.task.installs }}
         CI: true
 
-    - name: Dump StackTrace
-      run: C:\tools\msys64\usr\bin\bash -lc "cat ./bin/testsuite.exe.stackdump"
-      continue-on-error: true
-      env:
-        HOME: ${{ runner.workspace }}/minitest
-        MINGW_INSTALLS: ${{ matrix.task.installs }}
-        CI: true
+    - name: Archive dll
+      uses: actions/upload-artifact@v1
+      with:
+        name: library
+        path: lib/
+
+    - name: Archive Binaries
+      uses: actions/upload-artifact@v1
+      with:
+        name: testsuite
+        path: bin/
