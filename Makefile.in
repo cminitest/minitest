@@ -11,8 +11,8 @@ CFLAGS			:= @CFLAGS@
 ADDFLAGS    := -O2
 
 ifeq ($(OS), Windows_NT)
-  SYSLIBDIR := /mingw64/lib
-  SYSINCDIR := /mingw64/include
+  SYSLIBDIR := /usr/lib
+  SYSINCDIR := /usr/include
 else
   ifeq ($(UNAME), Linux)
     SYSLIBDIR := /usr/local/lib
@@ -42,7 +42,7 @@ uninstall:
 	rm -rf $(SYSINCDIR)/minitest
 
 testsuite:
-	$(CC) -o bin/testsuite $(TESTFILES) -lminitest
+	$(CC) $(CFLAGS) $(ADDFLAGS) -o bin/testsuite $(TESTFILES) -lminitest
 
 clean:
 	rm *.o
