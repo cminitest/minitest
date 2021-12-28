@@ -86,6 +86,7 @@ jobs:
 
     - name: Run Tests
       run: ./bin/testsuite.exe
+      continue-on-error: true
       env:
         HOME: ${{ runner.workspace }}/minitest
         MINGW_INSTALLS: ${{ matrix.task.installs }}
@@ -93,6 +94,15 @@ jobs:
 
     - name: Dump StackTrace
       run: C:\tools\msys64\usr\bin\bash -lc "cat testsuite.exe.stackdump"
+      continue-on-error: true
+      env:
+        HOME: ${{ runner.workspace }}/minitest
+        MINGW_INSTALLS: ${{ matrix.task.installs }}
+        CI: true
+
+    - name: Dump StackTrace
+      run: C:\tools\msys64\usr\bin\bash -lc "cat ./bin/testsuite.exe.stackdump"
+      continue-on-error: true
       env:
         HOME: ${{ runner.workspace }}/minitest
         MINGW_INSTALLS: ${{ matrix.task.installs }}
