@@ -11,6 +11,7 @@ CFLAGS			:= @CFLAGS@
 ADDFLAGS    := -O2
 
 ifeq ($(OS), Windows_NT)
+  LIBEXT    := dll
   SYSLIBDIR := /usr/lib
   SYSINCDIR := /usr/include
   ADDFLAGS  := $(ADDFLAGS) -L/usr/lib
