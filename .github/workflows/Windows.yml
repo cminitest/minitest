@@ -74,5 +74,11 @@ jobs:
         MINGW_INSTALLS: ${{ matrix.task.installs }}
         CI: true
 
+    - name: Archive Binaries
+      uses: actions/upload-artifact@v1
+      with:
+        name: testsuite
+        path: bin/
+
     - name: Run Tests
       run: ./bin/testsuite.exe
