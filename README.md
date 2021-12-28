@@ -16,7 +16,7 @@ A behavior-driven test library for C.
 Minitest has supporting unit tests written in Minitest. Further examples can be found <a href="https://github.com/Vandise/minitest/blob/master/test/assertions_test.c">here</a> and <a href="https://github.com/Vandise/minitest/blob/master/test/core_test.c">here</a>.
 
 ```c
-#include "minitest.h"
+#include "minitest/minitest.h"
 
 describe("MiniTest")
 
@@ -47,9 +47,71 @@ describe Minitest:
 
 ## Installation
 
-Under Development.
+Minitest uses GNU autotools and make to compile and install the library.
+
+### Clone this repository
+
+```
+$> git clone https://github.com/Vandise/minitest
+```
+
+### Generate the Makefile
+
+```
+$> autoconf
+$> ./configure
+```
+
+### Build and install the library
+
+```
+$> make
+```
+
+### Run the test suite
+
+```
+$> ./bin/testsuite
+```
 
 ## How do I use the library?
+
+Minitest needs to be booted in the main() function of your test suite. The following is a minimal example to get started.
+
+```
+// main.c
+#include "minitest/minitest.h"
+
+int add(int n1, int n2) {
+	return n1 + n2;
+}
+
+describe("My Program")
+	context(".add")
+		it("returns the sum of two numbers")
+			expect(add(2,2)) to equal(4)
+		end
+	end
+end
+
+int main() {
+  minitest.run();
+
+  int failures = minitest.failures;
+
+  minitest.clear(&minitest); // optional, frees memory and clears the test suite
+
+  return failures > 0 ? 1 : 0;
+}
+```
+
+Compilation:
+
+```
+$> gcc -o testsuite main.c -lminitest
+```
+
+## Constructs
 
 ### describe
 
