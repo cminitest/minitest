@@ -1,0 +1,30 @@
+name: MacOS
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install autotools
+      run: brew install autoconf automake libtool
+
+    - name: autoconf
+      run: autoconf
+
+    - name: configure
+      run: sudo ./configure
+
+    - name: make sharedlib
+      run: make sharedlib
+
+    - name: make install
+      run: make install
+  
+    - name: make testsuite
+      run: make testsuite
+
+    - name: run tests
+      run: ./bin/testsuite
