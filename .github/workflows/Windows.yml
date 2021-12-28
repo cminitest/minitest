@@ -67,18 +67,16 @@ jobs:
         MINGW_INSTALLS: ${{ matrix.task.installs }}
         CI: true
 
-    - name: Print Binaries
-      run: C:\tools\msys64\usr\bin\bash -lc "ls -al ./bin/"
+    - name: Debug Binary
+      run: C:\tools\msys64\usr\bin\bash -lc "ldd ./bin/testsuite.exe"
       env:
         HOME: ${{ runner.workspace }}/minitest
         MINGW_INSTALLS: ${{ matrix.task.installs }}
         CI: true
 
-    - name: Archive Binaries
-      uses: actions/upload-artifact@v1
-      with:
-        name: testsuite
-        path: bin/
-
     - name: Run Tests
       run: ./bin/testsuite.exe
+      env:
+        HOME: ${{ runner.workspace }}/minitest
+        MINGW_INSTALLS: ${{ matrix.task.installs }}
+        CI: true
