@@ -25,6 +25,13 @@ jobs:
         MINGW_INSTALLS: ${{ matrix.task.installs }}
         CI: true
 
+    - name: Print PATH
+      run: C:\tools\msys64\usr\bin\bash -lc "echo $PATH"
+      env:
+        HOME: ${{ runner.workspace }}/minitest
+        MINGW_INSTALLS: ${{ matrix.task.installs }}
+        CI: true
+
     - name: Print GCC Information
       run: C:\tools\msys64\usr\bin\bash -lc "echo | gcc -E -Wp,-v -"
       env:
