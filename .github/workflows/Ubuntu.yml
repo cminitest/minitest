@@ -18,7 +18,7 @@ jobs:
       run: make sharedlib
 
     - name: make install
-      run: make install
+      run: sudo make install
 
     - name: Apply Permissions
       run: sudo chown $(whoami) -R /usr/local/lib/libminitest* && sudo chown $(whoami) -R /usr/local/include/minitest*
