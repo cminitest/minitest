@@ -1,4 +1,4 @@
-# Minitest [![MacOS](https://github.com/Vandise/minitest/actions/workflows/MacOS.yml/badge.svg)](https://github.com/Vandise/minitest/actions/workflows/MacOS.yml)
+# Minitest [![MacOS](https://github.com/Vandise/minitest/actions/workflows/MacOS.yml/badge.svg)](https://github.com/Vandise/minitest/actions/workflows/MacOS.yml) [![Ubuntu](https://github.com/Vandise/minitest/actions/workflows/Ubuntu.yml/badge.svg)](https://github.com/Vandise/minitest/actions/workflows/Ubuntu.yml)
 
 A behavior-driven test library for C.
 
