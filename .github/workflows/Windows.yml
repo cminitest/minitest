@@ -11,6 +11,13 @@ jobs:
     - name: Install MSYS2
       run: choco install msys2
 
+    - name: Build and install tools
+      run: C:\tools\msys64\usr\bin\bash -lc "pacman -Sy autoconf make gcc git automake libtool ruby --noconfirm"
+      env:
+        HOME: ${{ runner.workspace }}/minitest
+        MINGW_INSTALLS: ${{ matrix.task.installs }}
+        CI: true
+
     - name: Check uname
       run: C:\tools\msys64\usr\bin\bash -lc "uname"
       env:
