@@ -23,6 +23,9 @@ jobs:
     - name: Apply Permissions
       run: sudo chown $(whoami) -R /usr/local/lib/libminitest* && sudo chown $(whoami) -R /usr/local/include/minitest*
 
+    - name: Cache Libraries
+      run: sudo /sbin/ldconfig -v
+
     - name: make testsuite
       run: make testsuite
 
