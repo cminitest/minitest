@@ -12,9 +12,9 @@ ADDFLAGS    := -O2
 
 ifeq ($(OS), Windows_NT)
   LIBEXT    := dll
-  SYSLIBDIR := /usr/lib
+  SYSLIBDIR := /c/Windows/system32
   SYSINCDIR := /usr/include
-  ADDFLAGS  := $(ADDFLAGS) -L/usr/lib
+  ADDFLAGS  := $(ADDFLAGS) -L/c/Windows/system32
 else
   ifeq ($(UNAME), Linux)
     SYSLIBDIR := /usr/local/lib
