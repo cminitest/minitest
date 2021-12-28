@@ -19,11 +19,10 @@ Minitest has supporting unit tests written in Minitest. Further examples can be 
 #include "minitest/minitest.h"
 
 describe("MiniTest")
-
   it("is defined")
     expect(&minitest) to equal(&minitest)
   end
-
+  
   context(".register_block")
     when("a block has not had any it blocks defined")
       it("creates a new array with 1 element")
@@ -83,24 +82,24 @@ Minitest needs to be booted in the main() function of your test suite. The follo
 #include "minitest/minitest.h"
 
 int add(int n1, int n2) {
-	return n1 + n2;
+  return n1 + n2;
 }
 
 describe("My Program")
-	context(".add")
-		it("returns the sum of two numbers")
-			expect(add(2,2)) to equal(4)
-		end
-	end
+  context(".add")
+    it("returns the sum of two numbers")
+      expect(add(2,2)) to equal(4)
+    end
+  end
 end
 
 int main() {
   minitest.run();
-
+  
   int failures = minitest.failures;
-
+  
   minitest.clear(&minitest); // optional, frees memory and clears the test suite
-
+  
   return failures > 0 ? 1 : 0;
 }
 ```
