@@ -11,8 +11,8 @@ CFLAGS			:= @CFLAGS@
 ADDFLAGS    := -O2
 
 ifeq ($(UNAME), Linux)
-SYSLIBDIR := /usr/lib
-SYSINCDIR := /usr/include
+SYSLIBDIR := /usr/local/lib
+SYSINCDIR := /usr/local/include
 ADDFLAGS  := $(ADDFLAGS) -fPIC
 endif
 
