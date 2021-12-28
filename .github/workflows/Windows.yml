@@ -26,21 +26,21 @@ jobs:
         CI: true
 
     - name: Debug
-      run: C:\tools\msys64\usr\bin\bash -lc "ls -al /c/MinGW/"
+      run: C:\tools\msys64\usr\bin\bash -lc "ls -al /mingw64"
       env:
         HOME: ${{ runner.workspace }}/minitest
         MINGW_INSTALLS: ${{ matrix.task.installs }}
         CI: true
 
     - name: Debug 2
-      run: C:\tools\msys64\usr\bin\bash -lc "ls -al /c/MinGW/msys/"
+      run: C:\tools\msys64\usr\bin\bash -lc "ls -al /mingw64/lib"
       env:
         HOME: ${{ runner.workspace }}/minitest
         MINGW_INSTALLS: ${{ matrix.task.installs }}
         CI: true
 
     - name: Debug 3
-      run: C:\tools\msys64\usr\bin\bash -lc "ls -al /c/MinGW/msys/1.0/"
+      run: C:\tools\msys64\usr\bin\bash -lc "ls -al /MinGW"
       env:
         HOME: ${{ runner.workspace }}/minitest
         MINGW_INSTALLS: ${{ matrix.task.installs }}
