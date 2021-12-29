@@ -10,6 +10,10 @@
 #define mt_template_value "%s"
 char* mt_assert_template(int neg, char* format);
 
+#define MT_FORMAT_HANDLE_NONE   0
+#define MT_FORMAT_HANDLE_SINGLE 1
+#define MT_FORMAT_HANDLE_ARRAY  2
+
 #define to    0
 #define not   +1
 #define equal(expected)      ,expected, sizeof(expected));
@@ -19,10 +23,19 @@ char* mt_assert_template(int neg, char* format);
 
 #define expect_result minitest.current->current_assertion->assert_result
 
-#define mt_expect_forward(suffix, type, arr) \
-  void __expect_##suffix(MiniTest *mt, type actual arr, size_t as, int negated, type expected arr, size_t es)
+#define mt_expect_forward(suffix, type) \
+  void __expect_##suffix(MiniTest *mt, type actual, size_t as, int negated, type expected, size_t es)
 
-#define mt_expect_definition(suffix, type, arr, comparator, format)                      \
+#define mt_expect_array_forward(suffix, type) \
+  void __expect_##suffix(MiniTest *mt, type actual[], size_t as, int negated, type expected[], size_t es)
+
+#define default_format_handle(suffix, type, arr, tf) default_format_handle_definition_##tf(suffix, type, arr)
+#define default_format_handle_definition_0(suffix, type, arr)
+#define default_format_handle_definition_1(suffix, type, arr) type  __format_##suffix(type value arr) { return value; }
+#define default_format_handle_definition_2(suffix, type, arr) type* __format_##suffix(type value arr) { return value; }
+
+#define mt_expect_definition(suffix, type, arr, comparator, format, handle_type) \
+  default_format_handle(suffix, type, arr, handle_type)                          \
   void __expect_##suffix(MiniTest *mt, type actual arr, size_t actual_size, int negated, type expected arr, size_t expected_size) {   \
     mt->assertions += 1;                                                            \
     if (mt->current->current_assertion->assert_result == TEST_FAILURE) { return; }  \
@@ -38,10 +51,10 @@ char* mt_assert_template(int neg, char* format);
       char *template = mt_assert_template(negated, format);                             \
       snprintf(                                                                         \
         mt->current->current_assertion->assert_message, MT_MAX_ASSERTION_BUFFER,        \
-        template, actual, expected                                                      \
+        template, __format_##suffix (actual), __format_##suffix (expected)              \
       ); free(template);                                                                \
-    }                                                                               \
-  }                                                                                   \
+    }                                                                                   \
+  }                                                                                     \
 
 //
 // todo: __compare_array won't work for strings or pointers
@@ -61,17 +74,21 @@ char* mt_assert_template(int neg, char* format);
     return result;                                                                      \
   }                                                                                     \
 
-mt_expect_forward(int,    int,);
-mt_expect_forward(char,   char,);
-mt_expect_forward(short,  short,);
-mt_expect_forward(long,   long,);
-mt_expect_forward(double, double,);
-mt_expect_forward(float,  float,);
-mt_expect_forward(ptr,    void*,);
-mt_expect_forward(str,    char*,);
-mt_expect_forward(sizet,  size_t,);
-mt_expect_forward(uint,   unsigned int,);
-mt_expect_forward(intarr, int,[]);
+#define mt_expect(suffix, type, comparator, format) mt_expect_definition(suffix, type,, comparator, format, MT_FORMAT_HANDLE_SINGLE)
+#define mt_expect_array(suffix, type, comparator, format) mt_expect_definition(suffix, type, [], comparator, format, MT_FORMAT_HANDLE_ARRAY)
+
+mt_expect_forward(int,    int);
+mt_expect_forward(char,   char);
+mt_expect_forward(short,  short);
+mt_expect_forward(long,   long);
+mt_expect_forward(double, double);
+mt_expect_forward(float,  float);
+mt_expect_forward(ptr,    void*);
+mt_expect_forward(str,    char*);
+mt_expect_forward(sizet,  size_t);
+mt_expect_forward(uint,   unsigned int);
+
+mt_expect_array_forward(intarr, int);
 
 #define expect_generic(actual) _Generic(actual,                  \
                                         int: __expect_int,       \
@@ -89,5 +106,7 @@ mt_expect_forward(intarr, int,[]);
 
 #define __expect_call(mt, actual) expect_generic(actual)(mt, (actual), (sizeof(actual)),
 #define expect(actual) __expect_call(&minitest, actual)
+
+
 
 #endif

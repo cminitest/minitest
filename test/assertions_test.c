@@ -54,7 +54,7 @@ describe("MiniTest", minitest_assertions)
 
         when("a valid assertion is made")
           it("is truthy")
-            int y[] = { 1,2,3 };
+            int y[] = { 1,3,2 };
             expect(x) to equal(y)
             expect(expect_result) to equal(TEST_PASS)
           end
