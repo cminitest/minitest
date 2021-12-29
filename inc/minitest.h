@@ -9,6 +9,7 @@ extern MiniTest minitest;
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 #include <time.h>
 #include "macros.h"
 #include "assertions.h"

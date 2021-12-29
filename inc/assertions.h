@@ -17,6 +17,10 @@ typedef enum {
 #define MT_EXPECT_EXT
 #endif
 
+#ifndef MT_EXPECT_EPSILON
+#define MT_EXPECT_EPSILON 0.000001
+#endif
+
 #define mt_template_value "%s"
 char* mt_assert_template(int neg, char* format);
 
@@ -67,7 +71,9 @@ char* mt_assert_template(int neg, char* format);
 //
 #define mt_assert_array(suffix, type, comparator) \
   int __compare_array_##suffix(const void * a, const void *b) {                         \
-    return (*(type*)a - *(type*)b);                                                     \
+    type fa = *(const type*) a;                                                         \
+    type fb = *(const type*) b;                                                         \
+    return (fa > fb) - (fa < fb);                                                       \
   }                                                                                     \
   int __assert_array_##suffix(type arr_1[], type arr_2[], size_t s1, size_t s2) {       \
     if (s1/sizeof(type) != s2/sizeof(type)) { return 0; }                               \
@@ -98,6 +104,10 @@ mt_expect_forward(sizet,  size_t);
 mt_expect_forward(uint,   unsigned int);
 
 mt_expect_array_forward(intarr, int);
+mt_expect_array_forward(shortarr, short);
+mt_expect_array_forward(longarr, long);
+mt_expect_array_forward(doublearr, double);
+mt_expect_array_forward(floatarr, float);
 
 #define expect_generic(actual) _Generic(actual,                  \
                                         MT_EXPECT_EXT            \
@@ -111,7 +121,11 @@ mt_expect_array_forward(intarr, int);
                                         char*: __expect_str,     \
                                         size_t: __expect_sizet,  \
                                         unsigned int: __expect_uint,   \
-                                        int*: __expect_intarr         \
+                                        int*: __expect_intarr,         \
+                                        short*: __expect_shortarr,     \
+                                        long*: __expect_longarr,       \
+                                        double*: __expect_doublearr,   \
+                                        float*: __expect_floatarr      \
                                       ) \
 
 #define __expect_call(mt, actual) expect_generic(actual)(mt, (actual), (sizeof(actual)),

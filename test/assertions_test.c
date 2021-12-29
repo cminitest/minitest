@@ -67,6 +67,82 @@ describe("MiniTest", minitest_assertions)
           end
         end       
       end
+
+      context("short[]")
+        short x[] = { 1,2,3 };
+
+        when("a valid assertion is made")
+          it("is truthy")
+            short y[] = { 1,3,2 };
+            expect(x) to equal(y)
+            expect(expect_result) to equal(TEST_PASS)
+          end
+        end
+  
+        when("an invalid assertion is made")
+          it("fails")
+            short y[] = { 1,2,4 };
+            expect(x) to equal(y)
+          end
+        end       
+      end
+
+      context("long[]")
+        long x[] = { 1,2,3 };
+
+        when("a valid assertion is made")
+          it("is truthy")
+            long y[] = { 1,3,2 };
+            expect(x) to equal(y)
+            expect(expect_result) to equal(TEST_PASS)
+          end
+        end
+  
+        when("an invalid assertion is made")
+          it("fails")
+            long y[] = { 1,2,4 };
+            expect(x) to equal(y)
+          end
+        end       
+      end
+
+      context("double[]")
+        double x[] = { 1.1, 2.2, 3.3 };
+
+        when("a valid assertion is made")
+          it("is truthy")
+            double y[] = { 1.1, 3.3, 2.2 };
+            expect(x) to equal(y)
+            expect(expect_result) to equal(TEST_PASS)
+          end
+        end
+  
+        when("an invalid assertion is made")
+          it("fails")
+            double y[] = { 1.1, 2.2, 4.4 };
+            expect(x) to equal(y)
+          end
+        end       
+      end
+
+      context("float[]")
+        float x[] = { 1.1, 2.2, 3.3 };
+
+        when("a valid assertion is made")
+          it("is truthy")
+            float y[] = { 1.1, 3.3, 2.2 };
+            expect(x) to equal(y)
+            expect(expect_result) to equal(TEST_PASS)
+          end
+        end
+  
+        when("an invalid assertion is made")
+          it("fails")
+            float y[] = { 1.1, 2.2, 4.4 };
+            expect(x) to equal(y)
+          end
+        end       
+      end
     end
 
     context("int")

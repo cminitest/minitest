@@ -183,17 +183,15 @@ expect(1) to be_true
 
 ### Assertion Support
 
-- int
-- char
-- short
-- long
-- double
-- float
+- int, int[] (int*)
+- char, char*
+- short, short[] (short*)
+- long, long[] (long*)
+- double, double[] (double*)
+- float, float[] (float*)
 - void*
-- char*
 - size_t
 - unsigned int
-- int[] (int*)
 
 And more to come.
 
