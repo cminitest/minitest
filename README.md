@@ -192,5 +192,6 @@ expect(1) to be_true
 - char*
 - size_t
 - unsigned int
+- int[] (int*)
 
 And more to come.

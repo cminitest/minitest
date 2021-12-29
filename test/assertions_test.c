@@ -48,6 +48,27 @@ describe("MiniTest", minitest_assertions)
       end
     end
 
+    context("arrays")
+      context("int[]")
+        int x[] = { 1,2,3 };
+
+        when("a valid assertion is made")
+          it("is truthy")
+            int y[] = { 1,2,3 };
+            expect(x) to equal(y)
+            expect(expect_result) to equal(TEST_PASS)
+          end
+        end
+  
+        when("an invalid assertion is made")
+          it("fails")
+            int y[] = { 1,2,4 };
+            expect(x) to equal(y)
+          end
+        end       
+      end
+    end
+
     context("int")
       when("a valid assertion is made")
         it("is truthy")
