@@ -13,7 +13,6 @@ char* mt_assert_template(int neg, char* format) {
   return template;
 }
 
-
 //
 // general expectations
 //

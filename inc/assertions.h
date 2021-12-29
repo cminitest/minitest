@@ -3,16 +3,22 @@
 
 #include "minitest.h"
 
+typedef enum { 
+  NONE, 
+  SINGLE, 
+  ARRAY 
+} mt_format;
+
 #ifndef MT_MAX_ASSERTION_BUFFER
 #define MT_MAX_ASSERTION_BUFFER 0x400
 #endif
 
+#ifndef MT_EXPECT_EXT
+#define MT_EXPECT_EXT
+#endif
+
 #define mt_template_value "%s"
 char* mt_assert_template(int neg, char* format);
-
-#define MT_FORMAT_HANDLE_NONE   0
-#define MT_FORMAT_HANDLE_SINGLE 1
-#define MT_FORMAT_HANDLE_ARRAY  2
 
 #define to    0
 #define not   +1
@@ -30,9 +36,9 @@ char* mt_assert_template(int neg, char* format);
   void __expect_##suffix(MiniTest *mt, type actual[], size_t as, int negated, type expected[], size_t es)
 
 #define default_format_handle(suffix, type, arr, tf) default_format_handle_definition_##tf(suffix, type, arr)
-#define default_format_handle_definition_0(suffix, type, arr)
-#define default_format_handle_definition_1(suffix, type, arr) type  __format_##suffix(type value arr) { return value; }
-#define default_format_handle_definition_2(suffix, type, arr) type* __format_##suffix(type value arr) { return value; }
+#define default_format_handle_definition_NONE(suffix, type, arr)
+#define default_format_handle_definition_SINGLE(suffix, type, arr) type  __format_##suffix(type value arr) { return value; }
+#define default_format_handle_definition_ARRAY(suffix, type, arr) type* __format_##suffix(type value arr) { return value; }
 
 #define mt_expect_definition(suffix, type, arr, comparator, format, handle_type) \
   default_format_handle(suffix, type, arr, handle_type)                          \
@@ -74,8 +80,11 @@ char* mt_assert_template(int neg, char* format);
     return result;                                                                      \
   }                                                                                     \
 
-#define mt_expect(suffix, type, comparator, format) mt_expect_definition(suffix, type,, comparator, format, MT_FORMAT_HANDLE_SINGLE)
-#define mt_expect_array(suffix, type, comparator, format) mt_expect_definition(suffix, type, [], comparator, format, MT_FORMAT_HANDLE_ARRAY)
+#define mt_expect(suffix, type, comparator, format) mt_expect_definition(suffix, type,, comparator, format, SINGLE)
+#define mt_expect_array(suffix, type, comparator, format) mt_expect_definition(suffix, type, [], comparator, format, ARRAY)
+
+#define mt_expect_ext(suffix, type, comparator, format) mt_expect_definition(suffix, type,, comparator, format, NONE)
+#define mt_expect_array_ext(suffix, type, comparator, format) mt_expect_definition(suffix, type, [], comparator, format, NONE)
 
 mt_expect_forward(int,    int);
 mt_expect_forward(char,   char);
@@ -91,6 +100,7 @@ mt_expect_forward(uint,   unsigned int);
 mt_expect_array_forward(intarr, int);
 
 #define expect_generic(actual) _Generic(actual,                  \
+                                        MT_EXPECT_EXT            \
                                         int: __expect_int,       \
                                         char: __expect_char,     \
                                         short: __expect_short,   \
@@ -101,12 +111,10 @@ mt_expect_array_forward(intarr, int);
                                         char*: __expect_str,     \
                                         size_t: __expect_sizet,  \
                                         unsigned int: __expect_uint,   \
-                                        int*: __expect_intarr          \
+                                        int*: __expect_intarr         \
                                       ) \
 
 #define __expect_call(mt, actual) expect_generic(actual)(mt, (actual), (sizeof(actual)),
 #define expect(actual) __expect_call(&minitest, actual)
-
-
 
 #endif

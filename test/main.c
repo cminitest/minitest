@@ -1,4 +1,4 @@
-#include "minitest/minitest.h"
+#include "testsuite.h"
 
 int main() {
   minitest.run();

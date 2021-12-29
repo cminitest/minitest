@@ -6,6 +6,7 @@ A behavior-driven test library for C.
 
 - A small, behavior-driven, test library for C.
 - No extensions to the C-library
+- Extensible assertions
 
 ### Todo
 
@@ -195,3 +196,112 @@ expect(1) to be_true
 - int[] (int*)
 
 And more to come.
+
+## Extensions
+
+Minitest can be extended to support custom data types. Minitest uses C11's _Generic handle to identify the type for expect statements. You can add your own types by defining `MT_EXPECT_EXT` before loading the Minitest header.
+
+### Macros
+
+Minitest provides the following macros to define your extension:
+
+#### mt\_expect\_forward(function\_identifier, data\_type)
+
+Creates the forward definition of the expect function.
+
+##### Example
+
+```c
+mt_expect_forward(extstruct, ExpectExt*);
+
+// expands to:
+
+void __expect_extstruct(MiniTest *mt, void* actual, size_t as, int negated, void* expected, size_t es);
+```
+
+#### mt\_expect\_array\_forward(function\_identifier, data\_type)
+
+Creates the forward definition of the expect function for an array.
+
+##### Example
+
+```c
+mt_expect_array_forward(intarr, int);
+
+// expands to:
+
+void __expect_intarr(MiniTest *mt, int actual[], size_t as, int negated, int expected[], size_t es);
+```
+
+#### mt\_expect\_ext(function\_identifier, data\_type, comparison, printf\_format)
+
+Defines the expect function. Two variables are exposed in this context:
+
+- data\_type actual
+- data\_type expected
+
+**comparison** can be any C expression or function call passing in the actual and expected variables.
+
+**printf\_format** is any printf format to display if the expectation fails. You can pass `NULL` if you do not want to print any error message.
+
+**NOTE:**
+
+if you specify anything other than NULL in `printf_format`, you must define a `__format_<function_identifier>(data_type value)` handler that returns the appropriate value associated with `printf_format`.
+
+##### Example
+
+```c
+int __format_extstruct(ExpectExt* extstruct) {
+  return extstruct->value;
+}
+
+mt_expect_ext(extstruct, ExpectExt*, (actual->value == expected->value), "%i");
+```
+
+### Full Extension Example
+
+```c
+// testsuite.h
+#ifndef __MINITEST_TESTSUITE_H__
+#define __MINITEST_TESTSUITE_H__ 1
+
+// define any structures and MT_EXPECT_EXT before loading minitest.h
+
+typedef struct ExpectExtStruct {
+  int value;
+} ExpectExt;
+
+#define MT_EXPECT_EXT \
+  ExpectExt*: __expect_extstruct,
+
+#include "minitest/minitest.h"
+
+// create the forward expect function, matching the function identifier in MT_EXPECT_EXT
+mt_expect_forward(extstruct, ExpectExt*);
+
+#endif
+```
+
+```c
+#include "testsuite.h"
+
+// define the error formating function, returning a value appropriate for printf("%i")
+int __format_extstruct(ExpectExt* extstruct) {
+  return extstruct->value;
+}
+
+// define the __expect_extstruct function, comparing the value properties in the struct
+mt_expect_ext(extstruct, ExpectExt*, (actual->value == expected->value), "%i");
+
+describe("MiniTest", minitest_extensions)
+  context("Extensions")
+    ExpectExt subject = { .value = 1 };
+    it("creates the expectation for the extension")
+      ExpectExt comp = { .value = 1 };
+      expect(&subject) to equal(&comp)
+      comp.value = 2;
+      expect(&subject) to not equal(&comp)
+    end
+  end
+end
+```
