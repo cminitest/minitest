@@ -9,6 +9,7 @@ HFILES			:= inc/assertions.h inc/macros.h inc/minitest.h inc/mock.h
 OBJECTS     := assertions.o mocks.o minitest.o
 CFLAGS			:= @CFLAGS@
 ADDFLAGS    := -O2
+ADDSFLAGS   :=
 
 ifeq ($(OS), Windows_NT)
   LIBEXT    := dll
@@ -20,6 +21,7 @@ else
     SYSLIBDIR := /usr/local/lib
     SYSINCDIR := /usr/local/include
     ADDFLAGS  := $(ADDFLAGS) -fPIC
+    ADDSFLAGS := $(ADDFLAGS) -D LD_WRAP -Wl,--wrap=add_ints
   endif
   
   ifeq ($(UNAME), Darwin)
@@ -44,7 +46,7 @@ uninstall:
 	rm -rf $(SYSINCDIR)/minitest
 
 testsuite:
-	$(CC) $(CFLAGS) $(ADDFLAGS) -o bin/testsuite $(TESTFILES) -lminitest
+	$(CC) $(CFLAGS) $(ADDFLAGS) $(ADDSFLAGS) -o bin/testsuite $(TESTFILES) -lminitest
 
 clean:
 	rm *.o
