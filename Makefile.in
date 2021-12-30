@@ -3,10 +3,10 @@ UNAME       := $(shell uname)
 CC          := @CC@
 LIBNAME			:= libminitest
 LIBEXT      := so
-CFILES      := src/assertions.c src/minitest.c
-TESTFILES   := test/main.c test/assertions_test.c test/core_test.c test/extensions_test.c
-HFILES			:= inc/assertions.h inc/macros.h inc/minitest.h
-OBJECTS     := assertions.o minitest.o
+CFILES      := src/assertions.c src/mocks.c src/minitest.c
+TESTFILES   := test/main.c test/assertions_test.c test/core_test.c test/extensions_test.c test/mocks_test.c
+HFILES			:= inc/assertions.h inc/macros.h inc/minitest.h inc/mock.h
+OBJECTS     := assertions.o mocks.o minitest.o
 CFLAGS			:= @CFLAGS@
 ADDFLAGS    := -O2
 

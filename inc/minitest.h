@@ -13,6 +13,7 @@ extern MiniTest minitest;
 #include <time.h>
 #include "macros.h"
 #include "assertions.h"
+#include "mock.h"
 
 typedef struct MiniTestBlockArrayStruct {
   MiniTestBlock **array;
