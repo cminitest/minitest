@@ -195,6 +195,49 @@ expect(1) to be_true
 
 And more to come.
 
+## Mocking
+
+Minitest supports mocking through alias symbols or compilation macros. For example, with GCC you can specify the `--wrap=` parameter for a function.
+
+```
+gcc -Wl,--wrap=add_ints -o main main.c
+```
+
+### mt_mock_forwards(function_name, return_type, argument_type argument ...);
+
+Defines the forward mocking functions for `function_name`.
+
+### mt_define_mock(function_name, return_type, argument_type argument ...)
+
+Defines the mocking structures and functions for `function_name`.
+
+### Example
+
+```
+#include "minitest/minitest.h"
+
+int add_ints(int n1, int n2) {
+  return n1 + n2;
+}
+
+// include in your test header
+mt_mock_forwards(add_ints, int, int n1, int n2);
+
+mt_define_mock(add_ints, int, int n1, int n2);
+
+describe("Mocks", mocks)
+  mock(add_ints) and_return(5)
+
+  it("returns 2+2=5")
+    #ifdef LD_WRAP
+      expect(add_ints(2, 2)) to equal(5) // pass -D LD_WRAP if your linker supports --wrap
+    #else
+      expect(__wrap_add_ints(2, 2)) to equal(5) // or run the mocked function directly with a macro
+    #endif
+  end
+end
+```
+
 ## Extensions
 
 Minitest can be extended to support custom data types. Minitest uses C11's _Generic handle to identify the type for expect statements. You can add your own types by defining `MT_EXPECT_EXT` before loading the Minitest header.
