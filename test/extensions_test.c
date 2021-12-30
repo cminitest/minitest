@@ -4,16 +4,34 @@ int __format_extstruct(ExpectExt* extstruct) {
   return extstruct->value;
 }
 
+int __assert_array_extstructarr(ExpectExt* arr_1[], ExpectExt* arr_2[], size_t s1, size_t s2) {
+  if (s1/sizeof(ExpectExt*) != s2/sizeof(ExpectExt*)) { return 0; }
+  return 1;
+}
+
+void* __format_extstructarr(ExpectExt* value[]) { return NULL; }
+
 mt_expect_ext(extstruct, ExpectExt*, (actual->value == expected->value), "%i");
+mt_expect_array_ext(extstructarr, ExpectExt*, __assert_array_extstructarr(expected, actual, actual_size, expected_size), NULL);
 
 describe("MiniTest", minitest_extensions)
   context("Extensions")
-    ExpectExt subject = { .value = 1 };
-    it("creates the expectation for the extension")
-      ExpectExt comp = { .value = 1 };
-      expect(&subject) to equal(&comp)
-      comp.value = 2;
-      expect(&subject) to not equal(&comp)
+    context("SINGLE")
+      ExpectExt subject = { .value = 1 };
+      it("creates the expectation for the extension")
+        ExpectExt comp = { .value = 1 };
+        expect(&subject) to equal(&comp)
+        comp.value = 2;
+        expect(&subject) to not equal(&comp)
+      end
     end
+
+    context("ARRAY")
+      ExpectExt* subject[] = { NULL, NULL };
+      it("creates the expectation for the extension")
+        ExpectExt* comp[] = { NULL, NULL };
+        expect(subject) to equal(comp)
+      end
+    end  
   end
 end
