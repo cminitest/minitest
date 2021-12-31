@@ -8,7 +8,7 @@ TESTFILES   := test/main.c test/assertions_test.c test/core_test.c test/extensio
 HFILES			:= inc/assertions.h inc/macros.h inc/minitest.h inc/mock.h
 OBJECTS     := assertions.o mocks.o minitest.o
 CFLAGS			:= @CFLAGS@
-ADDFLAGS    := -O2
+ADDFLAGS    := -O2 -std=c11
 ADDSFLAGS   :=
 
 ifeq ($(OS), Windows_NT)
