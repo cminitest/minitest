@@ -74,7 +74,7 @@ $> ./bin/testsuite
 
 Minitest needs to be booted in the main() function of your test suite. The following is a minimal example to get started.
 
-** If your compiler supports __attribute__((constructor)): **
+**If your compiler supports __attribute__((constructor)):**
 
 ```
 // main.c
@@ -103,7 +103,7 @@ int main() {
 }
 ```
 
-** If your compiler does not support __attribute__((constructor)): **
+**If your compiler does not support __attribute__((constructor)):**
 
 ```
 // main.c
