@@ -100,7 +100,8 @@ char* mt_expect_flag_to_string(mt_expect_flags flag);
       char *template = mt_assert_template(negated, format, flag);                       \
       snprintf(                                                                         \
         mt->current->current_assertion->assert_message, MT_MAX_ASSERTION_BUFFER,        \
-        template, __format_##suffix (actual), __format_##suffix (expected)              \
+        template, __format_##suffix (actual), __format_##suffix (expected),             \
+                  __format_##suffix (max_range)                                         \
       ); free(template);                                                                \
     }                                                                                   \
   }                                                                                     \
