@@ -26,8 +26,8 @@ jobs:
     - name: Cache Libraries
       run: sudo /sbin/ldconfig -v
 
-    - name: make testsuite
-      run: make testsuite
+    - name: make tests
+      run: make tests
 
     - name: run tests
       run: ./bin/testsuite

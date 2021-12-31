@@ -70,8 +70,8 @@ jobs:
         MINGW_INSTALLS: ${{ matrix.task.installs }}
         CI: true
 
-    - name: make testsuite
-      run: C:\tools\msys64\usr\bin\bash -lc "make testsuite"
+    - name: make tests
+      run: C:\tools\msys64\usr\bin\bash -lc "make tests"
       env:
         HOME: ${{ runner.workspace }}/minitest
         MINGW_INSTALLS: ${{ matrix.task.installs }}

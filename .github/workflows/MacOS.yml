@@ -23,8 +23,8 @@ jobs:
     - name: make install
       run: make install
   
-    - name: make testsuite
-      run: make testsuite
+    - name: make tests
+      run: make tests
 
     - name: run tests
       run: ./bin/testsuite
