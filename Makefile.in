@@ -4,12 +4,15 @@ CC          := @CC@
 LIBNAME			:= libminitest
 LIBEXT      := so
 CFILES      := src/assertions.c src/mocks.c src/minitest.c
-TESTFILES   := test/main.c test/assertions_test.c test/core_test.c test/extensions_test.c test/mocks_test.c test/support.c
 HFILES			:= inc/assertions.h inc/macros.h inc/minitest.h inc/mock.h
 OBJECTS     := assertions.o mocks.o minitest.o
 CFLAGS			:= @CFLAGS@
 ADDFLAGS    := -O2 -std=c11
 ADDSFLAGS   :=
+
+OBJDIR      := obj
+TESTFILES   := $(wildcard test/*.c)
+TESTOBJS    := $(TESTFILES:test/%.c=$(OBJDIR)/%.o)
 
 ifeq ($(OS), Windows_NT)
   LIBEXT    := dll
@@ -30,7 +33,7 @@ else
   endif
 endif
 
-all: sharedlib install testsuite
+all: sharedlib install tests
 
 sharedlib:
 	$(CC) $(CFLAGS) $(ADDFLAGS) -c $(CFILES)
@@ -45,8 +48,11 @@ uninstall:
 	rm $(SYSLIBDIR)/$(LIBNAME).$(LIBEXT)
 	rm -rf $(SYSINCDIR)/minitest
 
-testsuite:
-	$(CC) $(CFLAGS) $(ADDFLAGS) $(ADDSFLAGS) -o bin/testsuite $(TESTFILES) -lminitest
+tests: $(TESTOBJS)
+	$(CC) $(CFLAGS) $(ADDFLAGS) $(ADDSFLAGS) -o bin/testsuite $(TESTOBJS) -lminitest
+
+$(TESTOBJS): $(OBJDIR)/%.o : test/%.c
+	$(CC) $(CFLAGS) $(ADDFLAGS) $(ADDSFLAGS) -c $< -o $@
 
 clean:
 	rm *.o
