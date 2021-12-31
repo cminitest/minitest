@@ -209,7 +209,7 @@ Mocking examples can be found <a href="https://github.com/Vandise/minitest/blob/
 
 Defines the forward mocking functions for `function_name`.
 
-### mt_define_mock(function_name, return_type, argument_type argument ...)
+### mt_define_mock(function_name, mt_mock_args, return_type, argument_type argument ...)
 
 Defines the mocking structures and functions for `function_name`.
 
@@ -225,7 +225,7 @@ int add_ints(int n1, int n2) {
 // include in your test header
 mt_mock_forwards(add_ints, int, int n1, int n2);
 
-mt_define_mock(add_ints, int, int n1, int n2);
+mt_define_mock(add_ints, mt_mock_args(n1,n2) int, int n1, int n2);
 
 describe("Mocks", mocks)
   mock(add_ints) and_return(5)
@@ -249,6 +249,32 @@ mock(add_ints) and_return(5) // to demo that the mock is ignored
 
 expect(mocked(add_ints)(5,5)) to equal(10)
 ``` 
+
+## Releasing the mock
+
+To release the mock and enable it to always call the original function handle, the `release_mock(function_name)` will point the wrapped function to the original function.
+
+Calling `mock(function_name) and_return(value)` will reinitialize the mock.
+
+### Example
+
+```c
+when("a mock is released")
+  mock(add_ints) and_return(3)
+  release_mock(add_ints)
+
+  it("executes the original function")
+    expect(add_ints(2, 2)) to equal(4)
+  end
+
+  when("the function is mocked again")
+    mock(add_ints) and_return(5)
+    it("executes the mock")
+      expect(add_ints(2, 2)) to equal(5)
+    end      
+  end
+end
+```
 
 ## Extensions
 
