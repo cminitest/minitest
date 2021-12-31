@@ -203,6 +203,8 @@ Minitest supports mocking through alias symbols or compilation macros. For examp
 gcc -Wl,--wrap=add_ints -o main main.c
 ```
 
+Mocking examples can be found <a href="https://github.com/Vandise/minitest/blob/master/test/mocks_test.c">here</a>.
+
 ### mt_mock_forwards(function_name, return_type, argument_type argument ...);
 
 Defines the forward mocking functions for `function_name`.
@@ -213,7 +215,7 @@ Defines the mocking structures and functions for `function_name`.
 
 ### Example
 
-```
+```c
 #include "minitest/minitest.h"
 
 int add_ints(int n1, int n2) {
@@ -237,6 +239,16 @@ describe("Mocks", mocks)
   end
 end
 ```
+
+### Getting the original function handle
+
+The original function handle will be aliased to `__real_<function name>` when using `--wrap`. Minitest provides a macro to return the original function handle:
+
+```c
+mock(add_ints) and_return(5) // to demo that the mock is ignored
+
+expect(mocked(add_ints)(5,5)) to equal(10)
+``` 
 
 ## Extensions
 

@@ -105,9 +105,22 @@ MiniTestMock* mt_find_node(MiniTestMockSuite *s, char* function_name);
     data->return_value = return_value;                                            \
     data->loaded = 1;                                                             \
   }                                                                               \
+                                                                                  \
+  typedef return_type (*type_##function_name)(__VA_ARGS__);                       \
+                                                                                  \
+  type_##function_name __mocked_##function_name(MiniTestMockSuite *s) {           \
+    if(s->nodes == NULL) { __init_##function_name(s); }                           \
+    MiniTestMock* current_node = mt_find_node(s, #function_name);                 \
+    if (strcmp(current_node->function, #function_name)!=0) {                      \
+      current_node = __init_##function_name(s);                                   \
+    }                                                                             \
+    function_name##Struct* data = (function_name##Struct*)current_node->data;     \
+    return data->handle;                                                          \
+  }                                                                               \
 
 #define and_return(value) value);
 #define mock(function_name) __mock_##function_name(&minitestmocks, 
+#define mocked(function_name) __mocked_##function_name(&minitestmocks)
 
 
 extern MiniTestMockSuite minitestmocks;
