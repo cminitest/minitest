@@ -44,6 +44,7 @@ MiniTestMock* mt_find_node(MiniTestMockSuite *s, char* function_name);
   typedef struct __##function_name##Struct {                 \
     int loaded;                                              \
     int released;                                            \
+    int calls;                                               \
     return_type return_value;                                \
     return_type (*handle)(__VA_ARGS__);                      \
   } function_name##Struct;                                   \
@@ -58,6 +59,7 @@ MiniTestMock* mt_find_node(MiniTestMockSuite *s, char* function_name);
     strcpy(node->function, #function_name);                             \
     data->loaded = 0;                                                   \
     data->released = 0;                                                 \
+    data->calls = 0;                                                    \
     data->handle = mt_real_fn_handle(function_name, MT_LD_WRAP);        \
     node->data = (void*)data;                                           \
     if (s->nodes == NULL) {                                             \
@@ -86,6 +88,7 @@ MiniTestMock* mt_find_node(MiniTestMockSuite *s, char* function_name);
         function_name##Struct* data = (function_name##Struct*)current_node->data; \
         if (data->loaded) {                                                       \
           if(data->released) { return data->handle mock_args ; }                  \
+          data->calls += 1;                                                       \
           return data->return_value;                                              \
         } else {                                                                  \
           printf(MT_FUNCTION_NO_RETURN_ERROR, #function_name);                    \
@@ -108,6 +111,7 @@ MiniTestMock* mt_find_node(MiniTestMockSuite *s, char* function_name);
     data->return_value = return_value;                                            \
     data->loaded = 1;                                                             \
     data->released = 0;                                                           \
+    data->calls = 0;                                                              \
   }                                                                               \
                                                                                   \
   typedef return_type (*type_##function_name)(__VA_ARGS__);                       \
@@ -131,11 +135,22 @@ MiniTestMock* mt_find_node(MiniTestMockSuite *s, char* function_name);
     function_name##Struct* data = (function_name##Struct*)current_node->data;     \
     data->released = 1;                                                           \
   }                                                                               \
+                                                                                  \
+  int __calls_##function_name(MiniTestMockSuite *s) {                             \
+    if(s->nodes == NULL) { __init_##function_name(s); }                           \
+    MiniTestMock* current_node = mt_find_node(s, #function_name);                 \
+    if (strcmp(current_node->function, #function_name)!=0) {                      \
+      current_node = __init_##function_name(s);                                   \
+    }                                                                             \
+    function_name##Struct* data = (function_name##Struct*)current_node->data;     \
+    return data->calls;                                                           \
+  }                                                                               \
 
 #define and_return(value) value);
 #define mock(function_name) __mock_##function_name(&minitestmocks, 
 #define mocked(function_name) __mocked_##function_name(&minitestmocks)
 #define release_mock(function_name) __release_##function_name(&minitestmocks);
+#define mock_calls(function_name) __calls_##function_name(&minitestmocks)
 
 extern MiniTestMockSuite minitestmocks;
 

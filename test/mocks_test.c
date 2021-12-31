@@ -23,6 +23,15 @@ describe("MiniTest", minitest_mocks)
           expect(__wrap_add_ints(2, 2)) to equal(3)
         #endif
       end
+
+      it("registers the call")
+        mock(add_ints) and_return(3)
+        #if LD_WRAP
+          expect(mock_calls(add_ints)) to have been_called
+        #else
+          expect(mock_calls(add_ints)) to not have been_called
+        #endif
+      end
     end
 
     when("the original mocked function is retrieved")

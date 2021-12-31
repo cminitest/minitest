@@ -171,14 +171,25 @@ end
 
 ## Assertions
 
-Assertion macros require C11 and above. The assertion library allows the expectation of something being equal, or not equal.
+Assertion macros require C11 and above. The assertion library allows the expectation of something being equal, not equal, and greater/less than.
 
 ```c
 expect("hello world") to equal("hello world")
 expect("hello Bender") to not equal("hello Fry")
+
 expect(NULL) to be_null
 expect(0) to be_false
 expect(1) to be_true
+
+expect(1) to be greater_than(0)
+expect(0) to be less_than(1)
+expect(0) to be less_than_or_equal_to(0)
+expect(0) to be greater_than_or_equal_to(0)
+
+expect(5) to be in_range(0,10)
+
+expect(mock_calls(add_ints)) to have been_called
+expect(mock_calls(add_ints)) to not have been_called
 ```
 
 ### Assertion Support
@@ -292,10 +303,6 @@ Creates the forward definition of the expect function.
 
 ```c
 mt_expect_forward(extstruct, ExpectExt*);
-
-// expands to:
-
-void __expect_extstruct(MiniTest *mt, void* actual, size_t as, int negated, void* expected, size_t es);
 ```
 
 #### mt\_expect\_array\_forward(function\_identifier, data\_type)
@@ -306,10 +313,6 @@ Creates the forward definition of the expect function for an array.
 
 ```c
 mt_expect_array_forward(intarr, int);
-
-// expands to:
-
-void __expect_intarr(MiniTest *mt, int actual[], size_t as, int negated, int expected[], size_t es);
 ```
 
 #### mt\_expect\_ext(function\_identifier, data\_type, comparison, printf\_format)

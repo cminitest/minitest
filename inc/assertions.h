@@ -9,6 +9,15 @@ typedef enum {
   ARRAY 
 } mt_format;
 
+typedef enum { 
+  MT_EXPECT_EQUAL_FLAG,
+  MT_EXPECT_GT_FLAG,
+  MT_EXPECT_LT_FLAG,
+  MT_EXPECT_GTE_FLAG,
+  MT_EXPECT_LTE_FLAG,
+  MT_EXPECT_RANGE_FLAG
+} mt_expect_flags;
+
 #ifndef MT_MAX_ASSERTION_BUFFER
 #define MT_MAX_ASSERTION_BUFFER 0x400
 #endif
@@ -24,20 +33,31 @@ typedef enum {
 #define mt_template_value "%s"
 char* mt_assert_template(int neg, char* format);
 
+#define have
+#define be
 #define to    0
 #define not   +1
-#define equal(expected)      ,expected, sizeof(expected));
-#define be_null  ,NULL, 0);
-#define be_false ,0, 0);
-#define be_true  ,1, 0);
+#define equal(expected)      ,expected, sizeof(expected), expected, sizeof(expected), MT_EXPECT_EQUAL_FLAG);
+
+#define be_null  ,NULL, 0,0,0, MT_EXPECT_EQUAL_FLAG);
+#define be_false ,0, 0,0,0, MT_EXPECT_EQUAL_FLAG);
+#define be_true  ,1, 0,0,0, MT_EXPECT_EQUAL_FLAG);
+#define been_called ,0,0,0,0,MT_EXPECT_GT_FLAG);
+
+#define greater_than(expected) ,expected,0,expected,0,MT_EXPECT_GT_FLAG);
+#define less_than(expected) ,expected,0,expected,0,MT_EXPECT_LT_FLAG);
+#define greater_than_or_equal_to(expected) ,expected,0,expected,0,MT_EXPECT_GTE_FLAG);
+#define less_than_or_equal_to(expected) ,expected,0,expected,0,MT_EXPECT_LTE_FLAG);
+
+#define in_range(min_range, max_range) ,min_range,0,max_range,0,MT_EXPECT_RANGE_FLAG);
 
 #define expect_result minitest.current->current_assertion->assert_result
 
 #define mt_expect_forward(suffix, type) \
-  void __expect_##suffix(MiniTest *mt, type actual, size_t as, int negated, type expected, size_t es)
+  void __expect_##suffix(MiniTest *mt, type actual, size_t as, int negated, type expected, size_t es, type max_range, size_t ms, mt_expect_flags flag)
 
 #define mt_expect_array_forward(suffix, type) \
-  void __expect_##suffix(MiniTest *mt, type actual[], size_t as, int negated, type expected[], size_t es)
+  void __expect_##suffix(MiniTest *mt, type actual[], size_t as, int negated, type expected[], size_t es, type max_range[], size_t ms, mt_expect_flags flag)
 
 #define default_format_handle(suffix, type, arr, tf) default_format_handle_definition_##tf(suffix, type, arr)
 #define default_format_handle_definition_NONE(suffix, type, arr)
@@ -46,7 +66,25 @@ char* mt_assert_template(int neg, char* format);
 
 #define mt_expect_definition(suffix, type, arr, comparator, format, handle_type) \
   default_format_handle(suffix, type, arr, handle_type)                          \
-  void __expect_##suffix(MiniTest *mt, type actual arr, size_t actual_size, int negated, type expected arr, size_t expected_size) {   \
+                                                                                 \
+  int __expect_assert_##suffix(type actual arr, type expected arr, type max_range arr, mt_expect_flags flag) { \
+    switch(flag) {                                                                         \
+      case MT_EXPECT_GT_FLAG:                                                              \
+        return (actual > expected);                                                        \
+      case MT_EXPECT_LT_FLAG:                                                              \
+        return (actual < expected);                                                        \
+      case MT_EXPECT_GTE_FLAG:                                                             \
+        return (actual >= expected);                                                       \
+      case MT_EXPECT_LTE_FLAG:                                                             \
+        return (actual <= expected);                                                       \
+      case MT_EXPECT_RANGE_FLAG:                                                           \
+        return ( (actual >= expected) && (actual <= max_range) );                          \
+      default:                                                                             \
+        return (actual == expected);                                                       \
+    }                                                                                      \
+  }                                                                                        \
+                                                                                           \
+  void __expect_##suffix(MiniTest *mt, type actual arr, size_t actual_size, int negated, type expected arr, size_t expected_size, type max_range arr, size_t max_range_size, mt_expect_flags flag) {   \
     mt->assertions += 1;                                                            \
     if (mt->current->current_assertion->assert_result == TEST_FAILURE) { return; }  \
     int result = negated ? !(comparator) : (comparator);                            \

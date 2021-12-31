@@ -24,18 +24,18 @@ int __float_equal(float actual, float expected, float epsilon) {
 //
 // general expectations
 //
-mt_expect(int,    int,    (actual == expected), "%i");
-mt_expect(char,   char,   (actual == expected), "%c");
-mt_expect(short,  short,  (actual == expected), "%i");
-mt_expect(long,   long,   (actual == expected), "%ld");
+mt_expect(int,    int,    __expect_assert_int(actual,expected,max_range,flag), "%i");
+mt_expect(char,   char,   __expect_assert_char(actual,expected,max_range,flag), "%c");
+mt_expect(short,  short,  __expect_assert_short(actual,expected,max_range,flag), "%i");
+mt_expect(long,   long,   __expect_assert_long(actual,expected,max_range,flag), "%ld");
 
 mt_expect(double, double, (__double_equal(actual,expected,MT_EXPECT_EPSILON)), "%f");
 mt_expect(float,  float,  (__float_equal(actual,expected,MT_EXPECT_EPSILON)),  "%f");
 
-mt_expect(ptr,    void*,  (actual == expected), "%p");
+mt_expect(ptr,    void*,  __expect_assert_ptr(actual,expected,max_range,flag), "%p");
 mt_expect(str,    char*,  (strcmp(actual,expected)==0), "%s");
-mt_expect(sizet,  size_t, (actual == expected), "%zu");
-mt_expect(uint,   unsigned int, (actual == expected), "%u");
+mt_expect(sizet,  size_t, __expect_assert_sizet(actual,expected,max_range,flag), "%zu");
+mt_expect(uint,   unsigned int, __expect_assert_uint(actual,expected,max_range,flag), "%u");
 
 //
 // array expectations

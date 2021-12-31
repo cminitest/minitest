@@ -34,6 +34,37 @@ describe("MiniTest", minitest_assertions)
       end
     end
 
+    context("greater_than")
+      it("is truthy")
+        expect(1) to be greater_than(0)
+      end
+    end
+
+    context("less_than")
+      it("is truthy")
+        expect(0) to be less_than(1)
+      end
+    end
+
+    context("greater_than_or_equal_to")
+      it("is truthy")
+        expect(0) to be greater_than_or_equal_to(0)
+      end
+    end
+
+    context("less_than_or_equal_to")
+      it("is truthy")
+        expect(0) to be less_than_or_equal_to(0)
+      end
+    end
+
+    context("in_range")
+      it("is truthy")
+        expect(5) to be in_range(0,10)
+        expect(5) to not be in_range(10, 15)
+      end
+    end
+
     when("an invalid assertion is made")
       context("equal")
         it("fails")
