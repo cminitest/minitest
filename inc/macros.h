@@ -29,6 +29,17 @@
 #define MT_DEFINE_UNIQUE_NAME( name, line ) MT_CREATE_UNIQUE_NAME( name, line )
 #define MT_UNIQUE_NAME( name ) MT_DEFINE_UNIQUE_NAME( name, __COUNTER__ )
 
+#define MT_ATTR_SUPPORTED 1
+
+//
+// __attribute__ support
+//
+#if !defined(__GNUC__) && !defined(__GNUG__) && !defined(__clang__)
+  #undef MT_ATTR_SUPPORTED
+  #define MT_ATTR_SUPPORTED 0
+  #define __attribute__(name) mt_unsported_##name##__COUNTER__
+#endif
+
 //#define do  {
 #define end minitest.step_back(&minitest); }
 
@@ -46,7 +57,11 @@
   MT_REGISTER_SUITE( suite, handle, MT_UNIQUE_NAME( MINITEST_ ), __VA_ARGS__ )
 #define MT_SUITE( suite, handle, ... ) MT_DEFINE_SUITE( suite, handle, __VA_ARGS__ )
 
-#define describe( suite, handle, ... ) MT_SUITE( suite, handle, __VA_ARGS__ )
+#if MT_ATTR_SUPPORTED
+  #define describe( suite, handle, ... ) MT_SUITE( suite, handle, __VA_ARGS__ )
+#else
+  #define describe( handle, ... ) MT_SUITE( "Minitest Default", handle, __VA_ARGS__ )
+#endif
 
 //
 // behavior blocks

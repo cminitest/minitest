@@ -8,10 +8,6 @@ A behavior-driven test library for C.
 - No extensions to the C-library
 - Extensible assertions
 
-### Todo
-
-- Suites use gcc's `__attribute__((constructor))` to register a suite, this needs to be updated to ensure this library works without extensions to the C language.
-
 ## Example
 
 Minitest has supporting unit tests written in Minitest. Further examples can be found <a href="https://github.com/Vandise/minitest/blob/master/test/assertions_test.c">here</a> and <a href="https://github.com/Vandise/minitest/blob/master/test/core_test.c">here</a>.
@@ -78,6 +74,8 @@ $> ./bin/testsuite
 
 Minitest needs to be booted in the main() function of your test suite. The following is a minimal example to get started.
 
+** If your compiler supports __attribute__((constructor)): **
+
 ```
 // main.c
 #include "minitest/minitest.h"
@@ -97,6 +95,37 @@ end
 int main() {
   minitest.run();
   
+  int failures = minitest.failures;
+  
+  minitest.clear(&minitest); // optional, frees memory and clears the test suite
+  
+  return failures > 0 ? 1 : 0;
+}
+```
+
+** If your compiler does not support __attribute__((constructor)): **
+
+```
+// main.c
+#include "minitest/minitest.h"
+
+int add(int n1, int n2) {
+  return n1 + n2;
+}
+
+describe(my_program_suite)
+  context(".add")
+    it("returns the sum of two numbers")
+      expect(add(2,2)) to equal(4)
+    end
+  end
+end
+
+int main() {
+  minitest.register_suite(&minitest, "My Program", my_program_suite);
+
+  minitest.run();
+
   int failures = minitest.failures;
   
   minitest.clear(&minitest); // optional, frees memory and clears the test suite
