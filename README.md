@@ -8,6 +8,12 @@ A behavior-driven test library for C.
 - No extensions to the C-library
 - Extensible assertions
 
+## Todo
+
+- License
+- Fault Capturing / jmps to next label (without fork)
+- Documentation Improvements
+
 ## Example
 
 Minitest has supporting unit tests written in Minitest. Further examples can be found <a href="https://github.com/Vandise/minitest/blob/master/test/assertions_test.c">here</a> and <a href="https://github.com/Vandise/minitest/blob/master/test/core_test.c">here</a>.
