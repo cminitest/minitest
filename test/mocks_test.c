@@ -7,7 +7,7 @@ describe("MiniTest", minitest_mocks)
     mock(add_ints) and_return(5)
 
     it("mocks the return value of the function")
-      #ifdef LD_WRAP
+      #if LD_WRAP
         expect(add_ints(2, 2)) to equal(5)
       #else
         expect(__wrap_add_ints(2, 2)) to equal(5)
@@ -16,7 +16,7 @@ describe("MiniTest", minitest_mocks)
 
     it("can alter the return value")
       mock(add_ints) and_return(4)
-      #ifdef LD_WRAP
+      #if LD_WRAP
         expect(add_ints(2, 2)) to equal(4)
       #else
         expect(__wrap_add_ints(2, 2)) to equal(4)

@@ -1,6 +1,13 @@
 #ifndef __MINITEST_MOCKS_H__
 #define __MINITEST_MOCKS_H__ 1
 
+#ifdef LD_WRAP
+  #undef LD_WRAP
+  #define LD_WRAP 1
+#else
+  #define LD_WRAP 0
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -16,7 +23,16 @@ typedef struct MiniTestMockSuiteStruct {
   MiniTestMock *nodes;
 } MiniTestMockSuite;
 
+MiniTestMock* mt_find_node(MiniTestMockSuite *s, char* function_name);
+
+#define MT_LD_WRAP LD_WRAP
+
 #define MT_FUNCTION_NO_RETURN_ERROR "Function %s has not been initialized with a return value."
+
+#define mt_real_fn_handle(...) mt_real_fn_definition(__VA_ARGS__)
+#define mt_real_fn_definition(function_name, tf) mt_real_fn_definition_##tf(function_name)
+#define mt_real_fn_definition_0(function_name) function_name
+#define mt_real_fn_definition_1(function_name) __real_##function_name
 
 #define mt_mock_forwards(function_name, return_type, ...)    \
   return_type __real_##function_name(__VA_ARGS__);           \
@@ -25,7 +41,9 @@ typedef struct MiniTestMockSuiteStruct {
                                                              \
   typedef struct __##function_name##Struct {                 \
     int loaded;                                              \
+    int released;                                            \
     return_type return_value;                                \
+    return_type (*handle)(__VA_ARGS__);                      \
   } function_name##Struct;                                   \
 
 #define mt_define_mock(function_name, return_type, ...)                 \
@@ -37,6 +55,8 @@ typedef struct MiniTestMockSuiteStruct {
     node->function = malloc(strlen(#function_name) + 1);                \
     strcpy(node->function, #function_name);                             \
     data->loaded = 0;                                                   \
+    data->released = 0;                                                 \
+    data->handle = mt_real_fn_handle(function_name, MT_LD_WRAP);        \
     node->data = (void*)data;                                           \
     if (s->nodes == NULL) {                                             \
       s->nodes = node;                                                  \
@@ -77,10 +97,7 @@ typedef struct MiniTestMockSuiteStruct {
                                                                                   \
   void __mock_##function_name(MiniTestMockSuite *s, return_type return_value) {   \
     if(s->nodes == NULL) { __init_##function_name(s); }                           \
-    MiniTestMock* current_node = s->nodes;                                        \
-    while(strcmp(current_node->function, #function_name)!=0) {                    \
-      current_node = current_node->next;                                          \
-    }                                                                             \
+    MiniTestMock* current_node = mt_find_node(s, #function_name);                 \
     if (strcmp(current_node->function, #function_name)!=0) {                      \
       current_node = __init_##function_name(s);                                   \
     }                                                                             \
@@ -91,6 +108,7 @@ typedef struct MiniTestMockSuiteStruct {
 
 #define and_return(value) value);
 #define mock(function_name) __mock_##function_name(&minitestmocks, 
+
 
 extern MiniTestMockSuite minitestmocks;
 

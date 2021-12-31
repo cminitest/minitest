@@ -287,7 +287,7 @@ Defines the expect function. Two variables are exposed in this context:
 
 **NOTE:**
 
-if you specify anything other than NULL in `printf_format`, you must define a `__format_<function_identifier>(data_type value)` handler that returns the appropriate value associated with `printf_format`.
+You must define a `__format_<function_identifier>(data_type value)` handler that returns the appropriate value associated with `printf_format`. If you do not want to print out any custom error messages, you can define a `void* __format_<function_identifier>(data_type value) { return NULL; }` handler.
 
 ##### Example
 
