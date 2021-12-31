@@ -1,9 +1,5 @@
 #include "testsuite.h"
 
-int add_ints(int n1, int n2) {
-  return n1 + n2;
-}
-
 mt_define_mock(add_ints, int, int n1, int n2);
 
 describe("MiniTest", minitest_mocks)
