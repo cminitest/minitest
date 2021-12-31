@@ -31,7 +31,8 @@ typedef enum {
 #endif
 
 #define mt_template_value "%s"
-char* mt_assert_template(int neg, char* format);
+char* mt_assert_template(int neg, char* format, mt_expect_flags flag);
+char* mt_expect_flag_to_string(mt_expect_flags flag);
 
 #define have
 #define be
@@ -96,7 +97,7 @@ char* mt_assert_template(int neg, char* format);
       mt->current->current_assertion->assert_result = TEST_FAILURE;                 \
       if(format == NULL) { return; }                                                    \
       mt->current->current_assertion->assert_message = malloc(MT_MAX_ASSERTION_BUFFER); \
-      char *template = mt_assert_template(negated, format);                             \
+      char *template = mt_assert_template(negated, format, flag);                       \
       snprintf(                                                                         \
         mt->current->current_assertion->assert_message, MT_MAX_ASSERTION_BUFFER,        \
         template, __format_##suffix (actual), __format_##suffix (expected)              \

@@ -38,11 +38,19 @@ describe("MiniTest", minitest_assertions)
       it("is truthy")
         expect(1) to be greater_than(0)
       end
+
+      it("fails")
+        expect(0) to be greater_than(0)
+      end
     end
 
     context("less_than")
       it("is truthy")
         expect(0) to be less_than(1)
+      end
+
+      it("fails")
+        expect(0) to be less_than(0)
       end
     end
 
@@ -50,11 +58,19 @@ describe("MiniTest", minitest_assertions)
       it("is truthy")
         expect(0) to be greater_than_or_equal_to(0)
       end
+
+      it("fails")
+        expect(5) to be greater_than_or_equal_to(10)
+      end
     end
 
     context("less_than_or_equal_to")
       it("is truthy")
         expect(0) to be less_than_or_equal_to(0)
+      end
+
+      it("fails")
+        expect(10) to be less_than_or_equal_to(5)
       end
     end
 
@@ -62,6 +78,10 @@ describe("MiniTest", minitest_assertions)
       it("is truthy")
         expect(5) to be in_range(0,10)
         expect(5) to not be in_range(10, 15)
+      end
+
+      it("fails")
+        expect(10) to be in_range(0,5)
       end
     end
 
@@ -296,9 +316,10 @@ describe("MiniTest", minitest_assertions)
       when("an invalid assertion is made")
         it("fails")
           void *x; void *n;
+          n = malloc(1);
+          x = malloc(2);
           expect(x) to equal(n)
-          
-          
+          free(x); free(n);
         end
       end
     end

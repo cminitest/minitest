@@ -1,13 +1,31 @@
 #include "assertions.h"
 
-char* mt_assert_template(int neg, char* format) {
+char* mt_expect_flag_to_string(mt_expect_flags flag) {
+  switch(flag) {
+    case MT_EXPECT_GT_FLAG:
+      return "be greater than";
+    case MT_EXPECT_LT_FLAG:
+      return "be less than";
+    case MT_EXPECT_GTE_FLAG:
+      return "be greater than or equal to";
+    case MT_EXPECT_LTE_FLAG:
+      return "be less than or equal to";
+    case MT_EXPECT_RANGE_FLAG:
+      return "be in range";
+    default:
+      return "equal";
+  }
+}
+
+char* mt_assert_template(int neg, char* format, mt_expect_flags flag) {
   char* template = malloc(MT_MAX_ASSERTION_BUFFER);
   memset(template, '\0', MT_MAX_ASSERTION_BUFFER);
   sprintf(
     template,
-    "Expected <" mt_template_value "> %s equal <" mt_template_value ">",
+    "Expected <" mt_template_value "> %s %s <" mt_template_value ">",
     format,
     !neg ? "to" : "to not",
+    mt_expect_flag_to_string(flag),
     format
   );
   return template;
