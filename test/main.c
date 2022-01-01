@@ -1,6 +1,6 @@
 #include "testsuite.h"
 
-#define EXPECTED_FAILURES 20
+#define EXPECTED_FAILURES 24
 
 int main() {
   minitest.run();

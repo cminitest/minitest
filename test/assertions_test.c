@@ -337,7 +337,74 @@ describe("MiniTest", minitest_assertions)
         it("fails")
           char *s = "hello world";
           expect(s) to equal("hello")
-          
+        end
+      end
+    end
+
+    context("unsigned int")
+      when("a valid assertion is made")
+        it("is truthy")
+          unsigned int x = 1;
+          expect(x) to equal(x)
+          expect(expect_result) to equal(TEST_PASS)
+        end
+      end
+
+      when("an invalid assertion is made")
+        it("fails")
+          unsigned int x = 1;
+          expect(x) to equal(0)
+        end
+      end
+    end
+
+    context("unsigned short")
+      when("a valid assertion is made")
+        it("is truthy")
+          unsigned short x = 1;
+          expect(x) to equal(x)
+          expect(expect_result) to equal(TEST_PASS)
+        end
+      end
+
+      when("an invalid assertion is made")
+        it("fails")
+          unsigned short x = 1;
+          expect(x) to equal(0)
+        end
+      end
+    end
+
+    context("unsigned long")
+      when("a valid assertion is made")
+        it("is truthy")
+          unsigned long x = 1;
+          expect(x) to equal(x)
+          expect(expect_result) to equal(TEST_PASS)
+        end
+      end
+
+      when("an invalid assertion is made")
+        it("fails")
+          unsigned long x = 1;
+          expect(x) to equal(0)
+        end
+      end
+    end
+
+    context("unsigned char")
+      when("a valid assertion is made")
+        it("is truthy")
+          unsigned char x = 254;
+          expect(x) to equal(x)
+          expect(expect_result) to equal(TEST_PASS)
+        end
+      end
+
+      when("an invalid assertion is made")
+        it("fails")
+          unsigned char x = 254;
+          expect(x) to equal(0)
         end
       end
     end

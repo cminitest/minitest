@@ -37,6 +37,9 @@ char* mt_assert_template(int neg, char* format, mt_expect_flags flag) {
     format,
     range_str
   );
+
+  free(range_str);
+
   return template;
 }
 
@@ -61,8 +64,13 @@ mt_expect(float,  float,  (__float_equal(actual,expected,MT_EXPECT_EPSILON)),  "
 
 mt_expect(ptr,    void*,  __expect_assert_ptr(actual,expected,max_range,flag), "%p");
 mt_expect(str,    char*,  (strcmp(actual,expected)==0), "%s");
+
+// also unsigned long
 mt_expect(sizet,  size_t, __expect_assert_sizet(actual,expected,max_range,flag), "%zu");
-mt_expect(uint,   unsigned int, __expect_assert_uint(actual,expected,max_range,flag), "%u");
+
+mt_expect(uint,     unsigned int,    __expect_assert_uint(actual,expected,max_range,flag),    "%u");
+mt_expect(ushort,   unsigned short,  __expect_assert_ushort(actual,expected,max_range,flag),  "%u");
+mt_expect(uchar,    unsigned char,   __expect_assert_uchar(actual,expected,max_range,flag),   "%d");
 
 //
 // array expectations

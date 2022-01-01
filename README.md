@@ -237,9 +237,10 @@ expect(mock_calls(add_ints)) to not have been_called
 - float, float[] (float*)
 - void*
 - size_t
+- unsigned char
+- unsigned short
 - unsigned int
-
-And more to come.
+- unsigned long
 
 ## Mocking
 

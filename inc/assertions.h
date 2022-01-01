@@ -140,8 +140,12 @@ mt_expect_forward(double, double);
 mt_expect_forward(float,  float);
 mt_expect_forward(ptr,    void*);
 mt_expect_forward(str,    char*);
+
+// also unsigned long
 mt_expect_forward(sizet,  size_t);
-mt_expect_forward(uint,   unsigned int);
+mt_expect_forward(uint,     unsigned int);
+mt_expect_forward(ushort,   unsigned short);
+mt_expect_forward(uchar,    unsigned char);
 
 mt_expect_array_forward(intarr, int);
 mt_expect_array_forward(shortarr, short);
@@ -160,7 +164,9 @@ mt_expect_array_forward(floatarr, float);
                                         void*: __expect_ptr,     \
                                         char*: __expect_str,     \
                                         size_t: __expect_sizet,  \
-                                        unsigned int: __expect_uint,   \
+                                        unsigned int: __expect_uint,     \
+                                        unsigned short: __expect_ushort, \
+                                        unsigned char: __expect_uchar,   \
                                         int*: __expect_intarr,         \
                                         short*: __expect_shortarr,     \
                                         long*: __expect_longarr,       \
