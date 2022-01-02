@@ -12,6 +12,7 @@ typedef struct ExpectExtStruct {
 #include "minitest/minitest.h"
 
 int add_ints(int n1, int n2);
+int add_three_ints(int n1, int n2, int n3);
 
 mt_expect_forward(extstruct, ExpectExt*);
 mt_expect_array_forward(extstructarr, ExpectExt*);
