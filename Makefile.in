@@ -62,7 +62,9 @@ endif
 
 $(TESTOBJS): $(OBJDIR)/%.o : test/%.c
 	$(CC) $(CFLAGS) $(ADDFLAGS) $(ADDSFLAGS) -c $< -o $@
+ifeq ($(TESTWRAPDMP),1)
 	/usr/local/opt/binutils/bin/gobjcopy  --redefine-sym _add_ints=___wrap_add_ints $@
+endif
 
 clean:
 	rm *.o
