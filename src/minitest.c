@@ -12,6 +12,9 @@ static void run_suite(MiniTestSuite *suite, MiniTest *mt);
 static void run_blocks(MiniTestBlockArray *blocks);
 static void run_it_blocks(int depth, MiniTestBlockArray *blocks);
 
+static void run_before_fixtures(MiniTest *mt, MiniTestBlock* current_block);
+static void run_after_fixtures(MiniTest *mt, MiniTestBlock* current_block);
+
 static void init_block_array(MiniTestBlockArray *a, size_t initialSize);
 static void insert_block_array(MiniTestBlockArray *a, MiniTestBlock *block);
 static char* type_to_string(int t);
@@ -77,11 +80,14 @@ static void register_suite(MiniTest *mt, const char *name, void *test_case) {
   suite->next = NULL;
   suite->it_flag = 0;
   suite->current_assertion = NULL;
+  suite->subject = NULL;
 
   init_block_array(&(suite->blocks), 1);
 
   MiniTestBlock *root_block = malloc(sizeof(MiniTestBlock));
   root_block->block_type = ROOT_TYPE;
+  root_block->before = NULL;
+  root_block->after = NULL;
 
   insert_block_array(&(suite->blocks), root_block);
 
@@ -96,6 +102,35 @@ static void register_suite(MiniTest *mt, const char *name, void *test_case) {
   }
 }
 
+static void run_before_fixtures(MiniTest *mt, MiniTestBlock* current_block) {
+  MiniTestBlock* block = current_block;
+  void (*before_fixtures[MT_MAX_FIXTURES])(void**);
+
+  int index = 0;
+
+  do {
+    if (block->before != NULL) {
+      before_fixtures[index] = block->before;
+      index++;
+    }
+    block = block->previous;
+  } while(block != NULL);
+
+  for(int i = index-1; i >= 0; i--) {
+    before_fixtures[i](&(mt->current->subject));
+  }
+}
+
+static void run_after_fixtures(MiniTest *mt, MiniTestBlock* current_block) {
+  MiniTestBlock* block = current_block;
+  do {
+    if (block->after != NULL) {
+      (block->after)(&(mt->current->subject));
+    }    
+    block = block->previous;
+  } while(block != NULL);
+}
+
 static void register_block(int test_type, MiniTest *mt, const char *name) {
   if (!mt->current) {
     // todo: errors
@@ -108,6 +143,8 @@ static void register_block(int test_type, MiniTest *mt, const char *name) {
   block->it_blocks.used = 0;
   block->children.used = 0;
   block->assert_message = NULL;
+  block->before = NULL;
+  block->after = NULL;
 
   if (test_type == IT_TYPE) {
     mt->test_cases += 1;
@@ -119,6 +156,8 @@ static void register_block(int test_type, MiniTest *mt, const char *name) {
     block->block_type = IT_TYPE;
     block->assert_result = TEST_PENDING;
     insert_block_array(&(mt->current->current_block->it_blocks), block);
+
+    run_before_fixtures(mt, mt->current->current_block);
   } else {
     block->block_type = test_type;
     block->previous   = mt->current->current_block;
@@ -138,8 +177,10 @@ static void step_back(MiniTest *mt) {
   if (mt->current) {
     if (mt->current->it_flag) {
       mt->current->it_flag = 0;
+      run_after_fixtures(mt, mt->current->current_block);
       return;
     }
+
     if (mt->current->current_block && mt->current->current_block->previous) {
       mt->current->current_block = mt->current->current_block->previous;
     }

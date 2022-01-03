@@ -31,6 +31,9 @@ typedef struct MiniTestBlockStruct {
   MiniTestBlockArray it_blocks;
   MiniTestBlockArray children;
 
+  void (*before)(void**);
+  void (*after)(void**);
+
   struct MiniTestBlockStruct *previous;
 } MiniTestBlock;
 
@@ -38,6 +41,7 @@ typedef struct MiniTestSuiteStruct {
   char *name;
   int block_type;
   int it_flag;
+  void* subject;
 
   MiniTestBlockArray blocks;
   MiniTestBlock     *current_block;

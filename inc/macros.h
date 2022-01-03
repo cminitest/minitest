@@ -40,6 +40,10 @@
   #define __attribute__(name) mt_unsported_##name##__COUNTER__
 #endif
 
+#if !defined(MT_MAX_FIXTURES)
+  #define MT_MAX_FIXTURES 25
+#endif
+
 //#define do  {
 #define end minitest.step_back(&minitest); }
 
@@ -77,5 +81,18 @@
 #define given( testcase, ... ) MT_TEST_CASE( GIVEN_TYPE, testcase, __VA_ARGS__ )
 #define and( testcase, ... ) MT_TEST_CASE( AND_TYPE, testcase, __VA_ARGS__ )
 #define when( testcase, ... ) MT_TEST_CASE( WHEN_TYPE, testcase, __VA_ARGS__ )
+
+#define mt_fixture_before(id) static void __before_fixture_##id (void** subject)
+#define mt_fixture_after(id) static void __after_fixture_##id (void** subject)
+#define mt_define_fixture_type(fixture_type, id) mt_fixture_##fixture_type(id)
+#define define_fixture(...) mt_define_fixture_type(__VA_ARGS__)
+
+#define mt_set_fixture_type_name(t, id) __##t##_fixture_##id
+#define mt_set_fixture_type_after(id) minitest.current->current_block->after = mt_set_fixture_type_name(after, id);
+#define mt_set_fixture_type_before(id) minitest.current->current_block->before = mt_set_fixture_type_name(before, id);
+#define mt_set_fixture_type(fixture_type, id) mt_set_fixture_type_##fixture_type(id)
+#define set_fixture(...) mt_set_fixture_type(__VA_ARGS__)
+
+#define subject(t) minitest.current->subject
 
 #endif
