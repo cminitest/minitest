@@ -137,7 +137,7 @@ char* mt_expect_flag_to_string(mt_expect_flags flag);
 #define mt_expect_ext_default(suffix, type, comparator, format) mt_expect_definition(suffix, type,, comparator, format, NONE)
 #define mt_expect_array_ext_default(suffix, type, comparator, format) mt_expect_definition(suffix, type, [], comparator, format, NONE)
 
-#define mt_expect_extension(symbol, datatype)  datatype: __expect_##symbol,
+#define mt_register_expect_extension(symbol, datatype)  datatype: __expect_##symbol,
 
 mt_expect_forward(int,    int);
 mt_expect_forward(char,   char);

@@ -491,7 +491,7 @@ typedef struct ExpectExtStruct {
 } ExpectExt;
 
 #define MT_EXPECT_EXT \
-  mt_expect_extension(extstruct, ExpectExt*)
+  mt_register_expect_extension(extstruct, ExpectExt*)
 
 #include "minitest/minitest.h"
 
