@@ -8,6 +8,14 @@ A behavior-driven test library for C.
 - No extensions to the C-library
 - Extensible assertions
 
+## Functionality
+
+- An elegant syntax
+- A variety of default assertions
+- Mocks
+- Fixtures
+- Extensible
+
 ## Todo
 
 - License
@@ -241,6 +249,64 @@ expect(mock_calls(add_ints)) to not have been_called
 - unsigned short
 - unsigned int
 - unsigned long
+
+## Fixtures
+
+Fixtures are functions that run before or after each `it` block. They must be defined before your test suite and in the same file -- fixture functions are defined as `static`.
+
+**NOTE:** All fixtures in the executing test construct hierarchy will run.
+
+Fixtures receive one argument, a void pointer to a pointer of the current subject. An example of getting and setting the subject can be viewed <a href="https://github.com/Vandise/minitest/blob/master/test/fixtures_test.c">here</a>.
+
+```c
+void fixture(void **subject);
+```
+
+### Before
+
+Before fixtures run in a top-down execution chain from the current test construct.  
+
+### After
+
+After fixtures run in a bottom-up execution chain from the current test construct.
+
+### Example
+
+```c
+int global_counter = 0;
+
+define_fixture(before, before_all) {
+  global_counter++;
+}
+
+define_fixture(before, before_nested) {
+  global_counter++;
+}
+
+define_fixture(after, after_all) {
+  global_counter = 0;
+}
+
+
+describe("Fixture Example", fixture_example)
+  set_fixture(before, before_all)
+  set_fixture(after,  after_all)
+
+  it("updates the global counter")
+    expect(global_counter) to equal(1) 
+  end
+
+  when("a nested fixture is registered")
+    set_fixture(before, before_nested)
+
+    and("an it block is called")
+      it("runs both fixtures")
+        expect(global_counter) to equal(2)
+      end
+    end
+  end
+end
+```
 
 ## Mocking
 
