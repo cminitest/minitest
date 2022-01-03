@@ -3,9 +3,9 @@ UNAME       := $(shell uname)
 CC          := @CC@
 LIBNAME			:= libminitest
 LIBEXT      := so
-CFILES      := src/assertions.c src/mocks.c src/minitest.c
+CFILES      := src/assertions.c src/mocks.c src/minitest.c src/output.c
 HFILES			:= inc/assertions.h inc/macros.h inc/minitest.h inc/mock.h
-OBJECTS     := assertions.o mocks.o minitest.o
+OBJECTS     := assertions.o mocks.o minitest.o output.o
 CFLAGS			:= @CFLAGS@
 ADDFLAGS    := -O2 -std=c11
 ADDSFLAGS   :=
@@ -67,12 +67,12 @@ ifeq ($(TESTWRAPDMP),1)
 endif
 
 clean:
-	rm *.o
-	rm obj/*.o
-	rm lib/$(LIBNAME).$(LIBEXT)
-	rm config.log
-	rm config.status
-	rm configure
-	rm Makefile
+	rm -f *.o
+	rm -f obj/*.o
+	rm -f lib/$(LIBNAME).$(LIBEXT)
+	rm -f config.log
+	rm -f config.status
+	rm -f configure
+	rm -f Makefile
 	rm -rf autom4te.cache
-	rm bin/testsuite
+	rm -f bin/testsuite

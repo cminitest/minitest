@@ -15,6 +15,7 @@ A behavior-driven test library for C.
 - Mocks
 - Fixtures
 - Extensible
+- Configurable Output Formats
 
 ## Todo
 
@@ -152,6 +153,20 @@ Compilation:
 
 ```
 $> gcc -o testsuite main.c -lminitest
+```
+
+## Output Formats
+
+Minitest can be configured to output multiple formats. Default is STDIO.
+
+**Supported Formats:**
+
+- STDIO
+- More to come!
+
+```c
+minitest.output_format = MT_STDIO;
+minitest.run();
 ```
 
 ## Constructs

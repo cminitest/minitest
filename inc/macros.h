@@ -44,6 +44,9 @@
   #define MT_MAX_FIXTURES 25
 #endif
 
+#define MT_STDIO 0x01
+
+
 //#define do  {
 #define end minitest.step_back(&minitest); }
 

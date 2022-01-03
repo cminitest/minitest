@@ -15,6 +15,11 @@ extern MiniTest minitest;
 #include "mock.h"
 #include "assertions.h"
 
+char* mt_format_suite_output(char* name);
+char* mt_format_block_output(int block_depth, int block_type, char* name);
+char* mt_format_it_output(int block_depth, char* color, char* bullet, char* name);
+char* mt_format_assert_failure_output(int block_depth, char* color, char* assert_message);
+
 typedef struct MiniTestBlockArrayStruct {
   MiniTestBlock **array;
   size_t used;
@@ -59,6 +64,8 @@ typedef struct MiniTestStruct {
   unsigned int test_cases;
   unsigned int passes;
   unsigned int failures;
+
+  int output_format;
 
   MiniTestSuite *suites;
   MiniTestSuite *current;

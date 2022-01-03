@@ -17,7 +17,6 @@ static void run_after_fixtures(MiniTest *mt, MiniTestBlock* current_block);
 
 static void init_block_array(MiniTestBlockArray *a, size_t initialSize);
 static void insert_block_array(MiniTestBlockArray *a, MiniTestBlock *block);
-static char* type_to_string(int t);
 static void clear(MiniTest *mt);
 static void free_suite(MiniTestSuite *suite);
 static void free_block(MiniTestBlock *block);
@@ -26,33 +25,6 @@ static void print_summary(MiniTest *mt, double time_spent);
 // ============================
 //        Implementation
 // ============================
-
-#define ROOT_TYPE 0x00
-#define DESCRIBE_TYPE 0x01
-#define IT_TYPE 0x02
-#define CONTEXT_TYPE 0x03
-#define GIVEN_TYPE 0x04
-#define AND_TYPE 0x05
-#define WHEN_TYPE 0x06
-
-static char* type_to_string(int t) {
-  switch(t) {
-    case IT_TYPE:
-      return "it";
-    case CONTEXT_TYPE:
-      return "context";
-    case GIVEN_TYPE:
-      return "given";
-    case AND_TYPE:
-      return "and";
-    case WHEN_TYPE:
-      return "when";
-    case ROOT_TYPE:
-      return "root";
-    default:
-      return "undefined";
-  }
-}
 
 static void init_block_array(MiniTestBlockArray *a, size_t initialSize) {
   a->array = (malloc(initialSize * sizeof(MiniTestBlock*)));
@@ -196,10 +168,10 @@ static void run_it_blocks(int depth, MiniTestBlockArray *blocks) {
     char *color = block->assert_result == TEST_PENDING ? CONSOLE_CYAN : block->assert_result == TEST_PASS ? CONSOLE_GREEN : CONSOLE_RED;
     char *bullet = block->assert_result == TEST_PENDING ? PENDING_BULLET : block->assert_result == TEST_PASS ? SUCCESS_BULLET : FAILURE_BULLET;
 
-    printf("%*c %s %s it %s %s\n", depth*2, ' ', color, bullet, block->name, CONSOLE_DEFAULT);
+    mt_format_it_output(depth, color, bullet, block->name);
 
     if (block->assert_result == TEST_FAILURE) {
-      printf("%*c %s %s %s\n", depth*2, ' ', color, block->assert_message, CONSOLE_DEFAULT);
+      mt_format_assert_failure_output(depth, color, block->assert_message);
     }
   }
 }
@@ -211,7 +183,7 @@ static void run_blocks(MiniTestBlockArray *blocks) {
     MiniTestBlock *block = blocks->array[i];
 
     if(block->block_type != ROOT_TYPE) {
-      printf("%*c %s %s %s %s\n", block->depth*2, ' ', CONSOLE_GREEN, type_to_string(block->block_type), CONSOLE_DEFAULT, block->name);
+      mt_format_block_output(block->depth, block->block_type, block->name);
     }
     run_it_blocks(block->depth+1, &(block->it_blocks));
     run_blocks(&(block->children));
@@ -223,7 +195,7 @@ static void run_suite(MiniTestSuite *suite, MiniTest *mt) {
 
   if (!suite) { return; }
 
-  printf("%s describe %s %s:\n", CONSOLE_YELLOW, CONSOLE_DEFAULT, suite->name);
+  mt_format_suite_output(suite->name);
 
   suite->suite(mt);
 
@@ -319,6 +291,7 @@ MiniTest minitest = {
   .test_cases = 0,
   .passes = 0,
   .failures = 0,
+  .output_format = MT_STDIO,
   .suites = NULL,
   .current = NULL,
   .register_suite = register_suite,
