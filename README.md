@@ -450,7 +450,7 @@ Defines the expect function. Two variables are exposed in this context:
 
 **NOTE:**
 
-You must define a `__format_<function_identifier>(data_type value)` handler that returns the appropriate value associated with `printf_format`. If you do not want to print out any custom error messages, you can define a `void* __format_<function_identifier>(data_type value) { return NULL; }` handler.
+You must define a `__format_<function_identifier>(data_type value)` handler that returns the appropriate value associated with `printf_format`. If you do not want to print out any custom error messages, you can define your extension with `mt_expect_ext_default` or `mt_expect_array_ext_default` to define and use a `void* __format_<function_identifier>(data_type value) { return NULL; }` handler.
 
 ##### Example
 

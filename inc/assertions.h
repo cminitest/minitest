@@ -4,9 +4,10 @@
 #include "minitest.h"
 
 typedef enum { 
-  NONE, 
-  SINGLE, 
-  ARRAY 
+  NONE,
+  SINGLE,
+  ARRAY,
+  EXTENSION
 } mt_format;
 
 typedef enum { 
@@ -61,9 +62,10 @@ char* mt_expect_flag_to_string(mt_expect_flags flag);
   void __expect_##suffix(MiniTest *mt, type actual[], size_t as, int negated, type expected[], size_t es, type max_range[], size_t ms, mt_expect_flags flag)
 
 #define default_format_handle(suffix, type, arr, tf) default_format_handle_definition_##tf(suffix, type, arr)
-#define default_format_handle_definition_NONE(suffix, type, arr)
+#define default_format_handle_definition_NONE(suffix, type, arr) void* __format_##suffix(type value arr) { return NULL; }
 #define default_format_handle_definition_SINGLE(suffix, type, arr) type  __format_##suffix(type value arr) { return value; }
 #define default_format_handle_definition_ARRAY(suffix, type, arr) type* __format_##suffix(type value arr) { return value; }
+#define default_format_handle_definition_EXTENSION(suffix, type, arr)
 
 #define mt_expect_definition(suffix, type, arr, comparator, format, handle_type) \
   default_format_handle(suffix, type, arr, handle_type)                          \
@@ -129,8 +131,12 @@ char* mt_expect_flag_to_string(mt_expect_flags flag);
 #define mt_expect(suffix, type, comparator, format) mt_expect_definition(suffix, type,, comparator, format, SINGLE)
 #define mt_expect_array(suffix, type, comparator, format) mt_expect_definition(suffix, type, [], comparator, format, ARRAY)
 
-#define mt_expect_ext(suffix, type, comparator, format) mt_expect_definition(suffix, type,, comparator, format, NONE)
-#define mt_expect_array_ext(suffix, type, comparator, format) mt_expect_definition(suffix, type, [], comparator, format, NONE)
+#define mt_expect_ext(suffix, type, comparator, format) mt_expect_definition(suffix, type,, comparator, format, EXTENSION)
+#define mt_expect_array_ext(suffix, type, comparator, format) mt_expect_definition(suffix, type, [], comparator, format, EXTENSION)
+
+#define mt_expect_ext_default(suffix, type, comparator, format) mt_expect_definition(suffix, type,, comparator, format, NONE)
+#define mt_expect_array_ext_default(suffix, type, comparator, format) mt_expect_definition(suffix, type, [], comparator, format, NONE)
+
 #define mt_expect_extension(symbol, datatype)  datatype: __expect_##symbol,
 
 mt_expect_forward(int,    int);

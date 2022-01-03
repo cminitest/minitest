@@ -9,10 +9,8 @@ int __assert_array_extstructarr(ExpectExt* arr_1[], ExpectExt* arr_2[], size_t s
   return 1;
 }
 
-void* __format_extstructarr(ExpectExt* value[]) { return NULL; }
-
 mt_expect_ext(extstruct, ExpectExt*, (actual->value == expected->value), "%i");
-mt_expect_array_ext(extstructarr, ExpectExt*, __assert_array_extstructarr(expected, actual, actual_size, expected_size), NULL);
+mt_expect_array_ext_default(extstructarr, ExpectExt*, __assert_array_extstructarr(expected, actual, actual_size, expected_size), NULL);
 
 describe("MiniTest", minitest_extensions)
   context("Extensions")
