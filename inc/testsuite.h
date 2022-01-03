@@ -6,8 +6,8 @@ typedef struct ExpectExtStruct {
 } ExpectExt;
 
 #define MT_EXPECT_EXT \
-  ExpectExt*: __expect_extstruct,     \
-  ExpectExt**: __expect_extstructarr,
+  mt_expect_extension(extstruct, ExpectExt*) \
+  mt_expect_extension(extstructarr, ExpectExt**)
 
 #include "minitest/minitest.h"
 
