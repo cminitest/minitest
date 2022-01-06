@@ -15,10 +15,23 @@ extern MiniTest minitest;
 #include "mock.h"
 #include "assertions.h"
 
-char* mt_format_suite_output(char* name);
-char* mt_format_block_output(int block_depth, int block_type, char* name);
-char* mt_format_it_output(int block_depth, char* color, char* bullet, char* name);
-char* mt_format_assert_failure_output(int block_depth, char* color, char* assert_message);
+char* mt_format_suites_prologue();
+char* mt_format_suites_value(char* data);
+char* mt_format_suites_epilogue();
+
+char* mt_format_suite_prologue(char* name);
+char* mt_format_suite_value(char* name);
+char* mt_format_suite_epilogue(char* name);
+
+char* mt_format_block_prologue(int block_depth, int block_type, char* name);
+char* mt_format_block_value(int block_depth, int block_type, char* name);
+char* mt_format_block_epilogue(int block_depth, int block_type, char* name);
+
+char* mt_format_it_prologue(int block_depth, char* color, char* bullet, char* name);
+char* mt_format_it_value(int block_depth, char* color, char* bullet, char* name);
+char* mt_format_it_epilogue(int block_depth, char* color, char* bullet, char* name);
+
+char* mt_format_assert_failure_value(int block_depth, char* color, char* assert_message);
 
 typedef struct MiniTestBlockArrayStruct {
   MiniTestBlock **array;

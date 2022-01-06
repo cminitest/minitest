@@ -168,11 +168,14 @@ static void run_it_blocks(int depth, MiniTestBlockArray *blocks) {
     char *color = block->assert_result == TEST_PENDING ? CONSOLE_CYAN : block->assert_result == TEST_PASS ? CONSOLE_GREEN : CONSOLE_RED;
     char *bullet = block->assert_result == TEST_PENDING ? PENDING_BULLET : block->assert_result == TEST_PASS ? SUCCESS_BULLET : FAILURE_BULLET;
 
-    mt_format_it_output(depth, color, bullet, block->name);
+    mt_format_it_prologue(depth, color, bullet, block->name);
+    mt_format_it_value(depth, color, bullet, block->name);
 
     if (block->assert_result == TEST_FAILURE) {
-      mt_format_assert_failure_output(depth, color, block->assert_message);
+      mt_format_assert_failure_value(depth, color, block->assert_message);
     }
+
+    mt_format_it_epilogue(depth, color, bullet, block->name);
   }
 }
 
@@ -182,11 +185,17 @@ static void run_blocks(MiniTestBlockArray *blocks) {
   for (int i = 0; i < blocks->used; i++) {
     MiniTestBlock *block = blocks->array[i];
 
+    mt_format_block_prologue(block->depth, block->block_type, block->name);
+
     if(block->block_type != ROOT_TYPE) {
-      mt_format_block_output(block->depth, block->block_type, block->name);
+      mt_format_block_value(block->depth, block->block_type, block->name);
     }
+
     run_it_blocks(block->depth+1, &(block->it_blocks));
+
     run_blocks(&(block->children));
+
+    mt_format_block_epilogue(block->depth, block->block_type, block->name);
   }
 }
 
@@ -195,11 +204,14 @@ static void run_suite(MiniTestSuite *suite, MiniTest *mt) {
 
   if (!suite) { return; }
 
-  mt_format_suite_output(suite->name);
+  mt_format_suite_prologue(suite->name);
+  mt_format_suite_value(suite->name);
 
   suite->suite(mt);
 
   run_blocks(&(suite->blocks));
+
+  mt_format_suite_epilogue(suite->name);
 
   run_suite(suite->next, mt);
 }
@@ -208,7 +220,10 @@ static void run() {
   double time_spent = 0.0;
   clock_t start_t = clock();
 
+  mt_format_suites_prologue();
+  mt_format_suites_value(NULL);
   run_suite(minitest.suites, &minitest);
+  mt_format_suites_epilogue();
 
   clock_t end_t = clock();
   time_spent += (double)(end_t - start_t) / CLOCKS_PER_SEC;
