@@ -106,6 +106,12 @@ jobs:
         name: library
         path: lib/
 
+    - name: Archive headers
+      uses: actions/upload-artifact@v1
+      with:
+        name: headers
+        path: inc/
+
     - name: Archive Binaries
       uses: actions/upload-artifact@v1
       with:
