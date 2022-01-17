@@ -30,7 +30,8 @@ MiniTestMock* mt_find_node(MiniTestMockSuite *s, char* function_name);
 
 #define MT_FUNCTION_NO_RETURN_ERROR "Function %s has not been initialized with a return value."
 
-#define mt_mock_args(...) ( __VA_ARGS__ )
+#define mt_mock_arg_names(...) ( __VA_ARGS__ )
+#define mt_mock_arg_signature(...) ( __VA_ARGS__ )
 
 #define mt_real_fn_handle(...) mt_real_fn_definition(__VA_ARGS__)
 #define mt_real_fn_definition(function_name, tf) mt_real_fn_definition_##tf(function_name)
@@ -68,6 +69,23 @@ typedef struct __MockParamStruct {
   } data; 
 } MockParam;
 
+#define mt_mock_argtype_string(v) #v
+#define mt_mock_function_args_0(...)   char* args[] = {}
+#define mt_mock_function_args_1(n1)    char* args[] = { mt_mock_argtype_string(n1) }
+#define mt_mock_function_args_2(n1,n2) char* args[] = { mt_mock_argtype_string(n1), mt_mock_argtype_string(n2) }
+#define mt_mock_function_args_3(n1,n2,n3) char* args[] = { mt_mock_argtype_string(n1), mt_mock_argtype_string(n2), mt_mock_argtype_string(n3) }
+
+#define mt_set_call_value_if(value, type, cast, key) \
+  if(strcmp(value, type) == 0) {                     \
+    param.data.key = va_arg(valist, int);            \
+    param.data_type = malloc(sizeof(type));          \
+    strcpy(param.data_type, type);                   \
+    call->params[i] = param;                         \
+    continue;                                        \
+  }                                                  \
+
+#define mt_mock_function_call_args(...) __VA_ARGS__
+
 #define mt_mock_forwards(function_name, return_type, argc, ...)    \
   return_type __real_##function_name(__VA_ARGS__);                 \
   return_type __wrap_##function_name(__VA_ARGS__);                 \
@@ -83,14 +101,39 @@ typedef struct __MockParamStruct {
     int loaded;                                              \
     int released;                                            \
     int call_count;                                          \
-    function_name##CallStruct calls;                         \
+    function_name##CallStruct* calls;                        \
+    function_name##CallStruct* last_call;                    \
     return_type return_value;                                \
     return_type (*handle)(__VA_ARGS__);                      \
   } function_name##Struct;                                   \
                                                              \
 
-#define mt_define_mock(function_name, mock_args, return_type, ...)      \
-  void __register_mock_call_args(function_name##Struct* mock, ...) {    \
+
+/*
+  TODO: __mock_##function_name needs to free mock calls if not null
+*/
+
+#define mt_define_mock(function_name, return_type, argc, arg_types, mock_args, ...) \
+                                                                                    \
+  void __##function_name##register_mock_call(function_name##Struct* mock, int cn, int argcount, ...) {    \
+    function_name##CallStruct* call = malloc(sizeof(function_name##CallStruct));\
+    call->call_number = cn;                                                     \
+    call->next = NULL;                                                          \
+    mt_mock_function_args_##argc arg_types;                             \
+    va_list valist;                                                     \
+    va_start(valist, argcount);                                         \
+    for(int i = 0; i < argcount; i++) {                                 \
+      MockParam param;                                                  \
+      mt_set_call_value_if(args[i], "int", int, int_value)              \
+    }                                                                   \
+    va_end(valist);                                                     \
+    if (mock->last_call == NULL) {                                      \
+      mock->calls = call;                                               \
+      mock->last_call = call;                                           \
+    } else {                                                            \
+      mock->last_call->next = call;                                     \
+      mock->last_call = call;                                           \
+    }                                                                   \
   }                                                                     \
                                                                         \
   MiniTestMock* __init_##function_name(MiniTestMockSuite *s) {          \
@@ -104,6 +147,8 @@ typedef struct __MockParamStruct {
     data->released = 0;                                                 \
     data->call_count = 0;                                               \
     data->handle = mt_real_fn_handle(function_name, MT_LD_WRAP);        \
+    data->calls = NULL;                                                 \
+    data->last_call = NULL;                                             \
     node->data = (void*)data;                                           \
     if (s->nodes == NULL) {                                             \
       s->nodes = node;                                                  \
@@ -132,6 +177,7 @@ typedef struct __MockParamStruct {
         if (data->loaded) {                                                       \
           if(data->released) { return data->handle mock_args ; }                  \
           data->call_count += 1;                                                  \
+          __##function_name##register_mock_call (data, data->call_count, argc, mt_mock_function_call_args mock_args ) ; \
           return data->return_value;                                              \
         } else {                                                                  \
           printf(MT_FUNCTION_NO_RETURN_ERROR, #function_name);                    \
@@ -155,6 +201,8 @@ typedef struct __MockParamStruct {
     data->loaded = 1;                                                             \
     data->released = 0;                                                           \
     data->call_count = 0;                                                         \
+    data->calls = NULL;                                                           \
+    data->last_call = NULL;                                                       \
   }                                                                               \
                                                                                   \
   typedef return_type (*type_##function_name)(__VA_ARGS__);                       \

@@ -1,6 +1,10 @@
 #include "testsuite.h"
 
-mt_define_mock(add_ints, mt_mock_args(n1,n2), int, int n1, int n2);
+mt_define_mock(add_ints, int, 2,
+  mt_mock_arg_signature(int, int),
+  mt_mock_arg_names(n1,n2),
+  int n1, int n2
+);
 
 describe("MiniTest", minitest_mocks)
   context("Mocks")
