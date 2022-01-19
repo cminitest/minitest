@@ -166,7 +166,7 @@ mt_expect_array_forward(floatarr, float);
 //
 // mocks to support custom assertion types
 //
-extern void __expect_mock(MiniTest *mt, MockCall* actual, size_t actual_size, int negated, void* expected, size_t expected_size, void* max_range, size_t max_range_size, mt_expect_flags flag);
+extern void __expect_mock(MiniTest *mt, MiniTestMock* actual, size_t actual_size, int negated, void* expected, size_t expected_size, void* max_range, size_t max_range_size, mt_expect_flags flag);
 
 #define expect_generic(actual) _Generic(actual,                  \
                                         MT_EXPECT_EXT            \
@@ -187,7 +187,7 @@ extern void __expect_mock(MiniTest *mt, MockCall* actual, size_t actual_size, in
                                         long*: __expect_longarr,       \
                                         double*: __expect_doublearr,   \
                                         float*: __expect_floatarr,     \
-                                        MockCall*: __expect_mock       \
+                                        MiniTestMock*: __expect_mock   \
                                       ) \
 
 #define __expect_call(mt, actual) expect_generic(actual)(mt, (actual), (sizeof(actual)),

@@ -39,18 +39,6 @@
 // Structures, types, forwards
 //
 
-typedef struct MiniTestMockStruct {
-  char* function;
-  void* data;
-  struct MiniTestMockStruct* next;
-} MiniTestMock;
-
-typedef struct MiniTestMockSuiteStruct {
-  MiniTestMock *nodes;
-} MiniTestMockSuite;
-
-MiniTestMock* mt_find_node(MiniTestMockSuite *s, char* function_name);
-
 typedef struct __MockParamStruct { 
   char* data_type; 
   size_t array_size; 
@@ -83,11 +71,28 @@ typedef struct __MockCallStruct {
   struct __MockCallStruct* next;
 } MockCall;
 
+typedef struct MiniTestMockStruct {
+  char* function;
+  void* data;
+  int loaded;
+  int released;
+  int call_count;
+  MockCall* calls;
+  MockCall* last_call;
+  struct MiniTestMockStruct* next;
+} MiniTestMock;
+
+typedef struct MiniTestMockSuiteStruct {
+  MiniTestMock *nodes;
+} MiniTestMockSuite;
+
+MiniTestMock* mt_find_node(MiniTestMockSuite *s, char* function_name);
+
 #define mt_use_mocks() \
-  void __expect_mock(MiniTest *mt, MockCall* actual, size_t actual_size, int negated, void* expected, size_t expected_size, void* max_range, size_t max_range_size, mt_expect_flags flag);
+  void __expect_mock(MiniTest *mt, MiniTestMock* actual, size_t actual_size, int negated, void* expected, size_t expected_size, void* max_range, size_t max_range_size, mt_expect_flags flag);
 
 #define mt_mocks_initialize() \
-  mt_expect_handle(mock, MockCall*, void*, void*,, (1==1), NULL, NONE)
+  mt_expect_handle(mock, MiniTestMock*, void*, void*,, (1==1), NULL, NONE)
 
 #define mt_mock_argtype_string(v) #v
 #define mt_mock_function_args_0(...)   char* args[] = {}
@@ -112,11 +117,6 @@ typedef struct __MockCallStruct {
   MiniTestMock* __init_##function_name(MiniTestMockSuite *s);      \
                                                                    \
   typedef struct __##function_name##Struct {                 \
-    int loaded;                                              \
-    int released;                                            \
-    int call_count;                                          \
-    MockCall* calls;                                         \
-    MockCall* last_call;                                     \
     return_type return_value;                                \
     return_type (*handle)(__VA_ARGS__);                      \
   } function_name##Struct;                                   \
@@ -127,7 +127,7 @@ typedef struct __MockCallStruct {
 
 #define mt_define_mock(function_name, return_type, argc, arg_types, mock_args, ...) \
                                                                                     \
-  void __##function_name##register_mock_call(function_name##Struct* mock, int cn, int argcount, ...) {    \
+  void __##function_name##register_mock_call(MiniTestMock* mock, int cn, int argcount, ...) {    \
     MockCall* call = malloc(sizeof(MockCall));                          \
     call->n_args = argc;                                                \
     call->call_number = cn;                                             \
@@ -152,16 +152,14 @@ typedef struct __MockCallStruct {
   MiniTestMock* __init_##function_name(MiniTestMockSuite *s) {          \
     MiniTestMock* node = malloc(sizeof(MiniTestMock));                  \
     node->next = NULL;                                                  \
+    node->calls = NULL;                                                 \
+    node->last_call = NULL;                                             \
                                                                         \
     function_name##Struct* data = malloc(sizeof(function_name##Struct));\
     node->function = malloc(strlen(#function_name) + 1);                \
     strcpy(node->function, #function_name);                             \
-    data->loaded = 0;                                                   \
-    data->released = 0;                                                 \
-    data->call_count = 0;                                               \
+                                                                        \
     data->handle = mt_real_fn_handle(function_name, MT_LD_WRAP);        \
-    data->calls = NULL;                                                 \
-    data->last_call = NULL;                                             \
     node->data = (void*)data;                                           \
     if (s->nodes == NULL) {                                             \
       s->nodes = node;                                                  \
@@ -187,10 +185,10 @@ typedef struct __MockCallStruct {
       }                                                                 \
       if (strcmp(current_node->function, #function_name)==0) {          \
         function_name##Struct* data = (function_name##Struct*)current_node->data; \
-        if (data->loaded) {                                                       \
-          if(data->released) { return data->handle mock_args ; }                  \
-          data->call_count += 1;                                                  \
-          __##function_name##register_mock_call (data, data->call_count, argc, mt_mock_function_call_args mock_args ) ; \
+        if (current_node->loaded) {                                               \
+          if(current_node->released) { return data->handle mock_args ; }          \
+          current_node->call_count += 1;                                          \
+          __##function_name##register_mock_call (current_node, current_node->call_count, argc, mt_mock_function_call_args mock_args ) ; \
           return data->return_value;                                              \
         } else {                                                                  \
           printf(MT_FUNCTION_NO_RETURN_ERROR, #function_name);                    \
@@ -211,11 +209,11 @@ typedef struct __MockCallStruct {
     }                                                                             \
     function_name##Struct* data = (function_name##Struct*)current_node->data;     \
     data->return_value = return_value;                                            \
-    data->loaded = 1;                                                             \
-    data->released = 0;                                                           \
-    data->call_count = 0;                                                         \
-    data->calls = NULL;                                                           \
-    data->last_call = NULL;                                                       \
+    current_node->loaded = 1;                                                     \
+    current_node->released = 0;                                                   \
+    current_node->call_count = 0;                                                 \
+    current_node->calls = NULL;                                                   \
+    current_node->last_call = NULL;                                               \
   }                                                                               \
                                                                                   \
   typedef return_type (*type_##function_name)(__VA_ARGS__);                       \
@@ -236,8 +234,7 @@ typedef struct __MockCallStruct {
     if (strcmp(current_node->function, #function_name)!=0) {                      \
       current_node = __init_##function_name(s);                                   \
     }                                                                             \
-    function_name##Struct* data = (function_name##Struct*)current_node->data;     \
-    data->released = 1;                                                           \
+    current_node->released = 1;                                                   \
   }                                                                               \
                                                                                   \
   int __n_calls_##function_name(MiniTestMockSuite *s) {                           \
@@ -246,18 +243,16 @@ typedef struct __MockCallStruct {
     if (strcmp(current_node->function, #function_name)!=0) {                      \
       current_node = __init_##function_name(s);                                   \
     }                                                                             \
-    function_name##Struct* data = (function_name##Struct*)current_node->data;     \
-    return data->call_count;                                                      \
+    return current_node->call_count;                                              \
   }                                                                               \
                                                                                   \
-  function_name##Struct* __this_##function_name(MiniTestMockSuite *s) {           \
+  MiniTestMock* __this_##function_name(MiniTestMockSuite *s) {                    \
     if(s->nodes == NULL) { __init_##function_name(s); }                           \
     MiniTestMock* current_node = mt_find_node(s, #function_name);                 \
     if (strcmp(current_node->function, #function_name)!=0) {                      \
       current_node = __init_##function_name(s);                                   \
     }                                                                             \
-    function_name##Struct* data = (function_name##Struct*)current_node->data;     \
-    return data;                                                                  \
+    return current_node;                                                          \
   }                                                                               \
 
 #define and_return(value) value);
