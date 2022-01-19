@@ -53,6 +53,12 @@ int __float_equal(float actual, float expected, float epsilon) {
   return fabs(actual - expected) < epsilon;
 }
 
+void __set_expect_noop(int valid, ...) {}
+
+void __set_current_expectation(int valid, MiniTestMock* mock, void** current_expect) {
+  *current_expect = mock;
+}
+
 //
 // general expectations
 //

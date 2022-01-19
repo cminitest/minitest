@@ -77,6 +77,7 @@ typedef struct MiniTestMockStruct {
   int loaded;
   int released;
   int call_count;
+  char*     argt_list[MT_MOCK_MAX_ARGS];
   MockCall* calls;
   MockCall* last_call;
   struct MiniTestMockStruct* next;
@@ -89,8 +90,9 @@ typedef struct MiniTestMockSuiteStruct {
 MiniTestMock* mt_find_node(MiniTestMockSuite *s, char* function_name);
 
 #define mt_use_mocks() \
-  void __expect_mock(MiniTest *mt, MiniTestMock* actual, size_t actual_size, int negated, void* expected, size_t expected_size, void* max_range, size_t max_range_size, mt_expect_flags flag);                                              \
-  int __expect_mock_condition(MiniTestMock* mock, void* condition, mt_expect_flags flag);
+  void __expect_mock(MiniTest*, MiniTestMock*, size_t, int, void*, size_t, void*, size_t, mt_expect_flags); \
+  int __expect_mock_condition(MiniTestMock*, void*, mt_expect_flags );                                      \
+  MockParam* __expect_create_mock_params(MiniTestMock*, int, ...);                                          \
 
 #define mt_mocks_initialize()                                                                                       \
   mt_expect_handle(mock, MiniTestMock*, void*, void*,, __expect_mock_condition(actual, expected, flag), NULL, NONE) \
@@ -99,10 +101,18 @@ MiniTestMock* mt_find_node(MiniTestMockSuite *s, char* function_name);
       case MT_EXPECT_BEEN_CALLED_FLAG:                                                      \
         return mock->call_count > 0;                                                        \
         break;                                                                              \
+      case MT_EXPECT_CALLED_WITH_FLAG:                                                      \
+        return 0;                                                                           \
+        break;                                                                              \
       default:                                                                              \
         return 1;                                                                           \
     }                                                                                       \
   }                                                                                         \
+                                                                                            \
+  MockParam* __expect_create_mock_params(MiniTestMock* actual, int param_len, ...) {        \
+    printf("argc %d \n", param_len); return NULL;                                           \
+  }                                                                                         \
+  
 
 #define mt_mock_argtype_string(v) #v
 #define mt_mock_function_args_0(...)   char* args[] = {}
@@ -142,12 +152,11 @@ MiniTestMock* mt_find_node(MiniTestMockSuite *s, char* function_name);
     call->n_args = argc;                                                \
     call->call_number = cn;                                             \
     call->next = NULL;                                                  \
-    mt_mock_function_args_##argc arg_types;                             \
     va_list valist;                                                     \
     va_start(valist, argcount);                                         \
     for(int i = 0; i < argcount; i++) {                                 \
       MockParam param;                                                  \
-      mt_set_call_value_if(args[i], "int", int, int_value)              \
+      mt_set_call_value_if(mock->argt_list[i], "int", int, int_value)   \
     }                                                                   \
     va_end(valist);                                                     \
     if (mock->last_call == NULL) {                                      \
@@ -164,6 +173,14 @@ MiniTestMock* mt_find_node(MiniTestMockSuite *s, char* function_name);
     node->next = NULL;                                                  \
     node->calls = NULL;                                                 \
     node->last_call = NULL;                                             \
+                                                                        \
+    mt_mock_function_args_##argc arg_types;                             \
+                                                                        \
+    int i;                                                              \
+    for(i=0;i<argc;i++) {                                               \
+      node->argt_list[i] = malloc(strlen(args[i])+1);                   \
+      strcpy(node->argt_list[i], args[i]);                              \
+    }                                                                   \
                                                                         \
     function_name##Struct* data = malloc(sizeof(function_name##Struct));\
     node->function = malloc(strlen(#function_name) + 1);                \

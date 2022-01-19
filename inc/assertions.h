@@ -17,7 +17,8 @@ typedef enum {
   MT_EXPECT_GTE_FLAG,
   MT_EXPECT_LTE_FLAG,
   MT_EXPECT_RANGE_FLAG,
-  MT_EXPECT_BEEN_CALLED_FLAG
+  MT_EXPECT_BEEN_CALLED_FLAG,
+  MT_EXPECT_CALLED_WITH_FLAG,
 } mt_expect_flags;
 
 #ifndef MT_MAX_ASSERTION_BUFFER
@@ -36,23 +37,27 @@ typedef enum {
 char* mt_assert_template(int neg, char* format, mt_expect_flags flag);
 char* mt_expect_flag_to_string(mt_expect_flags flag);
 
+#define mt_expect_epilogue if(current_expect != NULL) { current_expect = NULL; }
+
 #define have
 #define be
+#define been
 #define to    0
 #define not   +1
-#define equal(expected)      ,expected, sizeof(expected), expected, sizeof(expected), MT_EXPECT_EQUAL_FLAG);
+#define equal(expected)      ,expected, sizeof(expected), expected, sizeof(expected), MT_EXPECT_EQUAL_FLAG); mt_expect_epilogue;
 
-#define be_null  ,NULL, 0,0,0, MT_EXPECT_EQUAL_FLAG);
-#define be_false ,0, 0,0,0, MT_EXPECT_EQUAL_FLAG);
-#define be_true  ,1, 0,0,0, MT_EXPECT_EQUAL_FLAG);
-#define been_called ,0,0,0,0, MT_EXPECT_BEEN_CALLED_FLAG);
+#define be_null  ,NULL, 0,0,0, MT_EXPECT_EQUAL_FLAG); mt_expect_epilogue;
+#define be_false ,0, 0,0,0, MT_EXPECT_EQUAL_FLAG); mt_expect_epilogue;
+#define be_true  ,1, 0,0,0, MT_EXPECT_EQUAL_FLAG); mt_expect_epilogue;
+#define been_called ,0,0,0,0, MT_EXPECT_BEEN_CALLED_FLAG); mt_expect_epilogue;
+#define called_with(...) ,__expect_create_mock_params(current_expect, ((MiniTestMock*)current_expect)->last_call->n_args, __VA_ARGS__),0,0,0,MT_EXPECT_CALLED_WITH_FLAG); mt_expect_epilogue;
 
-#define greater_than(expected) ,expected,0,expected,0,MT_EXPECT_GT_FLAG);
-#define less_than(expected) ,expected,0,expected,0,MT_EXPECT_LT_FLAG);
-#define greater_than_or_equal_to(expected) ,expected,0,expected,0,MT_EXPECT_GTE_FLAG);
-#define less_than_or_equal_to(expected) ,expected,0,expected,0,MT_EXPECT_LTE_FLAG);
+#define greater_than(expected) ,expected,0,expected,0,MT_EXPECT_GT_FLAG); mt_expect_epilogue;
+#define less_than(expected) ,expected,0,expected,0,MT_EXPECT_LT_FLAG); mt_expect_epilogue;
+#define greater_than_or_equal_to(expected) ,expected,0,expected,0,MT_EXPECT_GTE_FLAG); mt_expect_epilogue;
+#define less_than_or_equal_to(expected) ,expected,0,expected,0,MT_EXPECT_LTE_FLAG); mt_expect_epilogue;
 
-#define in_range(min_range, max_range) ,min_range,0,max_range,0,MT_EXPECT_RANGE_FLAG);
+#define in_range(min_range, max_range) ,min_range,0,max_range,0,MT_EXPECT_RANGE_FLAG); mt_expect_epilogue;
 
 #define expect_result minitest.current->current_assertion->assert_result
 
@@ -167,7 +172,10 @@ mt_expect_array_forward(floatarr, float);
 //
 // mocks to support custom assertion types
 //
-extern void __expect_mock(MiniTest *mt, MiniTestMock* actual, size_t actual_size, int negated, void* expected, size_t expected_size, void* max_range, size_t max_range_size, mt_expect_flags flag);
+void __set_expect_noop(int valid, ...);
+void __set_current_expectation(int valid, MiniTestMock* mock, void** current_expect);
+extern void __expect_mock(MiniTest*, MiniTestMock*, size_t, int, void*, size_t, void*, size_t, mt_expect_flags);
+extern MockParam* __expect_create_mock_params(MiniTestMock*, int, ...);
 
 #define expect_generic(actual) _Generic(actual,                  \
                                         MT_EXPECT_EXT            \
@@ -191,7 +199,11 @@ extern void __expect_mock(MiniTest *mt, MiniTestMock* actual, size_t actual_size
                                         MiniTestMock*: __expect_mock   \
                                       ) \
 
+#define mt_set_current_expectation(actual, ce) _Generic(actual, MiniTestMock*: __set_current_expectation, default: __set_expect_noop)(1,actual, ce);
+
 #define __expect_call(mt, actual) expect_generic(actual)(mt, (actual), (sizeof(actual)),
-#define expect(actual) __expect_call(&minitest, actual)
+#define expect(actual)               \
+  mt_set_current_expectation(actual, &current_expect) \
+  __expect_call(&minitest, actual)   \
 
 #endif
