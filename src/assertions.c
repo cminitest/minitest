@@ -12,6 +12,8 @@ char* mt_expect_flag_to_string(mt_expect_flags flag) {
       return "be less than or equal to";
     case MT_EXPECT_RANGE_FLAG:
       return "be in range";
+    case MT_EXPECT_BEEN_CALLED_FLAG:
+      return "have been called";
     default:
       return "equal";
   }

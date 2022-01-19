@@ -16,7 +16,8 @@ typedef enum {
   MT_EXPECT_LT_FLAG,
   MT_EXPECT_GTE_FLAG,
   MT_EXPECT_LTE_FLAG,
-  MT_EXPECT_RANGE_FLAG
+  MT_EXPECT_RANGE_FLAG,
+  MT_EXPECT_BEEN_CALLED_FLAG
 } mt_expect_flags;
 
 #ifndef MT_MAX_ASSERTION_BUFFER
@@ -44,7 +45,7 @@ char* mt_expect_flag_to_string(mt_expect_flags flag);
 #define be_null  ,NULL, 0,0,0, MT_EXPECT_EQUAL_FLAG);
 #define be_false ,0, 0,0,0, MT_EXPECT_EQUAL_FLAG);
 #define be_true  ,1, 0,0,0, MT_EXPECT_EQUAL_FLAG);
-#define been_called ,0,0,0,0,MT_EXPECT_GT_FLAG);
+#define been_called ,0,0,0,0, MT_EXPECT_BEEN_CALLED_FLAG);
 
 #define greater_than(expected) ,expected,0,expected,0,MT_EXPECT_GT_FLAG);
 #define less_than(expected) ,expected,0,expected,0,MT_EXPECT_LT_FLAG);

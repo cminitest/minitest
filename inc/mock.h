@@ -89,10 +89,20 @@ typedef struct MiniTestMockSuiteStruct {
 MiniTestMock* mt_find_node(MiniTestMockSuite *s, char* function_name);
 
 #define mt_use_mocks() \
-  void __expect_mock(MiniTest *mt, MiniTestMock* actual, size_t actual_size, int negated, void* expected, size_t expected_size, void* max_range, size_t max_range_size, mt_expect_flags flag);
+  void __expect_mock(MiniTest *mt, MiniTestMock* actual, size_t actual_size, int negated, void* expected, size_t expected_size, void* max_range, size_t max_range_size, mt_expect_flags flag);                                              \
+  int __expect_mock_condition(MiniTestMock* mock, void* condition, mt_expect_flags flag);
 
-#define mt_mocks_initialize() \
-  mt_expect_handle(mock, MiniTestMock*, void*, void*,, (1==1), NULL, NONE)
+#define mt_mocks_initialize()                                                                                       \
+  mt_expect_handle(mock, MiniTestMock*, void*, void*,, __expect_mock_condition(actual, expected, flag), NULL, NONE) \
+  int __expect_mock_condition(MiniTestMock* mock, void* condition, mt_expect_flags flag) {  \
+    switch(flag) {                                                                          \
+      case MT_EXPECT_BEEN_CALLED_FLAG:                                                      \
+        return mock->call_count > 0;                                                        \
+        break;                                                                              \
+      default:                                                                              \
+        return 1;                                                                           \
+    }                                                                                       \
+  }                                                                                         \
 
 #define mt_mock_argtype_string(v) #v
 #define mt_mock_function_args_0(...)   char* args[] = {}

@@ -32,9 +32,9 @@ describe("MiniTest", minitest_mocks)
         mock(add_ints) and_return(3)
         #if LD_WRAP
           add_ints(2, 2);
-          expect(mock_total_calls(add_ints)) to have been_called
+          expect(mock_for(add_ints)) to have been_called
         #else
-          expect(mock_total_calls(add_ints)) to not have been_called
+          expect(mock_for(add_ints)) to not have been_called
         #endif
       end
 
@@ -42,11 +42,13 @@ describe("MiniTest", minitest_mocks)
         mock(add_ints) and_return(3)
         #if LD_WRAP
           add_ints(2, 2);
+          add_ints(2, 2);
         #else
           __wrap_add_ints(2, 2);
+          __wrap_add_ints(2, 2);
         #endif
-        expect(mock_for(add_ints)) to equal(mock_for(add_ints))
         expect(mock_for(add_ints)->calls->call_number) to equal(1)
+        expect(mock_for(add_ints)->calls->next->call_number) to equal(2)
         expect(mock_for(add_ints)->calls->n_args) to equal(2)
       end
     end
