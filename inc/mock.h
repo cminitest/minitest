@@ -35,6 +35,35 @@
 #define MT_MOCK_PARAM_VALUES
 #endif
 
+#define mt_mock_argtype_string(v) #v
+#define mt_mock_function_args_0(...)   char* args[] = {}
+#define mt_mock_function_args_1(n1)    char* args[] = { mt_mock_argtype_string(n1) }
+#define mt_mock_function_args_2(n1,n2) char* args[] = { mt_mock_argtype_string(n1), mt_mock_argtype_string(n2) }
+#define mt_mock_function_args_3(n1,n2,n3) char* args[] = { mt_mock_argtype_string(n1), mt_mock_argtype_string(n2), mt_mock_argtype_string(n3) }
+
+#define mt_set_call_value_if(param, value, type, cast, key) \
+  if(strcmp(value, type) == 0) {                     \
+    param.data.key = va_arg(valist, cast);           \
+    param.data_type = malloc(sizeof(type));          \
+    strcpy(param.data_type, type);                   \
+    call->params[i] = param;                         \
+    continue;                                        \
+  }                                                  \
+
+#define mt_set_param_value_if(param, value, type, cast, key) \
+  if(strcmp(value, type) == 0) {                     \
+    param->data.key = va_arg(valist, cast);         \
+    param->data_type = malloc(sizeof(type));          \
+    strcpy(param->data_type, type);                   \
+    params[i] = param;                              \
+    continue;                                        \
+  }                                                  \
+
+#define mt_check_if_type(t1,t2,condition) if(strcmp(t1, t2) == 0 && (condition) ) { call_found = 1; break; }
+
+#define mt_mock_function_call_args(...) __VA_ARGS__
+
+
 //
 // Structures, types, forwards
 //
@@ -92,7 +121,8 @@ MiniTestMock* mt_find_node(MiniTestMockSuite *s, char* function_name);
 #define mt_use_mocks() \
   void __expect_mock(MiniTest*, MiniTestMock*, size_t, int, void*, size_t, void*, size_t, mt_expect_flags); \
   int __expect_mock_condition(MiniTestMock*, void*, mt_expect_flags );                                      \
-  MockParam* __expect_create_mock_params(MiniTestMock*, int, ...);                                          \
+  MockParam** __expect_create_mock_params(MiniTestMock*, int, ...);                                         \
+  int __assert_params_equal(MiniTestMock*, MockParam**);                                                    \
 
 #define mt_mocks_initialize()                                                                                       \
   mt_expect_handle(mock, MiniTestMock*, void*, void*,, __expect_mock_condition(actual, expected, flag), NULL, NONE) \
@@ -100,36 +130,37 @@ MiniTestMock* mt_find_node(MiniTestMockSuite *s, char* function_name);
     switch(flag) {                                                                          \
       case MT_EXPECT_BEEN_CALLED_FLAG:                                                      \
         return mock->call_count > 0;                                                        \
-        break;                                                                              \
       case MT_EXPECT_CALLED_WITH_FLAG:                                                      \
-        return 0;                                                                           \
-        break;                                                                              \
+        return __assert_params_equal(mock, ((MockParam**)condition));                       \
       default:                                                                              \
-        return 1;                                                                           \
+        return 0;                                                                           \
     }                                                                                       \
   }                                                                                         \
                                                                                             \
-  MockParam* __expect_create_mock_params(MiniTestMock* actual, int param_len, ...) {        \
-    printf("argc %d \n", param_len); return NULL;                                           \
+  int __assert_params_equal(MiniTestMock* mock, MockParam** params) {                       \
+    MockCall* cc = mock->calls;                                                             \
+    int call_found = 0;                                                                     \
+    while(cc != NULL && !call_found) {                                                      \
+      for(int i = 0; i < cc->n_args; i++) {                                                 \
+        mt_check_if_type(cc->params[i].data_type, "int", cc->params[i].data.int_value == params[i]->data.int_value) \
+      }                                                                                     \
+      cc = cc->next;                                                                        \
+    }                                                                                       \
+    return call_found;                                                                      \
+  }                                                                                         \
+                                                                                            \
+  MockParam** __expect_create_mock_params(MiniTestMock* mock, int argc, ...) {              \
+    MockParam** params = malloc(sizeof(MockParam)*argc);                                    \
+    va_list valist;                                                                         \
+    va_start(valist, argc);                                                                 \
+    for(int i = 0; i < argc; i++) {                                                         \
+      params[i] = malloc(sizeof(MockParam));                                                \
+      mt_set_param_value_if(params[i], mock->argt_list[i], "int", int, int_value)           \
+    }                                                                                       \
+    va_end(valist);                                                                         \
+    return params;                                                                          \
   }                                                                                         \
   
-
-#define mt_mock_argtype_string(v) #v
-#define mt_mock_function_args_0(...)   char* args[] = {}
-#define mt_mock_function_args_1(n1)    char* args[] = { mt_mock_argtype_string(n1) }
-#define mt_mock_function_args_2(n1,n2) char* args[] = { mt_mock_argtype_string(n1), mt_mock_argtype_string(n2) }
-#define mt_mock_function_args_3(n1,n2,n3) char* args[] = { mt_mock_argtype_string(n1), mt_mock_argtype_string(n2), mt_mock_argtype_string(n3) }
-
-#define mt_set_call_value_if(value, type, cast, key) \
-  if(strcmp(value, type) == 0) {                     \
-    param.data.key = va_arg(valist, int);            \
-    param.data_type = malloc(sizeof(type));          \
-    strcpy(param.data_type, type);                   \
-    call->params[i] = param;                         \
-    continue;                                        \
-  }                                                  \
-
-#define mt_mock_function_call_args(...) __VA_ARGS__
 
 #define mt_mock_forwards(function_name, return_type, argc, ...)    \
   return_type __real_##function_name(__VA_ARGS__);                 \
@@ -156,7 +187,7 @@ MiniTestMock* mt_find_node(MiniTestMockSuite *s, char* function_name);
     va_start(valist, argcount);                                         \
     for(int i = 0; i < argcount; i++) {                                 \
       MockParam param;                                                  \
-      mt_set_call_value_if(mock->argt_list[i], "int", int, int_value)   \
+      mt_set_call_value_if(param, mock->argt_list[i], "int", int, int_value)   \
     }                                                                   \
     va_end(valist);                                                     \
     if (mock->last_call == NULL) {                                      \
