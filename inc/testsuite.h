@@ -14,6 +14,8 @@ typedef struct ExpectExtStruct {
 
 #include "minitest/minitest.h"
 
+mt_use_mocks()
+
 int add_ints(int n1, int n2);
 int add_three_ints(int n1, int n2, int n3);
 

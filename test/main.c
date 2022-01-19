@@ -2,6 +2,8 @@
 
 #define EXPECTED_FAILURES 24
 
+mt_mocks_initialize()
+
 int main() {
   minitest.run();
 

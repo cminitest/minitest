@@ -68,7 +68,6 @@ char* mt_expect_flag_to_string(mt_expect_flags flag);
 #define default_format_handle_definition_EXTENSION(suffix, type, arr)
 
 #define mt_expect_definition(suffix, type, arr, comparator, format, handle_type) \
-  default_format_handle(suffix, type, arr, handle_type)                          \
                                                                                  \
   int __expect_assert_##suffix(type actual arr, type expected arr, type max_range arr, mt_expect_flags flag) { \
     switch(flag) {                                                                         \
@@ -86,8 +85,12 @@ char* mt_expect_flag_to_string(mt_expect_flags flag);
         return (actual == expected);                                                       \
     }                                                                                      \
   }                                                                                        \
-                                                                                           \
-  void __expect_##suffix(MiniTest *mt, type actual arr, size_t actual_size, int negated, type expected arr, size_t expected_size, type max_range arr, size_t max_range_size, mt_expect_flags flag) {   \
+  mt_expect_handle(suffix, type, type, type, arr, comparator, format, handle_type)         \
+
+#define mt_expect_handle(suffix, actual_type, expected_type, range_type, arr, comparator, format, handle_type) \
+  default_format_handle(suffix, expected_type, arr, handle_type)                                               \
+                                                                                                               \
+  void __expect_##suffix(MiniTest *mt, actual_type actual arr, size_t actual_size, int negated, expected_type expected arr, size_t expected_size, range_type max_range arr, size_t max_range_size, mt_expect_flags flag) {   \
     mt->assertions += 1;                                                            \
     if (mt->current->current_assertion->assert_result == TEST_FAILURE) { return; }  \
     int result = negated ? !(comparator) : (comparator);                            \
@@ -160,6 +163,11 @@ mt_expect_array_forward(longarr, long);
 mt_expect_array_forward(doublearr, double);
 mt_expect_array_forward(floatarr, float);
 
+//
+// mocks to support custom assertion types
+//
+extern void __expect_mock(MiniTest *mt, MockCall* actual, size_t actual_size, int negated, void* expected, size_t expected_size, void* max_range, size_t max_range_size, mt_expect_flags flag);
+
 #define expect_generic(actual) _Generic(actual,                  \
                                         MT_EXPECT_EXT            \
                                         int: __expect_int,       \
@@ -178,7 +186,8 @@ mt_expect_array_forward(floatarr, float);
                                         short*: __expect_shortarr,     \
                                         long*: __expect_longarr,       \
                                         double*: __expect_doublearr,   \
-                                        float*: __expect_floatarr      \
+                                        float*: __expect_floatarr,     \
+                                        MockCall*: __expect_mock       \
                                       ) \
 
 #define __expect_call(mt, actual) expect_generic(actual)(mt, (actual), (sizeof(actual)),

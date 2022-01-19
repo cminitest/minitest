@@ -8,23 +8,14 @@
   #define LD_WRAP 0
 #endif
 
+#ifndef MT_MOCK_MAX_ARGS
+  #define MT_MOCK_MAX_ARGS 9
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
-
-typedef struct MiniTestMockStruct {
-  char* function;
-  void* data;
-
-  struct MiniTestMockStruct* next;
-} MiniTestMock;
-
-typedef struct MiniTestMockSuiteStruct {
-  MiniTestMock *nodes;
-} MiniTestMockSuite;
-
-MiniTestMock* mt_find_node(MiniTestMockSuite *s, char* function_name);
 
 #define MT_LD_WRAP LD_WRAP
 
@@ -43,6 +34,22 @@ MiniTestMock* mt_find_node(MiniTestMockSuite *s, char* function_name);
 #ifndef MT_MOCK_PARAM_VALUES
 #define MT_MOCK_PARAM_VALUES
 #endif
+
+//
+// Structures, types, forwards
+//
+
+typedef struct MiniTestMockStruct {
+  char* function;
+  void* data;
+  struct MiniTestMockStruct* next;
+} MiniTestMock;
+
+typedef struct MiniTestMockSuiteStruct {
+  MiniTestMock *nodes;
+} MiniTestMockSuite;
+
+MiniTestMock* mt_find_node(MiniTestMockSuite *s, char* function_name);
 
 typedef struct __MockParamStruct { 
   char* data_type; 
@@ -69,6 +76,19 @@ typedef struct __MockParamStruct {
   } data; 
 } MockParam;
 
+typedef struct __MockCallStruct {
+  int call_number;
+  int n_args;
+  MockParam params[MT_MOCK_MAX_ARGS];
+  struct __MockCallStruct* next;
+} MockCall;
+
+#define mt_use_mocks() \
+  void __expect_mock(MiniTest *mt, MockCall* actual, size_t actual_size, int negated, void* expected, size_t expected_size, void* max_range, size_t max_range_size, mt_expect_flags flag);
+
+#define mt_mocks_initialize() \
+  mt_expect_handle(mock, MockCall*, void*, void*,, (1==1), NULL, NONE)
+
 #define mt_mock_argtype_string(v) #v
 #define mt_mock_function_args_0(...)   char* args[] = {}
 #define mt_mock_function_args_1(n1)    char* args[] = { mt_mock_argtype_string(n1) }
@@ -91,24 +111,16 @@ typedef struct __MockParamStruct {
   return_type __wrap_##function_name(__VA_ARGS__);                 \
   MiniTestMock* __init_##function_name(MiniTestMockSuite *s);      \
                                                                    \
-  typedef struct __##function_name##CallStruct {                   \
-    int call_number;                                               \
-    MockParam params[argc];                                        \
-    struct __##function_name##CallStruct *next;                    \
-  } function_name##CallStruct;                                     \
-                                                             \
   typedef struct __##function_name##Struct {                 \
     int loaded;                                              \
     int released;                                            \
     int call_count;                                          \
-    function_name##CallStruct* calls;                        \
-    function_name##CallStruct* last_call;                    \
+    MockCall* calls;                                         \
+    MockCall* last_call;                                     \
     return_type return_value;                                \
     return_type (*handle)(__VA_ARGS__);                      \
   } function_name##Struct;                                   \
                                                              \
-
-
 /*
   TODO: __mock_##function_name needs to free mock calls if not null
 */
@@ -116,9 +128,10 @@ typedef struct __MockParamStruct {
 #define mt_define_mock(function_name, return_type, argc, arg_types, mock_args, ...) \
                                                                                     \
   void __##function_name##register_mock_call(function_name##Struct* mock, int cn, int argcount, ...) {    \
-    function_name##CallStruct* call = malloc(sizeof(function_name##CallStruct));\
-    call->call_number = cn;                                                     \
-    call->next = NULL;                                                          \
+    MockCall* call = malloc(sizeof(MockCall));                          \
+    call->n_args = argc;                                                \
+    call->call_number = cn;                                             \
+    call->next = NULL;                                                  \
     mt_mock_function_args_##argc arg_types;                             \
     va_list valist;                                                     \
     va_start(valist, argcount);                                         \
@@ -227,7 +240,7 @@ typedef struct __MockParamStruct {
     data->released = 1;                                                           \
   }                                                                               \
                                                                                   \
-  int __calls_##function_name(MiniTestMockSuite *s) {                             \
+  int __n_calls_##function_name(MiniTestMockSuite *s) {                           \
     if(s->nodes == NULL) { __init_##function_name(s); }                           \
     MiniTestMock* current_node = mt_find_node(s, #function_name);                 \
     if (strcmp(current_node->function, #function_name)!=0) {                      \
@@ -236,12 +249,23 @@ typedef struct __MockParamStruct {
     function_name##Struct* data = (function_name##Struct*)current_node->data;     \
     return data->call_count;                                                      \
   }                                                                               \
+                                                                                  \
+  function_name##Struct* __this_##function_name(MiniTestMockSuite *s) {           \
+    if(s->nodes == NULL) { __init_##function_name(s); }                           \
+    MiniTestMock* current_node = mt_find_node(s, #function_name);                 \
+    if (strcmp(current_node->function, #function_name)!=0) {                      \
+      current_node = __init_##function_name(s);                                   \
+    }                                                                             \
+    function_name##Struct* data = (function_name##Struct*)current_node->data;     \
+    return data;                                                                  \
+  }                                                                               \
 
 #define and_return(value) value);
 #define mock(function_name) __mock_##function_name(&minitestmocks, 
 #define mocked(function_name) __mocked_##function_name(&minitestmocks)
 #define release_mock(function_name) __release_##function_name(&minitestmocks);
-#define mock_calls(function_name) __calls_##function_name(&minitestmocks)
+#define mock_total_calls(function_name) __n_calls_##function_name(&minitestmocks)
+#define mock_for(function_name) __this_##function_name(&minitestmocks)
 
 extern MiniTestMockSuite minitestmocks;
 
