@@ -35,10 +35,10 @@
 #define mt_splat_args(...) __VA_ARGS__
 
 #define mt_expect_forward(suffix, type) \
-  void __expect_##suffix(MiniTest *mt, type actual, size_t as, int negated, type expected, size_t es, type max_range, size_t ms, mt_expect_flags flag)
+  void __expect_##suffix(MiniTest *mt, type actual, size_t as, int negated, type expected, size_t es, type max_range, size_t ms, mt_expect_flags flag);
 
 #define mt_expect_array_forward(suffix, type) \
-  void __expect_##suffix(MiniTest *mt, type actual[], size_t as, int negated, type expected[], size_t es, type max_range[], size_t ms, mt_expect_flags flag)
+  void __expect_##suffix(MiniTest *mt, type actual[], size_t as, int negated, type expected[], size_t es, type max_range[], size_t ms, mt_expect_flags flag);
 
 // =======================================
 //               Forwards

@@ -10,9 +10,15 @@ typedef struct ExpectExtStruct {
 int add_ints(int n1, int n2);
 int add_three_ints(int n1, int n2, int n3);
 
-#define MT_EXPECT_EXT \
-  mt_register_expect_extension(extstruct, ExpectExt*) \
-  mt_register_expect_extension(extstructarr, ExpectExt**)
+mt_setup_expect_forwards(
+  mt_expect_forward(extstruct, ExpectExt*)
+  mt_expect_array_forward(extstructarr, ExpectExt*)
+)
+
+#define MT_EXPECT_EXTENSIONS mt_setup_expect_extensions( \
+  mt_expect_extension(extstruct, ExpectExt*)             \
+  mt_expect_extension(extstructarr, ExpectExt**)         \
+)
 
 mt_setup_mocks(
   mt_param_extensions(
@@ -23,9 +29,6 @@ mt_setup_mocks(
     mt_mock_forward(add_ints, int, 2, int n1, int n2)
   )
 )
-
-mt_expect_forward(extstruct, ExpectExt*);
-mt_expect_array_forward(extstructarr, ExpectExt*);
 
 #include "minitest/minitest.h"
 

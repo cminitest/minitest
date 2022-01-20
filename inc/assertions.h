@@ -3,8 +3,8 @@
 
 #include "minitest.h"
 
-#ifndef MT_EXPECT_EXT
-#define MT_EXPECT_EXT
+#ifndef MT_EXPECT_EXTENSIONS
+#define MT_EXPECT_EXTENSIONS
 #endif
 
 #define mt_template_value "%s"
@@ -114,8 +114,6 @@ char* mt_expect_flag_to_string(mt_expect_flags flag);
 #define mt_expect_ext_default(suffix, type, comparator, format) mt_expect_definition(suffix, type,, comparator, format, NONE)
 #define mt_expect_array_ext_default(suffix, type, comparator, format) mt_expect_definition(suffix, type, [], comparator, format, NONE)
 
-#define mt_register_expect_extension(symbol, datatype)  datatype: __expect_##symbol,
-
 mt_expect_forward(int,    int);
 mt_expect_forward(char,   char);
 mt_expect_forward(short,  short);
@@ -145,7 +143,7 @@ void __set_current_expectation(int valid, MiniTestMock* mock, void** current_exp
 extern void __expect_mock(MiniTest*, MiniTestMock*, size_t, int, void*, size_t, void*, size_t, mt_expect_flags);
 
 #define expect_generic(actual) _Generic(actual,                  \
-                                        MT_EXPECT_EXT            \
+                                        MT_EXPECT_EXTENSIONS     \
                                         int: __expect_int,       \
                                         char: __expect_char,     \
                                         short: __expect_short,   \
