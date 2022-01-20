@@ -3,34 +3,8 @@
 
 #include "minitest.h"
 
-typedef enum { 
-  NONE,
-  SINGLE,
-  ARRAY,
-  EXTENSION
-} mt_format;
-
-typedef enum { 
-  MT_EXPECT_EQUAL_FLAG,
-  MT_EXPECT_GT_FLAG,
-  MT_EXPECT_LT_FLAG,
-  MT_EXPECT_GTE_FLAG,
-  MT_EXPECT_LTE_FLAG,
-  MT_EXPECT_RANGE_FLAG,
-  MT_EXPECT_BEEN_CALLED_FLAG,
-  MT_EXPECT_CALLED_WITH_FLAG,
-} mt_expect_flags;
-
-#ifndef MT_MAX_ASSERTION_BUFFER
-#define MT_MAX_ASSERTION_BUFFER 0x400
-#endif
-
 #ifndef MT_EXPECT_EXT
 #define MT_EXPECT_EXT
-#endif
-
-#ifndef MT_EXPECT_EPSILON
-#define MT_EXPECT_EPSILON 0.000001
 #endif
 
 #define mt_template_value "%s"
@@ -60,12 +34,6 @@ char* mt_expect_flag_to_string(mt_expect_flags flag);
 #define in_range(min_range, max_range) ,min_range,0,max_range,0,MT_EXPECT_RANGE_FLAG); mt_expect_epilogue;
 
 #define expect_result minitest.current->current_assertion->assert_result
-
-#define mt_expect_forward(suffix, type) \
-  void __expect_##suffix(MiniTest *mt, type actual, size_t as, int negated, type expected, size_t es, type max_range, size_t ms, mt_expect_flags flag)
-
-#define mt_expect_array_forward(suffix, type) \
-  void __expect_##suffix(MiniTest *mt, type actual[], size_t as, int negated, type expected[], size_t es, type max_range[], size_t ms, mt_expect_flags flag)
 
 #define default_format_handle(suffix, type, arr, tf) default_format_handle_definition_##tf(suffix, type, arr)
 #define default_format_handle_definition_NONE(suffix, type, arr) void* __format_##suffix(type value arr) { return NULL; }

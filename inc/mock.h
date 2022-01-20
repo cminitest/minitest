@@ -1,25 +1,11 @@
 #ifndef __MINITEST_MOCKS_H__
 #define __MINITEST_MOCKS_H__ 1
 
-#ifdef LD_WRAP
-  #undef LD_WRAP
-  #define LD_WRAP 1
-#else
-  #define LD_WRAP 0
-#endif
-
-#ifndef MT_MOCK_MAX_ARGS
-  #define MT_MOCK_MAX_ARGS 9
-#endif
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
-
-#define MT_LD_WRAP LD_WRAP
-
-#define MT_FUNCTION_NO_RETURN_ERROR "Function %s has not been initialized with a return value."
+#include "common.h"
 
 #define mt_mock_arg_names(...) ( __VA_ARGS__ )
 #define mt_mock_arg_signature(...) ( __VA_ARGS__ )
@@ -31,12 +17,7 @@
 
 #define mt_mock_param(type, attribute) type attribute;
 
-#define mt_param_registration(...) __VA_ARGS__
 #define mt_param_extensions(...) ( __VA_ARGS__ )
-
-#ifndef MT_MOCK_PARAM_VALUES
-#define MT_MOCK_PARAM_VALUES
-#endif
 
 #define mt_mock_argtype_string(v) #v
 #define mt_mock_function_args_0(...)   char* args[] = {}
@@ -64,21 +45,25 @@
 
 #define mt_check_if_type(t1,t2,condition) if(strcmp(t1, t2) == 0 && (condition) ) { call_found = 1; break; }
 
-#define mt_mock_function_call_args(...) __VA_ARGS__
+#define mt_setup_mock_forwards(...) ( __VA_ARGS__ )
 
+#define mt_mock_forward(function_name, return_type, argc, ...)     \
+  return_type __real_##function_name(__VA_ARGS__);                 \
+  return_type __wrap_##function_name(__VA_ARGS__);                 \
+  MiniTestMock* __init_##function_name(MiniTestMockSuite *s);      \
+                                                                   \
+  typedef struct __##function_name##Struct {                 \
+    return_type return_value;                                \
+    return_type (*handle)(__VA_ARGS__);                      \
+  } function_name##Struct;                                   \
+                                                             \
 
-//
-// Structures, types, forwards
-//
-typedef struct MiniTestMockStruct MiniTestMock;
+// =======================================
+//      Mock Structures
+// =======================================
 
-typedef struct MiniTestMockSuiteStruct {
-  MiniTestMock *nodes;
-} MiniTestMockSuite;
-
-MiniTestMock* mt_find_node(MiniTestMockSuite *s, char* function_name);
-
-#define mt_setup_mocks(param_extensions)    \
+#define mt_setup_mocks(param_extensions, forwards)    \
+  mt_splat_args forwards                    \
   typedef struct __MockParamStruct {        \
     char* data_type;                        \
     size_t array_size;                      \
@@ -100,7 +85,7 @@ MiniTestMock* mt_find_node(MiniTestMockSuite *s, char* function_name);
       long* long_array_value;               \
       double* double_array_value;           \
       float* float_array_value;             \
-      mt_param_registration param_extensions\
+      mt_splat_args param_extensions        \
     } data;                                 \
   } MockParam;                              \
                                             \
@@ -128,6 +113,10 @@ MiniTestMock* mt_find_node(MiniTestMockSuite *s, char* function_name);
   MockParam** __expect_create_mock_params(MiniTestMock*, int, ...);                                         \
   int __assert_params_equal(MiniTestMock*, MockParam**);                                                    \
   MiniTestMock* mt_find_node(MiniTestMockSuite*, char*);                                                    \
+
+// =======================================
+//      Mock Params and Assertions
+// =======================================
 
 #define mt_mocks_initialize()                                                                                       \
   MiniTestMock* mt_find_node(MiniTestMockSuite *s, char* function_name) {                                           \
@@ -177,20 +166,13 @@ MiniTestMock* mt_find_node(MiniTestMockSuite *s, char* function_name);
     return params;                                                                          \
   }                                                                                         \
   
-
-#define mt_mock_forwards(function_name, return_type, argc, ...)    \
-  return_type __real_##function_name(__VA_ARGS__);                 \
-  return_type __wrap_##function_name(__VA_ARGS__);                 \
-  MiniTestMock* __init_##function_name(MiniTestMockSuite *s);      \
-                                                                   \
-  typedef struct __##function_name##Struct {                 \
-    return_type return_value;                                \
-    return_type (*handle)(__VA_ARGS__);                      \
-  } function_name##Struct;                                   \
-                                                             \
 /*
   TODO: __mock_##function_name needs to free mock calls if not null
 */
+
+// =======================================
+//      Mock Definition
+// =======================================
 
 #define mt_define_mock(function_name, return_type, argc, arg_types, mock_args, ...) \
                                                                                     \
@@ -262,7 +244,7 @@ MiniTestMock* mt_find_node(MiniTestMockSuite *s, char* function_name);
         if (current_node->loaded) {                                               \
           if(current_node->released) { return data->handle mock_args ; }          \
           current_node->call_count += 1;                                          \
-          __##function_name##register_mock_call (current_node, current_node->call_count, argc, mt_mock_function_call_args mock_args ) ; \
+          __##function_name##register_mock_call (current_node, current_node->call_count, argc, mt_splat_args mock_args ) ; \
           return data->return_value;                                              \
         } else {                                                                  \
           printf(MT_FUNCTION_NO_RETURN_ERROR, #function_name);                    \
@@ -329,12 +311,27 @@ MiniTestMock* mt_find_node(MiniTestMockSuite *s, char* function_name);
     return current_node;                                                          \
   }                                                                               \
 
+// =======================================
+//      Mock Helper Macros
+// =======================================
+
 #define and_return(value) value);
 #define mock(function_name) __mock_##function_name(&minitestmocks, 
 #define mocked(function_name) __mocked_##function_name(&minitestmocks)
 #define release_mock(function_name) __release_##function_name(&minitestmocks);
 #define mock_total_calls(function_name) __n_calls_##function_name(&minitestmocks)
 #define mock_for(function_name) __this_##function_name(&minitestmocks)
+
+// =======================================
+//      Structures, types, forwards
+// =======================================
+typedef struct MiniTestMockStruct MiniTestMock;
+
+typedef struct MiniTestMockSuiteStruct {
+  MiniTestMock *nodes;
+} MiniTestMockSuite;
+
+MiniTestMock* mt_find_node(MiniTestMockSuite *s, char* function_name);
 
 extern MiniTestMockSuite minitestmocks;
 
