@@ -9,12 +9,14 @@ typedef struct ExpectExtStruct {
   mt_register_expect_extension(extstruct, ExpectExt*) \
   mt_register_expect_extension(extstructarr, ExpectExt**)
 
-#define MT_MOCK_PARAM_VALUES \
-  mt_mock_param(ExpectExt*, expect_ext_value)
-
 #include "minitest/minitest.h"
 
-mt_use_mocks()
+mt_setup_mocks(
+  mt_param_extensions(
+    mt_mock_param(ExpectExt*, expect_ext_value)
+    mt_mock_param(void**, expect_void_ptrptr_value)
+  )
+)
 
 int add_ints(int n1, int n2);
 int add_three_ints(int n1, int n2, int n3);

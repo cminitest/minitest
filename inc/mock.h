@@ -31,6 +31,9 @@
 
 #define mt_mock_param(type, attribute) type attribute;
 
+#define mt_param_registration(...) __VA_ARGS__
+#define mt_param_extensions(...) ( __VA_ARGS__ )
+
 #ifndef MT_MOCK_PARAM_VALUES
 #define MT_MOCK_PARAM_VALUES
 #endif
@@ -67,50 +70,7 @@
 //
 // Structures, types, forwards
 //
-
-typedef struct __MockParamStruct { 
-  char* data_type; 
-  size_t array_size; 
-  union { 
-    int int_value; 
-    char char_value; 
-    short short_value; 
-    long long_value; 
-    double double_value; 
-    float float_value; 
-    void* void_ptr_value; 
-    char* char_ptr_value; 
-    size_t size_t_value; 
-    unsigned int u_int_value; 
-    unsigned short u_short_value; 
-    unsigned char u_char_value; 
-    int* int_array_value; 
-    short* short_array_value; 
-    long* long_array_value; 
-    double* double_array_value; 
-    float* float_array_value; 
-    MT_MOCK_PARAM_VALUES 
-  } data; 
-} MockParam;
-
-typedef struct __MockCallStruct {
-  int call_number;
-  int n_args;
-  MockParam params[MT_MOCK_MAX_ARGS];
-  struct __MockCallStruct* next;
-} MockCall;
-
-typedef struct MiniTestMockStruct {
-  char* function;
-  void* data;
-  int loaded;
-  int released;
-  int call_count;
-  char*     argt_list[MT_MOCK_MAX_ARGS];
-  MockCall* calls;
-  MockCall* last_call;
-  struct MiniTestMockStruct* next;
-} MiniTestMock;
+typedef struct MiniTestMockStruct MiniTestMock;
 
 typedef struct MiniTestMockSuiteStruct {
   MiniTestMock *nodes;
@@ -118,13 +78,69 @@ typedef struct MiniTestMockSuiteStruct {
 
 MiniTestMock* mt_find_node(MiniTestMockSuite *s, char* function_name);
 
-#define mt_use_mocks() \
+#define mt_setup_mocks(param_extensions)    \
+  typedef struct __MockParamStruct {        \
+    char* data_type;                        \
+    size_t array_size;                      \
+    union {                                 \
+      int int_value;                        \
+      char char_value;                      \
+      short short_value;                    \
+      long long_value;                      \
+      double double_value;                  \
+      float float_value;                    \
+      void* void_ptr_value;                 \
+      char* char_ptr_value;                 \
+      size_t size_t_value;                  \
+      unsigned int u_int_value;             \
+      unsigned short u_short_value;         \
+      unsigned char u_char_value;           \
+      int* int_array_value;                 \
+      short* short_array_value;             \
+      long* long_array_value;               \
+      double* double_array_value;           \
+      float* float_array_value;             \
+      mt_param_registration param_extensions\
+    } data;                                 \
+  } MockParam;                              \
+                                            \
+  typedef struct __MockCallStruct {         \
+    int call_number;                        \
+    int n_args;                             \
+    MockParam params[MT_MOCK_MAX_ARGS];     \
+    struct __MockCallStruct* next;          \
+  } MockCall;                               \
+                                            \
+  typedef struct MiniTestMockStruct {       \
+    char* function;                         \
+    void* data;                             \
+    int loaded;                             \
+    int released;                           \
+    int call_count;                         \
+    char*     argt_list[MT_MOCK_MAX_ARGS];  \
+    MockCall* calls;                        \
+    MockCall* last_call;                    \
+    struct MiniTestMockStruct* next;        \
+  } MiniTestMock;                           \
+                                            \
   void __expect_mock(MiniTest*, MiniTestMock*, size_t, int, void*, size_t, void*, size_t, mt_expect_flags); \
   int __expect_mock_condition(MiniTestMock*, void*, mt_expect_flags );                                      \
   MockParam** __expect_create_mock_params(MiniTestMock*, int, ...);                                         \
   int __assert_params_equal(MiniTestMock*, MockParam**);                                                    \
+  MiniTestMock* mt_find_node(MiniTestMockSuite*, char*);                                                    \
 
 #define mt_mocks_initialize()                                                                                       \
+  MiniTestMock* mt_find_node(MiniTestMockSuite *s, char* function_name) {                                           \
+    MiniTestMock* current_node = s->nodes;                                                                          \
+    while(strcmp(current_node->function, function_name) != 0) {                                                     \
+      current_node = current_node->next;                                                                            \
+    }                                                                                                               \
+    if (strcmp(current_node->function, function_name) != 0 ) {                                                      \
+      current_node = NULL;                                                                                          \
+    }                                                                                                               \
+    return current_node;                                                                                            \
+  }                                                                                                                 \
+                                                                                                                    \
   mt_expect_handle(mock, MiniTestMock*, void*, void*,, __expect_mock_condition(actual, expected, flag), NULL, NONE) \
   int __expect_mock_condition(MiniTestMock* mock, void* condition, mt_expect_flags flag) {  \
     switch(flag) {                                                                          \

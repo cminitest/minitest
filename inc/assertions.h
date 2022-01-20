@@ -175,7 +175,6 @@ mt_expect_array_forward(floatarr, float);
 void __set_expect_noop(int valid, ...);
 void __set_current_expectation(int valid, MiniTestMock* mock, void** current_expect);
 extern void __expect_mock(MiniTest*, MiniTestMock*, size_t, int, void*, size_t, void*, size_t, mt_expect_flags);
-extern MockParam** __expect_create_mock_params(MiniTestMock*, int, ...);
 
 #define expect_generic(actual) _Generic(actual,                  \
                                         MT_EXPECT_EXT            \
