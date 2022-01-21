@@ -27,11 +27,17 @@
 
 #define mt_setup_mock_forwards(...) ( __VA_ARGS__ )
 
-#define mt_mock_forward(function_name, return_type, argc, ...)     \
-  return_type __real_##function_name(__VA_ARGS__);                 \
-  return_type __wrap_##function_name(__VA_ARGS__);                 \
-  MiniTestMock* __init_##function_name(MiniTestMockSuite *s);      \
-                                                                   \
+#define mt_mock_forward(function_name, return_type, argc, ...)       \
+  return_type __real_##function_name(__VA_ARGS__);                   \
+  return_type __wrap_##function_name(__VA_ARGS__);                   \
+  MiniTestMock* __init_##function_name(MiniTestMockSuite*);          \
+  void __mock_##function_name(MiniTestMockSuite*, return_type);      \
+  MiniTestMock* __this_##function_name(MiniTestMockSuite*);          \
+  int __n_calls_##function_name(MiniTestMockSuite*);                 \
+  void __release_##function_name(MiniTestMockSuite*);                \
+  typedef return_type (*type_##function_name)(__VA_ARGS__);          \
+  type_##function_name __mocked_##function_name(MiniTestMockSuite*); \
+                                                                     \
   typedef struct __##function_name##Struct {                 \
     return_type return_value;                                \
     return_type (*handle)(__VA_ARGS__);                      \
@@ -74,6 +80,28 @@
   mt_mock_parameter_handle(long*,          long*,        long_array_value)   \
   mt_mock_parameter_handle(double*,        double*,      double_array_value) \
   mt_mock_parameter_handle(float*,         float*,       float_array_value)  \
+
+#define __mt_param_assert_array(attribute, type) \
+  __assert_array_##type(mt_mock_expected.attribute, mt_mock_actual.attribute, sizeof(mt_mock_expected.attribute)/sizeof(type), sizeof(mt_mock_actual.attribute)/sizeof(type))
+
+#define __mt_parameter_assertions                                                      \
+  mt_mock_assert_parameter(int_value,          mt_mock_default_assert(int_value))      \
+  mt_mock_assert_parameter(char_value,         mt_mock_default_assert(char_value))     \
+  mt_mock_assert_parameter(short_value,        mt_mock_default_assert(short_value))    \
+  mt_mock_assert_parameter(long_value,         mt_mock_default_assert(long_value))     \
+  mt_mock_assert_parameter(double_value,       mt_mock_default_assert(double_value))   \
+  mt_mock_assert_parameter(float_value,        mt_mock_default_assert(float_value))    \
+  mt_mock_assert_parameter(void_ptr_value,     mt_mock_default_assert(void_ptr_value)) \
+  mt_mock_assert_parameter(char_ptr_value,     (strcmp(mt_mock_expected.char_ptr_value, mt_mock_actual.char_ptr_value) == 0)) \
+  mt_mock_assert_parameter(size_t_value,       mt_mock_default_assert(size_t_value))   \
+  mt_mock_assert_parameter(u_int_value,        mt_mock_default_assert(u_int_value))    \
+  mt_mock_assert_parameter(u_short_value,      mt_mock_default_assert(u_short_value))  \
+  mt_mock_assert_parameter(u_char_value,       mt_mock_default_assert(u_char_value))   \
+  mt_mock_assert_parameter(int_array_value,    __mt_param_assert_array(int_array_value, int))      \
+  mt_mock_assert_parameter(short_array_value,  __mt_param_assert_array(short_array_value, short))  \
+  mt_mock_assert_parameter(long_array_value,   __mt_param_assert_array(long_array_value, long))    \
+  mt_mock_assert_parameter(double_array_value, __mt_param_assert_array(double_array_value, double))\
+  mt_mock_assert_parameter(float_array_value,  __mt_param_assert_array(float_array_value, float))  \
 
 // =======================================
 //      Mock Structures
@@ -141,11 +169,11 @@
 #define mt_mocks_initialize(user_defined_params, user_defined_assertions)                                           \
   MiniTestMock* mt_find_node(MiniTestMockSuite *s, char* function_name) {                                           \
     MiniTestMock* current_node = s->nodes;                                                                          \
-    while(strcmp(current_node->function, function_name) != 0) {                                                     \
+    while(current_node != NULL && strcmp(current_node->function, function_name) != 0) {                             \
       current_node = current_node->next;                                                                            \
     }                                                                                                               \
-    if (strcmp(current_node->function, function_name) != 0 ) {                                                      \
-      current_node = NULL;                                                                                          \
+    if (current_node == NULL || strcmp(current_node->function, function_name) != 0 ) {                              \
+      return NULL;                                                                                                  \
     }                                                                                                               \
     return current_node;                                                                                            \
   }                                                                                                                 \
@@ -192,7 +220,7 @@
     while(cc != NULL && !found) {                                                           \
       int n_found = 0;                                                                      \
       for(int i = 0; i < cc->n_args; i++) {                                                 \
-        mt_mock_assert_parameter(int_value, mt_mock_default_assert(int_value))              \
+        __mt_parameter_assertions                                                           \
         mt_splat_args user_defined_assertions                                               \
       }                                                                                     \
       if(n_found == cc->n_args) { found = 1; } else { n_found = 0; }                        \
@@ -291,7 +319,7 @@
   void __mock_##function_name(MiniTestMockSuite *s, return_type return_value) {   \
     if(s->nodes == NULL) { __init_##function_name(s); }                           \
     MiniTestMock* current_node = mt_find_node(s, #function_name);                 \
-    if (strcmp(current_node->function, #function_name)!=0) {                      \
+    if (current_node == NULL || strcmp(current_node->function, #function_name)!=0) { \
       current_node = __init_##function_name(s);                                   \
     }                                                                             \
     function_name##Struct* data = (function_name##Struct*)current_node->data;     \
@@ -303,7 +331,6 @@
     current_node->last_call = NULL;                                               \
   }                                                                               \
                                                                                   \
-  typedef return_type (*type_##function_name)(__VA_ARGS__);                       \
                                                                                   \
   type_##function_name __mocked_##function_name(MiniTestMockSuite *s) {           \
     if(s->nodes == NULL) { __init_##function_name(s); }                           \
@@ -356,6 +383,13 @@
 // =======================================
 //      Structures, types, forwards
 // =======================================
+
+int __assert_array_int(int arr_1[], int arr_2[], size_t s1, size_t s2);
+int __assert_array_short(short arr_1[], short arr_2[], size_t s1, size_t s2);
+int __assert_array_long(long arr_1[], long arr_2[], size_t s1, size_t s2);
+int __assert_array_double(double arr_1[], double arr_2[], size_t s1, size_t s2);
+int __assert_array_float(float arr_1[], float arr_2[], size_t s1, size_t s2);
+
 typedef struct MiniTestMockStruct MiniTestMock;
 
 typedef struct MiniTestMockSuiteStruct {

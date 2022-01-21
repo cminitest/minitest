@@ -1,11 +1,5 @@
 #include "testsuite.h"
 
-mt_define_mock(add_ints, int, 2,
-  mt_mock_arg_signature(int, int),
-  mt_mock_arg_names(n1,n2),
-  int n1, int n2
-);
-
 describe("MiniTest", minitest_mocks)
   context("Mocks")
     when("the function is mocked")
@@ -83,5 +77,16 @@ describe("MiniTest", minitest_mocks)
         end      
       end
     end
+
+    context("parameters")
+      when("a variety of parameter types are passed")
+        mock(person_constructor) and_return(mt_void)
+        it("asserts the mock was called")
+          __wrap_person_constructor("Fry", 3000);
+          expect(mock_for(person_constructor)) to have been called_with("Fry", 3000)
+        end
+      end
+    end
+
   end
 end

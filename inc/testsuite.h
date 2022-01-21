@@ -9,6 +9,7 @@ typedef struct ExpectExtStruct {
 
 int add_ints(int n1, int n2);
 int add_three_ints(int n1, int n2, int n3);
+int person_constructor(char* name, short age);
 
 mt_setup_expect_forwards(
   mt_expect_forward(extstruct, ExpectExt*)
@@ -27,6 +28,7 @@ mt_setup_mocks(
   ),
   mt_setup_mock_forwards(
     mt_mock_forward(add_ints, int, 2, int n1, int n2)
+    mt_mock_forward(person_constructor, mt_void_type, 2, char* name, short age)
   )
 )
 

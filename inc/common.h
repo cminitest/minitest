@@ -28,6 +28,9 @@
 
 #define MT_FUNCTION_NO_RETURN_ERROR "Function %s has not been initialized with a return value."
 
+#define mt_void_type int
+#define mt_void 1
+
 // =======================================
 //               Macros
 // =======================================

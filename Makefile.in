@@ -54,7 +54,10 @@ uninstall:
 
 tests: $(TESTOBJS)
 ifeq ($(TESTWRAPDMP),1)
-	/usr/local/opt/binutils/bin/gobjcopy obj/support.o --redefine-sym ___wrap_add_ints=___real_add_ints obj/support.o
+	/usr/local/opt/binutils/bin/gobjcopy obj/support.o \
+	--redefine-sym ___wrap_add_ints=___real_add_ints \
+	--redefine-sym ___wrap_person_constructor=___real_person_constructor \
+	obj/support.o
 	$(CC) $(CFLAGS) $(ADDFLAGS) $(ADDSFLAGS) -o bin/testsuite $(TESTOBJS) -lminitest
 else
 	$(CC) $(CFLAGS) $(ADDFLAGS) $(ADDSFLAGS) -o bin/testsuite $(TESTOBJS) -lminitest
@@ -63,7 +66,10 @@ endif
 $(TESTOBJS): $(OBJDIR)/%.o : test/%.c
 	$(CC) $(CFLAGS) $(ADDFLAGS) $(ADDSFLAGS) -c $< -o $@
 ifeq ($(TESTWRAPDMP),1)
-	/usr/local/opt/binutils/bin/gobjcopy  --redefine-sym _add_ints=___wrap_add_ints $@
+	/usr/local/opt/binutils/bin/gobjcopy  \
+	--redefine-sym _add_ints=___wrap_add_ints \
+	--redefine-sym _person_constructor=___wrap_person_constructor \
+	$@
 endif
 
 clean:
