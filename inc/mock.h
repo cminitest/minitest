@@ -49,12 +49,31 @@
   
 
 #define mt_mock_parameter_handles(...) ( __VA_ARGS__ )
-#define mt_mock_parameter_handle(cast_type, attribute) if(strcmp(mock->argt_list[i], #cast_type) == 0) { \
-    found = 1;                                                                                           \
-    param->data.attribute = va_arg(valist, cast_type);                                                   \
-    param->data_type = malloc(sizeof(#cast_type));                                                       \
-    strcpy(param->data_type, #cast_type);                                                                \
-  }; if(found) { this_index = param; found = 0; continue; };                                             \
+#define mt_mock_parameter_handle(type, cast_type, attribute) if(strcmp(mock->argt_list[i], #type) == 0) { \
+    found = 1;                                                                                            \
+    param->data.attribute = (type)va_arg(valist, cast_type);                                              \
+    param->data_type = malloc(sizeof(#type));                                                             \
+    strcpy(param->data_type, #type);                                                                      \
+  }; if(found) { this_index = param; found = 0; continue; };                                              \
+
+#define __mt_parameter_handles                              \
+  mt_mock_parameter_handle(int,    int,    int_value)       \
+  mt_mock_parameter_handle(char,   int,    char_value)      \
+  mt_mock_parameter_handle(short,  int,    short_value)     \
+  mt_mock_parameter_handle(long,   long,   long_value)      \
+  mt_mock_parameter_handle(double, double, double_value)    \
+  mt_mock_parameter_handle(float,  double, float_value)     \
+  mt_mock_parameter_handle(void*,  void*,  void_ptr_value)  \
+  mt_mock_parameter_handle(char*,  char*,  char_ptr_value)  \
+  mt_mock_parameter_handle(size_t, size_t, size_t_value)    \
+  mt_mock_parameter_handle(unsigned int,   unsigned int, u_int_value)        \
+  mt_mock_parameter_handle(unsigned short, int,          u_short_value)      \
+  mt_mock_parameter_handle(unsigned char,  int,          u_char_value)       \
+  mt_mock_parameter_handle(int*,           int*,         int_array_value)    \
+  mt_mock_parameter_handle(short*,         short*,       short_array_value)  \
+  mt_mock_parameter_handle(long*,          long*,        long_array_value)   \
+  mt_mock_parameter_handle(double*,        double*,      double_array_value) \
+  mt_mock_parameter_handle(float*,         float*,       float_array_value)  \
 
 // =======================================
 //      Mock Structures
@@ -142,7 +161,7 @@
     for(int i = 0; i < argcount; i++) {                                 \
       MockParam* this_index = &(call->params[i]);                       \
       MockParam* param = &(call->params[i]);                            \
-      mt_mock_parameter_handle(int, int_value)                          \
+      __mt_parameter_handles                                            \
       mt_splat_args user_defined_params                                 \
     }                                                                   \
     va_end(valist);                                                     \
@@ -191,7 +210,7 @@
       params[i] = malloc(sizeof(MockParam));                                                \
       MockParam* param = params[i];                                                         \
       MockParam* this_index = params[i];                                                    \
-      mt_mock_parameter_handle(int, int_value)                                              \
+      __mt_parameter_handles                                                                \
       mt_splat_args user_defined_params                                                     \
     }                                                                                       \
     va_end(valist);                                                                         \
