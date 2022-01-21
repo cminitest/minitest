@@ -25,6 +25,11 @@
 #define mt_mock_function_args_2(n1,n2) char* args[] = { mt_mock_argtype_string(n1), mt_mock_argtype_string(n2) }
 #define mt_mock_function_args_3(n1,n2,n3) char* args[] = { mt_mock_argtype_string(n1), mt_mock_argtype_string(n2), mt_mock_argtype_string(n3) }
 
+//mt_check_if_type(cc->params[i].data_type, "int", cc->params[i].data.int_value == params[i]->data.int_value)
+
+// type, key, condition
+
+
 #define mt_set_call_value_if(param, value, type, cast, key) \
   if(strcmp(value, type) == 0) {                     \
     param.data.key = va_arg(valist, cast);           \
@@ -113,6 +118,7 @@
   MockParam** __expect_create_mock_params(MiniTestMock*, int, ...);                                         \
   int __assert_params_equal(MiniTestMock*, MockParam**);                                                    \
   MiniTestMock* mt_find_node(MiniTestMockSuite*, char*);                                                    \
+  void __register_mock_call(MiniTestMock* mock, int cn, int argcount, ...);                                 \
 
 // =======================================
 //      Mock Params and Assertions
@@ -130,6 +136,27 @@
     return current_node;                                                                                            \
   }                                                                                                                 \
                                                                                                                     \
+  void __register_mock_call(MiniTestMock* mock, int cn, int argcount, ...) {    \
+    MockCall* call = malloc(sizeof(MockCall));                          \
+    call->n_args = argcount;                                            \
+    call->call_number = cn;                                             \
+    call->next = NULL;                                                  \
+    va_list valist;                                                     \
+    va_start(valist, argcount);                                         \
+    for(int i = 0; i < argcount; i++) {                                 \
+      MockParam param;                                                  \
+      mt_set_call_value_if(param, mock->argt_list[i], "int", int, int_value)   \
+    }                                                                   \
+    va_end(valist);                                                     \
+    if (mock->last_call == NULL) {                                      \
+      mock->calls = call;                                               \
+      mock->last_call = call;                                           \
+    } else {                                                            \
+      mock->last_call->next = call;                                     \
+      mock->last_call = call;                                           \
+    }                                                                   \
+  }                                                                     \
+                                                                        \
   mt_expect_handle(mock, MiniTestMock*, void*, void*,, __expect_mock_condition(actual, expected, flag), NULL, NONE) \
   int __expect_mock_condition(MiniTestMock* mock, void* condition, mt_expect_flags flag) {  \
     switch(flag) {                                                                          \
@@ -176,26 +203,6 @@
 
 #define mt_define_mock(function_name, return_type, argc, arg_types, mock_args, ...) \
                                                                                     \
-  void __##function_name##register_mock_call(MiniTestMock* mock, int cn, int argcount, ...) {    \
-    MockCall* call = malloc(sizeof(MockCall));                          \
-    call->n_args = argc;                                                \
-    call->call_number = cn;                                             \
-    call->next = NULL;                                                  \
-    va_list valist;                                                     \
-    va_start(valist, argcount);                                         \
-    for(int i = 0; i < argcount; i++) {                                 \
-      MockParam param;                                                  \
-      mt_set_call_value_if(param, mock->argt_list[i], "int", int, int_value)   \
-    }                                                                   \
-    va_end(valist);                                                     \
-    if (mock->last_call == NULL) {                                      \
-      mock->calls = call;                                               \
-      mock->last_call = call;                                           \
-    } else {                                                            \
-      mock->last_call->next = call;                                     \
-      mock->last_call = call;                                           \
-    }                                                                   \
-  }                                                                     \
                                                                         \
   MiniTestMock* __init_##function_name(MiniTestMockSuite *s) {          \
     MiniTestMock* node = malloc(sizeof(MiniTestMock));                  \
@@ -244,7 +251,7 @@
         if (current_node->loaded) {                                               \
           if(current_node->released) { return data->handle mock_args ; }          \
           current_node->call_count += 1;                                          \
-          __##function_name##register_mock_call (current_node, current_node->call_count, argc, mt_splat_args mock_args ) ; \
+          __register_mock_call (current_node, current_node->call_count, argc, mt_splat_args mock_args ) ; \
           return data->return_value;                                              \
         } else {                                                                  \
           printf(MT_FUNCTION_NO_RETURN_ERROR, #function_name);                    \
