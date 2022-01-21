@@ -38,35 +38,55 @@
   } function_name##Struct;                                   \
                                                              \
 
+#define mt_mock_expected cc->params[i].data
+#define mt_mock_actual   params[i]->data
+
+#define mt_mock_default_assert(attribute) (mt_mock_expected.attribute == mt_mock_actual.attribute)
+#define mt_mock_assert_parameters(...) ( __VA_ARGS__ )
+#define mt_mock_assert_parameter(attribute, condition)                                  \
+  if(strcmp(cc->params[i].data_type, params[i]->data_type) != 0) { n_found = 0; break; }\
+  if(condition) { n_found += 1; continue; } else { n_found = 0; break; }                \
+  
+
+#define mt_mock_parameter_handles(...) ( __VA_ARGS__ )
+#define mt_mock_parameter_handle(cast_type, attribute) if(strcmp(mock->argt_list[i], #cast_type) == 0) { \
+    found = 1;                                                                                           \
+    param->data.attribute = va_arg(valist, cast_type);                                                   \
+    param->data_type = malloc(sizeof(#cast_type));                                                       \
+    strcpy(param->data_type, #cast_type);                                                                \
+  }; if(found) { this_index = param; found = 0; continue; };                                             \
+
 // =======================================
 //      Mock Structures
 // =======================================
 
 #define mt_setup_mocks(param_extensions, forwards)    \
   mt_splat_args forwards                    \
+  typedef union __mt_uMockParam {           \
+    int int_value;                          \
+    char char_value;                        \
+    short short_value;                      \
+    long long_value;                        \
+    double double_value;                    \
+    float float_value;                      \
+    void* void_ptr_value;                   \
+    char* char_ptr_value;                   \
+    size_t size_t_value;                    \
+    unsigned int u_int_value;               \
+    unsigned short u_short_value;           \
+    unsigned char u_char_value;             \
+    int* int_array_value;                   \
+    short* short_array_value;               \
+    long* long_array_value;                 \
+    double* double_array_value;             \
+    float* float_array_value;               \
+    mt_splat_args param_extensions          \
+  } mt_uMockParam;                          \
+                                            \
   typedef struct __MockParamStruct {        \
     char* data_type;                        \
     size_t array_size;                      \
-    union {                                 \
-      int int_value;                        \
-      char char_value;                      \
-      short short_value;                    \
-      long long_value;                      \
-      double double_value;                  \
-      float float_value;                    \
-      void* void_ptr_value;                 \
-      char* char_ptr_value;                 \
-      size_t size_t_value;                  \
-      unsigned int u_int_value;             \
-      unsigned short u_short_value;         \
-      unsigned char u_char_value;           \
-      int* int_array_value;                 \
-      short* short_array_value;             \
-      long* long_array_value;               \
-      double* double_array_value;           \
-      float* float_array_value;             \
-      mt_splat_args param_extensions        \
-    } data;                                 \
+    mt_uMockParam data;                     \
   } MockParam;                              \
                                             \
   typedef struct __MockCallStruct {         \
@@ -99,17 +119,7 @@
 //      Mock Params and Assertions
 // =======================================
 
-#define mt_check_if_type(t1,t2,condition) if(strcmp(t1, t2) == 0 && (condition) ) { found = 1; break; }
-
-#define mt_mock_handle_parameters(...) ( __VA_ARGS__ )
-#define mt_mock_handle_parameter(cast_type, attribute) if(strcmp(mock->argt_list[i], #cast_type) == 0) { \
-    found = 1;                                                                                           \
-    param->data.attribute = va_arg(valist, cast_type);                                                   \
-    param->data_type = malloc(sizeof(#cast_type));                                                       \
-    strcpy(param->data_type, #cast_type);                                                                \
-  }; if(found) { this_index = param; found = 0; continue; };                                             \
-
-#define mt_mocks_initialize()                                                                                       \
+#define mt_mocks_initialize(user_defined_params, user_defined_assertions)                                           \
   MiniTestMock* mt_find_node(MiniTestMockSuite *s, char* function_name) {                                           \
     MiniTestMock* current_node = s->nodes;                                                                          \
     while(strcmp(current_node->function, function_name) != 0) {                                                     \
@@ -132,7 +142,8 @@
     for(int i = 0; i < argcount; i++) {                                 \
       MockParam* this_index = &(call->params[i]);                       \
       MockParam* param = &(call->params[i]);                            \
-      mt_mock_handle_parameter(int, int_value)                          \
+      mt_mock_parameter_handle(int, int_value)                          \
+      mt_splat_args user_defined_params                                 \
     }                                                                   \
     va_end(valist);                                                     \
     if (mock->last_call == NULL) {                                      \
@@ -160,9 +171,12 @@
     MockCall* cc = mock->calls;                                                             \
     int found = 0;                                                                          \
     while(cc != NULL && !found) {                                                           \
+      int n_found = 0;                                                                      \
       for(int i = 0; i < cc->n_args; i++) {                                                 \
-        mt_check_if_type(cc->params[i].data_type, "int", cc->params[i].data.int_value == params[i]->data.int_value) \
+        mt_mock_assert_parameter(int_value, mt_mock_default_assert(int_value))              \
+        mt_splat_args user_defined_assertions                                               \
       }                                                                                     \
+      if(n_found == cc->n_args) { found = 1; } else { n_found = 0; }                        \
       cc = cc->next;                                                                        \
     }                                                                                       \
     return found;                                                                           \
@@ -177,7 +191,8 @@
       params[i] = malloc(sizeof(MockParam));                                                \
       MockParam* param = params[i];                                                         \
       MockParam* this_index = params[i];                                                    \
-      mt_mock_handle_parameter(int, int_value)                                              \
+      mt_mock_parameter_handle(int, int_value)                                              \
+      mt_splat_args user_defined_params                                                     \
     }                                                                                       \
     va_end(valist);                                                                         \
     return params;                                                                          \
