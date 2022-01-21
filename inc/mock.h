@@ -373,6 +373,7 @@
 //      Mock Helper Macros
 // =======================================
 
+#define no_return mt_void);
 #define and_return(value) value);
 #define mock(function_name) __mock_##function_name(&minitestmocks, 
 #define mocked(function_name) __mocked_##function_name(&minitestmocks)

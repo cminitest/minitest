@@ -80,10 +80,11 @@ describe("MiniTest", minitest_mocks)
 
     context("parameters")
       when("a variety of parameter types are passed")
-        mock(person_constructor) and_return(mt_void)
+        mock(person_constructor) no_return
         it("asserts the mock was called")
           __wrap_person_constructor("Fry", 3000);
           expect(mock_for(person_constructor)) to have been called_with("Fry", 3000)
+          expect(mock_for(person_constructor)) to not have been called_with("Fry", "3000")
         end
       end
     end
