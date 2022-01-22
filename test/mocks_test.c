@@ -87,6 +87,14 @@ describe("MiniTest", minitest_mocks)
           expect(mock_for(person_constructor)) to not have been called_with("Fry", "3000")
         end
       end
+
+      context("char")
+        mock(test_char) no_return
+        it("asserts the mock was called")
+          __wrap_test_char('A');
+          expect(mock_for(test_char)) to have been called_with('A')
+        end
+      end
     end
 
   end

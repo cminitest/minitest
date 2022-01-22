@@ -9,7 +9,25 @@ typedef struct ExpectExtStruct {
 
 int add_ints(int n1, int n2);
 int add_three_ints(int n1, int n2, int n3);
-int person_constructor(char* name, short age);
+
+void test_char(char n);
+void test_short(short n);
+void test_long(long n);
+void test_double(double n);
+void test_float(float n);
+void test_void_ptr(void* n);
+void test_char_ptr(char* n);
+void test_size_t(size_t n);
+void test_u_int(unsigned int n);
+void test_u_short(unsigned short n);
+void test_u_char(unsigned char n);
+void test_int_array(int n[]);
+void test_short_array(short n[]);
+void test_long_array(long n[]);
+void test_double_array(double n[]);
+void test_float_array(float n[]);
+
+void person_constructor(char* name, short age);
 
 mt_setup_expect_forwards(
   mt_expect_forward(extstruct, ExpectExt*)
@@ -29,6 +47,22 @@ mt_setup_mocks(
   mt_setup_mock_forwards(
     mt_mock_forward(add_ints, int, 2, int n1, int n2)
     mt_mock_forward(person_constructor, mt_void_type, 2, char* name, short age)
+    mt_mock_forward(test_char, mt_void_type,         1, char n)
+    mt_mock_forward(test_short, mt_void_type,        1, short n)
+    mt_mock_forward(test_long, mt_void_type,         1, long n)
+    mt_mock_forward(test_double, mt_void_type,       1, double n)
+    mt_mock_forward(test_float, mt_void_type,        1, float n)
+    mt_mock_forward(test_void_ptr, mt_void_type,     1, void* n)
+    mt_mock_forward(test_char_ptr, mt_void_type,     1, char* n)
+    mt_mock_forward(test_size_t, mt_void_type,       1, size_t n)
+    mt_mock_forward(test_u_int, mt_void_type,        1, unsigned int n)
+    mt_mock_forward(test_u_short, mt_void_type,      1, unsigned short n)
+    mt_mock_forward(test_u_char, mt_void_type,       1, unsigned char n)
+    mt_mock_forward(test_int_array, mt_void_type,    1, int n[])
+    mt_mock_forward(test_short_array, mt_void_type,  1, short n[])
+    mt_mock_forward(test_long_array, mt_void_type,   1, long n[])
+    mt_mock_forward(test_double_array, mt_void_type, 1, double n[])
+    mt_mock_forward(test_float_array, mt_void_type,  1, float n[])
   )
 )
 

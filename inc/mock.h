@@ -14,6 +14,7 @@
 #define mt_real_fn_definition(function_name, tf) mt_real_fn_definition_##tf(function_name)
 #define mt_real_fn_definition_0(function_name) function_name
 #define mt_real_fn_definition_1(function_name) __real_##function_name
+#define mt_real_fn_definition_2(function_name) NULL
 
 #define mt_mock_param(type, attribute) type attribute;
 
