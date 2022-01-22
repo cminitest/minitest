@@ -10,13 +10,13 @@ mt_mocks_initialize(
   )
 )
 
-mt_define_mock(add_ints, int, 2,
+mt_define_mock(mt_returns, int, add_ints, 2,
   mt_mock_arg_signature(int, int),
   mt_mock_arg_names(n1,n2),
   int n1, int n2
 )
 
-mt_define_mock(person_constructor, mt_void_type, 2,
+mt_define_mock(mt_no_return, void, person_constructor, 2,
   mt_mock_arg_signature(char*, short),
   mt_mock_arg_names(name,age),
   char* name, short age
@@ -44,7 +44,7 @@ mt_define_mock(person_constructor, mt_void_type, 2,
 #undef MT_LD_WRAP
 #define MT_LD_WRAP 2
 
-mt_define_mock(test_char, mt_void_type, 1,
+mt_define_mock(mt_no_return, void, test_char, 1,
   mt_mock_arg_signature(char),
   mt_mock_arg_names(n),
   char n

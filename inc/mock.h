@@ -28,11 +28,27 @@
 
 #define mt_setup_mock_forwards(...) ( __VA_ARGS__ )
 
-#define mt_mock_forward(function_name, return_type, argc, ...)       \
+#define mt_rt_arg(fn_type, return_type) mt_rt_arg_##fn_type(return_type)
+#define mt_rt_arg_0(return_type)
+#define mt_rt_arg_1(return_type) ,return_type
+
+#define mt_rt_struct(fn_type, return_type) mt_rt_struct_##fn_type(return_type)
+#define mt_rt_struct_0(return_type) void* return_value;
+#define mt_rt_struct_1(return_type) return_type return_value;
+
+#define mt_rt_return(fn_type) mt_rt_return_##fn_type
+#define mt_rt_return_0 ;
+#define mt_rt_return_1 data->return_value;
+
+#define mt_rt_set_return(fn_type, return_value) mt_rt_set_return_##fn_type(return_value)
+#define mt_rt_set_return_0(return_value)
+#define mt_rt_set_return_1(return_value) data->return_value = return_value;
+
+#define mt_mock_forward(rts, return_type, function_name, argc, ...)  \
   return_type __real_##function_name(__VA_ARGS__);                   \
   return_type __wrap_##function_name(__VA_ARGS__);                   \
   MiniTestMock* __init_##function_name(MiniTestMockSuite*);          \
-  void __mock_##function_name(MiniTestMockSuite*, return_type);      \
+  void __mock_##function_name(MiniTestMockSuite* mt_rt_arg(rts,return_type));      \
   MiniTestMock* __this_##function_name(MiniTestMockSuite*);          \
   int __n_calls_##function_name(MiniTestMockSuite*);                 \
   void __release_##function_name(MiniTestMockSuite*);                \
@@ -40,7 +56,7 @@
   type_##function_name __mocked_##function_name(MiniTestMockSuite*); \
                                                                      \
   typedef struct __##function_name##Struct {                 \
-    return_type return_value;                                \
+    mt_rt_struct(rts, return_type)                           \
     return_type (*handle)(__VA_ARGS__);                      \
   } function_name##Struct;                                   \
                                                              \
@@ -254,8 +270,9 @@
 //      Mock Definition
 // =======================================
 
-#define mt_define_mock(function_name, return_type, argc, arg_types, mock_args, ...) \
-                                                                                    \
+//rts, return_type, 
+
+#define mt_define_mock(rts, return_type, function_name, argc, arg_types, mock_args, ...) \
                                                                         \
   MiniTestMock* __init_##function_name(MiniTestMockSuite *s) {          \
     MiniTestMock* node = malloc(sizeof(MiniTestMock));                  \
@@ -305,7 +322,7 @@
           if(current_node->released) { return data->handle mock_args ; }          \
           current_node->call_count += 1;                                          \
           __register_mock_call (current_node, current_node->call_count, argc, mt_splat_args mock_args ) ; \
-          return data->return_value;                                              \
+          return mt_rt_return(rts)                                                \
         } else {                                                                  \
           printf(MT_FUNCTION_NO_RETURN_ERROR, #function_name);                    \
           exit(-1);                                                               \
@@ -317,14 +334,14 @@
     }                                                                             \
   }                                                                               \
                                                                                   \
-  void __mock_##function_name(MiniTestMockSuite *s, return_type return_value) {   \
+  void __mock_##function_name(MiniTestMockSuite *s mt_rt_arg(rts, return_type return_value)) {   \
     if(s->nodes == NULL) { __init_##function_name(s); }                           \
     MiniTestMock* current_node = mt_find_node(s, #function_name);                 \
     if (current_node == NULL || strcmp(current_node->function, #function_name)!=0) { \
       current_node = __init_##function_name(s);                                   \
     }                                                                             \
     function_name##Struct* data = (function_name##Struct*)current_node->data;     \
-    data->return_value = return_value;                                            \
+    mt_rt_set_return(rts, return_value)                                           \
     current_node->loaded = 1;                                                     \
     current_node->released = 0;                                                   \
     current_node->call_count = 0;                                                 \
@@ -374,9 +391,9 @@
 //      Mock Helper Macros
 // =======================================
 
-#define no_return mt_void);
-#define and_return(value) value);
-#define mock(function_name) __mock_##function_name(&minitestmocks, 
+#define no_return );
+#define and_return(value) ,value);
+#define mock(function_name) __mock_##function_name(&minitestmocks 
 #define mocked(function_name) __mocked_##function_name(&minitestmocks)
 #define release_mock(function_name) __release_##function_name(&minitestmocks);
 #define mock_total_calls(function_name) __n_calls_##function_name(&minitestmocks)
