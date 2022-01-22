@@ -13,11 +13,15 @@
 #define MT_EXPECT_EPSILON 0.000001
 #endif
 
+#define mt_mock_no_wrap   0
+#define mt_mock_wrap_real 1
+#define mt_mock_wrap_null 2
+
 #ifdef LD_WRAP
   #undef LD_WRAP
-  #define LD_WRAP 1
+  #define LD_WRAP mt_mock_wrap_real
 #else
-  #define LD_WRAP 0
+  #define LD_WRAP mt_mock_no_wrap
 #endif
 
 #define MT_LD_WRAP LD_WRAP

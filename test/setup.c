@@ -22,27 +22,8 @@ mt_define_mock(mt_no_return, void, person_constructor, 2,
   char* name, short age
 )
 
-/*
-    mt_mock_forward(test_char, mt_void_type,         1, char n)
-    mt_mock_forward(test_short, mt_void_type,        1, short n)
-    mt_mock_forward(test_long, mt_void_type,         1, long n)
-    mt_mock_forward(test_double, mt_void_type,       1, double n)
-    mt_mock_forward(test_float, mt_void_type,        1, float n)
-    mt_mock_forward(test_void_ptr, mt_void_type,     1, void* n)
-    mt_mock_forward(test_char_ptr, mt_void_type,     1, char* n)
-    mt_mock_forward(test_size_t, mt_void_type,       1, size_t n)
-    mt_mock_forward(test_u_int, mt_void_type,        1, unsigned int n)
-    mt_mock_forward(test_u_short, mt_void_type,      1, unsigned short n)
-    mt_mock_forward(test_u_char, mt_void_type,       1, unsigned char n)
-    mt_mock_forward(test_int_array, mt_void_type,    1, int n[])
-    mt_mock_forward(test_short_array, mt_void_type,  1, short n[])
-    mt_mock_forward(test_long_array, mt_void_type,   1, long n[])
-    mt_mock_forward(test_double_array, mt_void_type, 1, double n[])
-    mt_mock_forward(test_float_array, mt_void_type,  1, float n[])
-*/
-
-#undef MT_LD_WRAP
-#define MT_LD_WRAP 2
+#undef  MT_LD_WRAP
+#define MT_LD_WRAP mt_mock_wrap_null
 
 mt_define_mock(mt_no_return, void, test_char, 1,
   mt_mock_arg_signature(char),
@@ -50,5 +31,86 @@ mt_define_mock(mt_no_return, void, test_char, 1,
   char n
 )
 
-#undef MT_LD_WRAP
-#define MT_LD_WRAP 1
+mt_define_mock(mt_no_return, void, test_short, 1,
+  mt_mock_arg_signature(short),
+  mt_mock_arg_names(n),
+  short n
+)
+
+mt_define_mock(mt_no_return, void, test_long, 1,
+  mt_mock_arg_signature(long),
+  mt_mock_arg_names(n),
+  long n
+)
+
+mt_define_mock(mt_no_return, void, test_double, 1,
+  mt_mock_arg_signature(double),
+  mt_mock_arg_names(n),
+  double n
+)
+
+mt_define_mock(mt_no_return, void, test_float, 1,
+  mt_mock_arg_signature(float),
+  mt_mock_arg_names(n),
+  float n
+)
+
+mt_define_mock(mt_no_return, void, test_void_ptr, 1,
+  mt_mock_arg_signature(void*),
+  mt_mock_arg_names(n),
+  void* n
+)
+
+mt_define_mock(mt_no_return, void, test_char_ptr, 1,
+  mt_mock_arg_signature(char*),
+  mt_mock_arg_names(n),
+  char* n
+)
+
+mt_define_mock(mt_no_return, void, test_size_t, 1,
+  mt_mock_arg_signature(size_t),
+  mt_mock_arg_names(n),
+  size_t n
+)
+
+mt_define_mock(mt_no_return, void, test_u_int, 1,
+  mt_mock_arg_signature(unsigned int),
+  mt_mock_arg_names(n),
+  unsigned int n
+)
+
+mt_define_mock(mt_no_return, void, test_u_short, 1,
+  mt_mock_arg_signature(unsigned short),
+  mt_mock_arg_names(n),
+  unsigned short n
+)
+
+mt_define_mock(mt_no_return, void, test_u_char, 1,
+  mt_mock_arg_signature(unsigned char),
+  mt_mock_arg_names(n),
+  unsigned char n
+)
+
+/*
+
+mt_define_mock(mt_no_return, void, test_int_array, 1,
+  mt_mock_arg_signature(int*),
+  mt_mock_arg_names(n),
+  int* n
+)
+
+mt_define_mock(mt_no_return, void, test_short_array, 1,
+  mt_mock_arg_signature(short*),
+  mt_mock_arg_names(n),
+  short* n
+)
+
+    mt_mock_forward(mt_no_return, void, test_short_array,  1, short n[])
+    mt_mock_forward(mt_no_return, void, test_long_array,   1, long n[])
+    mt_mock_forward(mt_no_return, void, test_double_array, 1, double n[])
+    mt_mock_forward(mt_no_return, void, test_float_array,  1, float n[])
+*/
+
+
+#undef  MT_LD_WRAP
+#define MT_LD_WRAP mt_mock_wrap_real

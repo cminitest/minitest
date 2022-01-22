@@ -21,8 +21,8 @@ void test_size_t(size_t n){ }
 void test_u_int(unsigned int n){ }
 void test_u_short(unsigned short n){ }
 void test_u_char(unsigned char n){ }
-void test_int_array(int n[]){ }
-void test_short_array(short n[]){ }
-void test_long_array(long n[]){ }
-void test_double_array(double n[]){ }
-void test_float_array(float n[]){ }
+void test_int_array(int* n){ }
+void test_short_array(short* n){ }
+void test_long_array(long* n){ }
+void test_double_array(double* n){ }
+void test_float_array(float* n){ }

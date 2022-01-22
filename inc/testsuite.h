@@ -21,11 +21,11 @@ void test_size_t(size_t n);
 void test_u_int(unsigned int n);
 void test_u_short(unsigned short n);
 void test_u_char(unsigned char n);
-void test_int_array(int n[]);
-void test_short_array(short n[]);
-void test_long_array(long n[]);
-void test_double_array(double n[]);
-void test_float_array(float n[]);
+void test_int_array(int* n);
+void test_short_array(short* n);
+void test_long_array(long* n);
+void test_double_array(double* n);
+void test_float_array(float* n);
 
 void person_constructor(char* name, short age);
 
@@ -58,11 +58,11 @@ mt_setup_mocks(
     mt_mock_forward(mt_no_return, void, test_u_int,        1, unsigned int n)
     mt_mock_forward(mt_no_return, void, test_u_short,      1, unsigned short n)
     mt_mock_forward(mt_no_return, void, test_u_char,       1, unsigned char n)
-    mt_mock_forward(mt_no_return, void, test_int_array,    1, int n[])
-    mt_mock_forward(mt_no_return, void, test_short_array,  1, short n[])
-    mt_mock_forward(mt_no_return, void, test_long_array,   1, long n[])
-    mt_mock_forward(mt_no_return, void, test_double_array, 1, double n[])
-    mt_mock_forward(mt_no_return, void, test_float_array,  1, float n[])
+    mt_mock_forward(mt_no_return, void, test_int_array,    1, int* n)
+    mt_mock_forward(mt_no_return, void, test_short_array,  1, short* n)
+    mt_mock_forward(mt_no_return, void, test_long_array,   1, long* n)
+    mt_mock_forward(mt_no_return, void, test_double_array, 1, double* n)
+    mt_mock_forward(mt_no_return, void, test_float_array,  1, float* n)
   )
 )
 

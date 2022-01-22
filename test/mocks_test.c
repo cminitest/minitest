@@ -95,7 +95,112 @@ describe("MiniTest", minitest_mocks)
           expect(mock_for(test_char)) to have been called_with('A')
         end
       end
-    end
 
+      context("short")
+        mock(test_short) no_return
+        it("asserts the mock was called")
+          __wrap_test_short(10);
+          expect(mock_for(test_short)) to have been called_with(10)
+        end
+      end
+
+      context("long")
+        mock(test_long) no_return
+        it("asserts the mock was called")
+          __wrap_test_long(8080);
+          expect(mock_for(test_long)) to have been called_with(8080)
+        end
+      end
+
+      context("double")
+        mock(test_double) no_return
+        it("asserts the mock was called")
+          __wrap_test_double(10.77);
+          expect(mock_for(test_double)) to have been called_with(10.77)
+        end
+      end
+
+      context("float")
+        mock(test_float) no_return
+        it("asserts the mock was called")
+          __wrap_test_float(10.77f);
+          expect(mock_for(test_float)) to have been called_with(10.77f)
+        end
+      end
+
+      context("void*")
+        mock(test_void_ptr) no_return
+        it("asserts the mock was called")
+          __wrap_test_void_ptr(NULL);
+          expect(mock_for(test_void_ptr)) to have been called_with(NULL)
+        end
+      end
+
+      context("char*")
+        mock(test_char_ptr) no_return
+        it("asserts the mock was called")
+          __wrap_test_char_ptr("Bender");
+          expect(mock_for(test_char_ptr)) to have been called_with("Bender")
+        end
+      end
+
+      context("size_t")
+        mock(test_size_t) no_return
+        it("asserts the mock was called")
+          __wrap_test_size_t(sizeof(long));
+          expect(mock_for(test_size_t)) to have been called_with(sizeof(long))
+        end
+      end
+
+      context("unsigned int")
+        mock(test_u_int) no_return
+        unsigned int i = 3000;
+        it("asserts the mock was called")
+          __wrap_test_u_int(i);
+          expect(mock_for(test_u_int)) to have been called_with(i)
+        end
+      end
+
+      context("unsigned short")
+        mock(test_u_short) no_return
+        unsigned short i = 298;
+        it("asserts the mock was called")
+          __wrap_test_u_short(i);
+          expect(mock_for(test_u_short)) to have been called_with(i)
+        end
+      end
+
+      context("unsigned char")
+        mock(test_u_char) no_return
+        unsigned char i = 250;
+        it("asserts the mock was called")
+          __wrap_test_u_char(i);
+          expect(mock_for(test_u_char)) to have been called_with(i)
+        end
+      end
+/*
+      context("int[]")
+        mock(test_int_array) no_return
+        it("asserts the mock was called")
+          int i[] = {1, 6, 2};
+          int j[] = {6, 2, 1};
+          printf("int :: %lu (%lu) \n", sizeof(i), sizeof(i)/sizeof(int));
+          __wrap_test_int_array(i);
+          expect(mock_for(test_int_array)) to have been called_with(j)
+        end
+      end
+
+      context("short[]")
+        mock(test_short_array) no_return
+        it("asserts the mock was called")
+          short i[] = {1, 6, 2, 9, 4, 5};
+          short j[] = {6, 2, 1, 9, 4, 5};
+          printf("short :: %lu (%lu) \n", sizeof(i), sizeof(i)/sizeof(short));
+          __wrap_test_short_array(i);
+          expect(mock_for(test_short_array)) to have been called_with(j)
+        end
+      end
+*/
+    end
   end
 end

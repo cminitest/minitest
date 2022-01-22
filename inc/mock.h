@@ -68,16 +68,21 @@
 #define mt_mock_assert_parameters(...) ( __VA_ARGS__ )
 #define mt_mock_assert_parameter(attribute, condition)                                  \
   if(strcmp(cc->params[i].data_type, params[i]->data_type) != 0) { n_found = 0; break; }\
-  if(condition) { n_found += 1; continue; } else { n_found = 0; break; }                \
+  if(strcmp(cc->params[i].attribute_type, #attribute) == 0) {                           \
+    if(condition) { n_found += 1; continue; } else { n_found = 0; break; }              \
+  }                                                                                     \
   
 
 #define mt_mock_parameter_handles(...) ( __VA_ARGS__ )
-#define mt_mock_parameter_handle(type, cast_type, attribute) if(strcmp(mock->argt_list[i], #type) == 0) { \
-    found = 1;                                                                                            \
-    param->data.attribute = (type)va_arg(valist, cast_type);                                              \
-    param->data_type = malloc(sizeof(#type));                                                             \
-    strcpy(param->data_type, #type);                                                                      \
-  }; if(found) { this_index = param; found = 0; continue; };                                              \
+#define mt_mock_parameter_handle(type, cast_type, attribute) \
+ if(strcmp(mock->argt_list[i], #type) == 0) {                \
+    found = 1;                                               \
+    param->data.attribute = (type)va_arg(valist, cast_type); \
+    param->data_type = malloc(sizeof(#type));                \
+    param->attribute_type = malloc(sizeof(#attribute));      \
+    strcpy(param->data_type, #type);                         \
+    strcpy(param->attribute_type, #attribute);               \
+  }; if(found) { this_index = param; found = 0; continue; }; \
 
 #define __mt_parameter_handles                              \
   mt_mock_parameter_handle(int,    int,    int_value)       \
@@ -98,16 +103,19 @@
   mt_mock_parameter_handle(double*,        double*,      double_array_value) \
   mt_mock_parameter_handle(float*,         float*,       float_array_value)  \
 
+//
+// TODO: have user prepare array size
+//
 #define __mt_param_assert_array(attribute, type) \
-  __assert_array_##type(mt_mock_expected.attribute, mt_mock_actual.attribute, sizeof(mt_mock_expected.attribute)/sizeof(type), sizeof(mt_mock_actual.attribute)/sizeof(type))
+  __assert_array_##type(mt_mock_expected.attribute, mt_mock_actual.attribute, 0, 0)
 
 #define __mt_parameter_assertions                                                      \
   mt_mock_assert_parameter(int_value,          mt_mock_default_assert(int_value))      \
   mt_mock_assert_parameter(char_value,         mt_mock_default_assert(char_value))     \
   mt_mock_assert_parameter(short_value,        mt_mock_default_assert(short_value))    \
   mt_mock_assert_parameter(long_value,         mt_mock_default_assert(long_value))     \
-  mt_mock_assert_parameter(double_value,       mt_mock_default_assert(double_value))   \
-  mt_mock_assert_parameter(float_value,        mt_mock_default_assert(float_value))    \
+  mt_mock_assert_parameter(double_value,       __double_equal(mt_mock_expected.double_value,mt_mock_actual.double_value,MT_EXPECT_EPSILON))   \
+  mt_mock_assert_parameter(float_value,        __float_equal(mt_mock_expected.float_value,mt_mock_actual.float_value,MT_EXPECT_EPSILON))      \
   mt_mock_assert_parameter(void_ptr_value,     mt_mock_default_assert(void_ptr_value)) \
   mt_mock_assert_parameter(char_ptr_value,     (strcmp(mt_mock_expected.char_ptr_value, mt_mock_actual.char_ptr_value) == 0)) \
   mt_mock_assert_parameter(size_t_value,       mt_mock_default_assert(size_t_value))   \
@@ -150,6 +158,7 @@
   typedef struct __MockParamStruct {        \
     char* data_type;                        \
     size_t array_size;                      \
+    char* attribute_type;                   \
     mt_uMockParam data;                     \
   } MockParam;                              \
                                             \
@@ -220,18 +229,22 @@
   }                                                                     \
                                                                         \
   mt_expect_handle(mock, MiniTestMock*, void*, void*,, __expect_mock_condition(actual, expected, flag), NULL, NONE) \
-  int __expect_mock_condition(MiniTestMock* mock, void* condition, mt_expect_flags flag) {  \
+  int __expect_mock_condition(MiniTestMock* mock, void* condition, mt_expect_flags flag) {            \
     switch(flag) {                                                                          \
       case MT_EXPECT_BEEN_CALLED_FLAG:                                                      \
         return mock->call_count > 0;                                                        \
       case MT_EXPECT_CALLED_WITH_FLAG:                                                      \
-        return __assert_params_equal(mock, ((MockParam**)condition));                       \
+        return __assert_params_equal(                                                       \
+          mock, ((MockParam**)condition)                                                    \
+        );                                                                                  \
       default:                                                                              \
         return 0;                                                                           \
     }                                                                                       \
   }                                                                                         \
                                                                                             \
-  int __assert_params_equal(MiniTestMock* mock, MockParam** params) {                       \
+  int __assert_params_equal(                                                                \
+      MiniTestMock* mock, MockParam** params                                                \
+  ){                                                                                        \
     MockCall* cc = mock->calls;                                                             \
     int found = 0;                                                                          \
     while(cc != NULL && !found) {                                                           \
@@ -408,6 +421,8 @@ int __assert_array_short(short arr_1[], short arr_2[], size_t s1, size_t s2);
 int __assert_array_long(long arr_1[], long arr_2[], size_t s1, size_t s2);
 int __assert_array_double(double arr_1[], double arr_2[], size_t s1, size_t s2);
 int __assert_array_float(float arr_1[], float arr_2[], size_t s1, size_t s2);
+int __double_equal(double, double, double);
+int __float_equal(float, float, float);
 
 typedef struct MiniTestMockStruct MiniTestMock;
 
