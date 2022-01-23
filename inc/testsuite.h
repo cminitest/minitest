@@ -8,6 +8,7 @@ typedef struct ExpectExtStruct {
 } ExpectExt;
 
 int add_ints(int n1, int n2);
+int add_ints_spy(int n1, int n2);
 int add_three_ints(int n1, int n2, int n3);
 
 void test_char(char n);

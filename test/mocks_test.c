@@ -78,6 +78,14 @@ describe("MiniTest", minitest_mocks)
       end
     end
 
+    when("a function is spied on")
+      spy_on(add_ints) through(add_ints_spy)
+      it("runs the spy function")
+        __wrap_add_ints(2, 2);
+        expect(spy_for(add_ints).called) to be_true
+      end
+    end
+
     context("parameters")
       when("a variety of parameter types are passed")
         mock(person_constructor) no_return
