@@ -85,9 +85,6 @@ char* mt_expect_flag_to_string(mt_expect_flags flag);
     }                                                                                   \
   }                                                                                     \
 
-//
-// todo: __compare_array won't work for strings or pointers
-//
 #define mt_assert_array(suffix, type, comparator) \
   int __compare_array_##suffix(const void * a, const void *b) {                         \
     type fa = *(const type*) a;                                                         \

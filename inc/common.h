@@ -44,6 +44,11 @@
 
 #define mt_splat_args(...) __VA_ARGS__
 
+#ifndef mt_va_nargs
+  #define mt_va_nargs_definition(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, N, ...) N
+  #define mt_va_nargs(...) mt_va_nargs_definition(__VA_ARGS__, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1)
+#endif
+
 #define mt_expect_forward(suffix, type) \
   void __expect_##suffix(MiniTest *mt, type actual, size_t as, int negated, type expected, size_t es, type max_range, size_t ms, mt_expect_flags flag);
 

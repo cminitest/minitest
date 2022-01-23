@@ -40,11 +40,15 @@
 #define mt_rt_return_0 ;
 #define mt_rt_return_1 data->return_value;
 
+#define mt_rt_real_return(fn_type) mt_rt_real_return_##fn_type
+#define mt_rt_real_return_0 
+#define mt_rt_real_return_1 return
+
 #define mt_rt_set_return(fn_type, return_value) mt_rt_set_return_##fn_type(return_value)
 #define mt_rt_set_return_0(return_value)
 #define mt_rt_set_return_1(return_value) data->return_value = return_value;
 
-#define mt_mock_forward(rts, return_type, function_name, argc, ...)  \
+#define mt_mock_forward(rts, return_type, function_name, ...)        \
   return_type __real_##function_name(__VA_ARGS__);                   \
   return_type __wrap_##function_name(__VA_ARGS__);                   \
   MiniTestMock* __init_##function_name(MiniTestMockSuite*);          \
@@ -229,7 +233,8 @@
   }                                                                     \
                                                                         \
   mt_expect_handle(mock, MiniTestMock*, void*, void*,, __expect_mock_condition(actual, expected, flag), NULL, NONE) \
-  int __expect_mock_condition(MiniTestMock* mock, void* condition, mt_expect_flags flag) {            \
+                                                                                            \
+  int __expect_mock_condition(MiniTestMock* mock, void* condition, mt_expect_flags flag) {  \
     switch(flag) {                                                                          \
       case MT_EXPECT_BEEN_CALLED_FLAG:                                                      \
         return mock->call_count > 0;                                                        \
@@ -332,8 +337,8 @@
       if (strcmp(current_node->function, #function_name)==0) {          \
         function_name##Struct* data = (function_name##Struct*)current_node->data; \
         if (current_node->loaded) {                                               \
-          if(current_node->released) { return data->handle mock_args ; }          \
-          current_node->call_count += 1;                                          \
+          if(current_node->released) { mt_rt_real_return(rts) data->handle mock_args ; }     \
+          current_node->call_count += 1;                                                                  \
           __register_mock_call (current_node, current_node->call_count, argc, mt_splat_args mock_args ) ; \
           return mt_rt_return(rts)                                                \
         } else {                                                                  \
