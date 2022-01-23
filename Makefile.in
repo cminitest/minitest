@@ -26,7 +26,7 @@ else
     SYSLIBDIR := /usr/local/lib
     SYSINCDIR := /usr/local/include
     ADDFLAGS  := $(ADDFLAGS) -fPIC
-    ADDSFLAGS := $(ADDFLAGS) -D LD_WRAP -Wl,--wrap=add_ints
+    ADDSFLAGS := $(ADDFLAGS) -D LD_WRAP -Wl,--wrap=add_ints,--wrap=person_constructor
   endif
   
   ifeq ($(UNAME), Darwin)
