@@ -196,6 +196,7 @@ describe("MiniTest", minitest_mocks)
           expect(mock_for(test_int_array)) to have been called_with(j)
         end
 
+        mock(test_int_array) no_return
         it("asserts the mock was not called")
           int i[] = {1, 6, 2};
           int j[] = {6, 2, 0};
@@ -213,9 +214,10 @@ describe("MiniTest", minitest_mocks)
           expect(mock_for(test_short_array)) to have been called_with(j)
         end
 
+        mock(test_short_array) no_return
         it("asserts the mock was not called")
           short i[] = {1, 6, 2};
-          short j[] = {6, 2, 0};
+          short j[] = {0, 0, 0};
           __wrap_test_short_array(i);
           expect(mock_for(test_short_array)) to not have been called_with(j)
         end
@@ -230,6 +232,7 @@ describe("MiniTest", minitest_mocks)
           expect(mock_for(test_long_array)) to have been called_with(j)
         end
 
+        mock(test_long_array) no_return
         it("asserts the mock was not called")
           long i[] = {1, 6, 2};
           long j[] = {6, 2, 0};
@@ -247,6 +250,7 @@ describe("MiniTest", minitest_mocks)
           expect(mock_for(test_double_array)) to have been called_with(j)
         end
 
+        mock(test_double_array) no_return
         it("asserts the mock was not called")
           double i[] = {1.2, 6.9, 2.1};
           double j[] = {6.9, 2.1, 5.5};
@@ -264,6 +268,7 @@ describe("MiniTest", minitest_mocks)
           expect(mock_for(test_float_array)) to have been called_with(j)
         end
 
+        mock(test_float_array) no_return
         it("asserts the mock was not called")
           float i[] = {1.2f, 6.9f, 2.1f};
           float j[] = {6.9f, 2.1f, 5.5f};
