@@ -96,6 +96,14 @@
 #define mt_set_fixture_type(fixture_type, id) mt_set_fixture_type_##fixture_type(id)
 #define set_fixture(...) mt_set_fixture_type(__VA_ARGS__)
 
+#ifndef before
+  #define before(id) set_fixture(before, id)
+#endif
+
+#ifndef after
+  #define after(id) set_fixture(after, id)
+#endif
+
 #define subject(t) minitest.current->subject
 
 #endif

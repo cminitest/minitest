@@ -28,8 +28,8 @@ define_fixture(after, after_all_scoping) {
 
 describe("MiniTest", minitest_fixtures)
 
-  set_fixture(before, before_all_scoping)
-  set_fixture(after, after_all_scoping)
+  before(before_all_scoping)
+  after(after_all_scoping)
 
   context("fixtures")
     it("sets the FixtureState to the subject")
@@ -38,7 +38,7 @@ describe("MiniTest", minitest_fixtures)
     end
 
     when("a fixture is nested")
-      set_fixture(before, before_nested_scoping)
+      before(before_nested_scoping)
 
       it("sets the fixture state")
         expect(((FixtureState*)subject())->value) to equal(255)
