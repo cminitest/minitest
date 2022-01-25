@@ -102,26 +102,29 @@ mt_define_mock(mt_no_return, void, test_int_array, 1,
   int* n
 )
 
-/*
-
-mt_define_mock(mt_no_return, void, test_int_array, 1,
-  mt_mock_arg_signature(int*),
-  mt_mock_arg_names(n),
-  int* n
-)
-
 mt_define_mock(mt_no_return, void, test_short_array, 1,
   mt_mock_arg_signature(short*),
   mt_mock_arg_names(n),
   short* n
 )
 
-    mt_mock_forward(mt_no_return, void, test_short_array,  1, short n[])
-    mt_mock_forward(mt_no_return, void, test_long_array,   1, long n[])
-    mt_mock_forward(mt_no_return, void, test_double_array, 1, double n[])
-    mt_mock_forward(mt_no_return, void, test_float_array,  1, float n[])
-*/
+mt_define_mock(mt_no_return, void, test_long_array, 1,
+  mt_mock_arg_signature(long*),
+  mt_mock_arg_names(n),
+  long* n
+)
 
+mt_define_mock(mt_no_return, void, test_double_array, 1,
+  mt_mock_arg_signature(double*),
+  mt_mock_arg_names(n),
+  double* n
+)
+
+mt_define_mock(mt_no_return, void, test_float_array, 1,
+  mt_mock_arg_signature(float*),
+  mt_mock_arg_names(n),
+  float* n
+)
 
 #undef  MT_LD_WRAP
 #define MT_LD_WRAP mt_mock_wrap_real

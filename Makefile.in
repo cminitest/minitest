@@ -4,7 +4,7 @@ CC          := @CC@
 LIBNAME			:= libminitest
 LIBEXT      := so
 CFILES      := src/assertions.c src/mocks.c src/minitest.c src/output.c
-HFILES			:= inc/assertions.h inc/macros.h inc/minitest.h inc/mock.h inc/setup.h inc/common.h
+HFILES			:= inc/assertions.h inc/macros.h inc/minitest.h inc/mock.h inc/setup.h inc/common.h inc/autogen.h
 OBJECTS     := assertions.o mocks.o minitest.o output.o
 CFLAGS			:= @CFLAGS@
 ADDFLAGS    := -O2 -std=c11

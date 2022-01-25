@@ -236,8 +236,6 @@
   mt_expect_handle(mock, MiniTestMock*, void*, void*,, __expect_mock_condition(actual, expected, max_range, max_range_size, flag), NULL, NONE) \
                                                                                             \
   int __expect_mock_condition(MiniTestMock* mock, void* condition, size_t* args_sizet, size_t args_l, mt_expect_flags flag) {  \
-    printf("nargs: %lu\n", args_l);                                                         \
-    for(int i = 0; i < args_l; i++) { printf("  => nargs: %lu\n", args_sizet[i]); }         \
     switch(flag) {                                                                          \
       case MT_EXPECT_BEEN_CALLED_FLAG:                                                      \
         return mock->call_count > 0;                                                        \
