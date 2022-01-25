@@ -8,7 +8,7 @@ typedef struct ExpectExtStruct {
 } ExpectExt;
 
 int add_ints(int n1, int n2);
-int add_ints_spy(int n1, int n2);
+void add_ints_spy(int* n1, int* n2);
 int add_three_ints(int n1, int n2, int n3);
 
 void test_char(char n);
@@ -46,24 +46,24 @@ mt_setup_mocks(
     mt_mock_param(void**, expect_void_ptrptr_value)
   ),
   mt_setup_mock_forwards(
-    mt_mock_forward(mt_returns,   int, add_ints, int n1, int n2)
-    mt_mock_forward(mt_no_return, void, person_constructor,  char* name, short age)
-    mt_mock_forward(mt_no_return, void, test_char,          char n)
-    mt_mock_forward(mt_no_return, void, test_short,         short n)
-    mt_mock_forward(mt_no_return, void, test_long,          long n)
-    mt_mock_forward(mt_no_return, void, test_double,        double n)
-    mt_mock_forward(mt_no_return, void, test_float,         float n)
-    mt_mock_forward(mt_no_return, void, test_void_ptr,      void* n)
-    mt_mock_forward(mt_no_return, void, test_char_ptr,      char* n)
-    mt_mock_forward(mt_no_return, void, test_size_t,        size_t n)
-    mt_mock_forward(mt_no_return, void, test_u_int,         unsigned int n)
-    mt_mock_forward(mt_no_return, void, test_u_short,       unsigned short n)
-    mt_mock_forward(mt_no_return, void, test_u_char,        unsigned char n)
-    mt_mock_forward(mt_no_return, void, test_int_array,     int* n)
-    mt_mock_forward(mt_no_return, void, test_short_array,   short* n)
-    mt_mock_forward(mt_no_return, void, test_long_array,    long* n)
-    mt_mock_forward(mt_no_return, void, test_double_array,  double* n)
-    mt_mock_forward(mt_no_return, void, test_float_array,   float* n)
+    mt_mock_forward(mt_returns,   int, add_ints, int, int)
+    mt_mock_forward(mt_no_return, void, person_constructor, char*, short)
+    mt_mock_forward(mt_no_return, void, test_char,          char)
+    mt_mock_forward(mt_no_return, void, test_short,         short)
+    mt_mock_forward(mt_no_return, void, test_long,          long)
+    mt_mock_forward(mt_no_return, void, test_double,        double)
+    mt_mock_forward(mt_no_return, void, test_float,         float)
+    mt_mock_forward(mt_no_return, void, test_void_ptr,      void*)
+    mt_mock_forward(mt_no_return, void, test_char_ptr,      char*)
+    mt_mock_forward(mt_no_return, void, test_size_t,        size_t)
+    mt_mock_forward(mt_no_return, void, test_u_int,         unsigned int)
+    mt_mock_forward(mt_no_return, void, test_u_short,       unsigned short)
+    mt_mock_forward(mt_no_return, void, test_u_char,        unsigned char)
+    mt_mock_forward(mt_no_return, void, test_int_array,     int*)
+    mt_mock_forward(mt_no_return, void, test_short_array,   short*)
+    mt_mock_forward(mt_no_return, void, test_long_array,    long*)
+    mt_mock_forward(mt_no_return, void, test_double_array,  double*)
+    mt_mock_forward(mt_no_return, void, test_float_array,   float*)
   )
 )
 

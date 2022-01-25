@@ -80,9 +80,14 @@ describe("MiniTest", minitest_mocks)
 
     when("a function is spied on")
       spy_on(add_ints) through(add_ints_spy)
-      it("runs the spy function")
+      it("tracks the spy call")
         __wrap_add_ints(2, 2);
         expect(spy_for(add_ints).called) to be_true
+      end
+
+      it("runs the spy modifiers")
+        __wrap_add_ints(2, 2);
+        expect(mock_for(add_ints)) to have been called_with(3, 3)
       end
     end
 

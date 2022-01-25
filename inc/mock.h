@@ -56,7 +56,7 @@
   typedef struct __##function_name##Struct {                 \
     mt_rt_struct(rts, return_type)                           \
     return_type (*handle)(__VA_ARGS__);                      \
-    return_type (*through_handle)(__VA_ARGS__);              \
+    void (*through_handle) mt_spy_args(mt_va_nargs(__VA_ARGS__),__VA_ARGS__) ;              \
   } function_name##Struct;                                   \
                                                              \
 
@@ -341,7 +341,7 @@
           if(data->through_handle != NULL) {                                                              \
             current_node->spy.calls += 1;                                                                 \
             current_node->spy.called = 1;                                                                 \
-            data->through_handle mock_args ;                                                              \
+            data->through_handle mt_spy_arg_ptrs mock_args ;                                              \
           }                                                                                               \
           if(current_node->released) { mt_rt_real_return(rts) data->handle mock_args ; }                  \
           current_node->call_count += 1;                                                                  \
