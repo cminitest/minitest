@@ -11,6 +11,7 @@ extern MiniTest minitest;
 #include <string.h>
 #include <math.h>
 #include <time.h>
+#include "common.h"
 #include "macros.h"
 #include "mock.h"
 #include "assertions.h"
