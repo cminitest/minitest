@@ -96,6 +96,12 @@ mt_define_mock(mt_no_return, void, test_u_char, 1,
   unsigned char n
 )
 
+mt_define_mock(mt_no_return, void, test_int_array, 1,
+  mt_mock_arg_signature(int*),
+  mt_mock_arg_names(n),
+  int* n
+)
+
 /*
 
 mt_define_mock(mt_no_return, void, test_int_array, 1,

@@ -186,18 +186,24 @@ describe("MiniTest", minitest_mocks)
           expect(mock_for(test_u_char)) to have been called_with(i)
         end
       end
-/*
+  
       context("int[]")
         mock(test_int_array) no_return
         it("asserts the mock was called")
           int i[] = {1, 6, 2};
           int j[] = {6, 2, 1};
-          printf("int :: %lu (%lu) \n", sizeof(i), sizeof(i)/sizeof(int));
           __wrap_test_int_array(i);
           expect(mock_for(test_int_array)) to have been called_with(j)
         end
-      end
 
+        it("asserts the mock was not called")
+          int i[] = {1, 6, 2};
+          int j[] = {6, 2, 0};
+          __wrap_test_int_array(i);
+          expect(mock_for(test_int_array)) to not have been called_with(j)
+        end
+      end
+/*
       context("short[]")
         mock(test_short_array) no_return
         it("asserts the mock was called")

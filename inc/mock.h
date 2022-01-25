@@ -20,12 +20,6 @@
 
 #define mt_param_extensions(...) ( __VA_ARGS__ )
 
-#define mt_mock_argtype_string(v) #v
-#define mt_mock_function_args_0(...)   char* args[] = {}
-#define mt_mock_function_args_1(n1)    char* args[] = { mt_mock_argtype_string(n1) }
-#define mt_mock_function_args_2(n1,n2) char* args[] = { mt_mock_argtype_string(n1), mt_mock_argtype_string(n2) }
-#define mt_mock_function_args_3(n1,n2,n3) char* args[] = { mt_mock_argtype_string(n1), mt_mock_argtype_string(n2), mt_mock_argtype_string(n3) }
-
 #define mt_setup_mock_forwards(...) ( __VA_ARGS__ )
 
 #define mt_rt_arg(fn_type, return_type) mt_rt_arg_##fn_type(return_type)
@@ -108,11 +102,11 @@
   mt_mock_parameter_handle(double*,        double*,      double_array_value) \
   mt_mock_parameter_handle(float*,         float*,       float_array_value)  \
 
-//
-// TODO: have user prepare array size
-//
+// -------
+// TODO: have user specify the expected size?
+// -------
 #define __mt_param_assert_array(attribute, type) \
-  __assert_array_##type(mt_mock_expected.attribute, mt_mock_actual.attribute, 0, 0)
+  __assert_array_##type(mt_mock_expected.attribute, mt_mock_actual.attribute, args_sizet[i], args_sizet[i])
 
 #define __mt_parameter_assertions                                                      \
   mt_mock_assert_parameter(int_value,          mt_mock_default_assert(int_value))      \
@@ -193,9 +187,9 @@
   } MiniTestMock;                           \
                                             \
   void __expect_mock(MiniTest*, MiniTestMock*, size_t, int, void*, size_t, void*, size_t, mt_expect_flags); \
-  int __expect_mock_condition(MiniTestMock*, void*, mt_expect_flags );                                      \
+  int __expect_mock_condition(MiniTestMock*, void*, size_t*, size_t, mt_expect_flags );                     \
   MockParam** __expect_create_mock_params(MiniTestMock*, int, ...);                                         \
-  int __assert_params_equal(MiniTestMock*, MockParam**);                                                    \
+  int __assert_params_equal(MiniTestMock*, MockParam**, size_t*);                                           \
   MiniTestMock* mt_find_node(MiniTestMockSuite*, char*);                                                    \
   void __register_mock_call(MiniTestMock* mock, int cn, int argcount, ...);                                 \
 
@@ -239,15 +233,17 @@
     }                                                                   \
   }                                                                     \
                                                                         \
-  mt_expect_handle(mock, MiniTestMock*, void*, void*,, __expect_mock_condition(actual, expected, flag), NULL, NONE) \
+  mt_expect_handle(mock, MiniTestMock*, void*, void*,, __expect_mock_condition(actual, expected, max_range, max_range_size, flag), NULL, NONE) \
                                                                                             \
-  int __expect_mock_condition(MiniTestMock* mock, void* condition, mt_expect_flags flag) {  \
+  int __expect_mock_condition(MiniTestMock* mock, void* condition, size_t* args_sizet, size_t args_l, mt_expect_flags flag) {  \
+    printf("nargs: %lu\n", args_l);                                                         \
+    for(int i = 0; i < args_l; i++) { printf("  => nargs: %lu\n", args_sizet[i]); }         \
     switch(flag) {                                                                          \
       case MT_EXPECT_BEEN_CALLED_FLAG:                                                      \
         return mock->call_count > 0;                                                        \
       case MT_EXPECT_CALLED_WITH_FLAG:                                                      \
         return __assert_params_equal(                                                       \
-          mock, ((MockParam**)condition)                                                    \
+          mock, ((MockParam**)condition), args_sizet                                        \
         );                                                                                  \
       default:                                                                              \
         return 0;                                                                           \
@@ -255,7 +251,7 @@
   }                                                                                         \
                                                                                             \
   int __assert_params_equal(                                                                \
-      MiniTestMock* mock, MockParam** params                                                \
+    MiniTestMock* mock, MockParam** params, size_t* args_sizet                              \
   ){                                                                                        \
     MockCall* cc = mock->calls;                                                             \
     int found = 0;                                                                          \

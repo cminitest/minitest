@@ -24,7 +24,11 @@ char* mt_expect_flag_to_string(mt_expect_flags flag);
 #define be_false ,0, 0,0,0, MT_EXPECT_EQUAL_FLAG); mt_expect_epilogue;
 #define be_true  ,1, 0,0,0, MT_EXPECT_EQUAL_FLAG); mt_expect_epilogue;
 #define been_called ,0,0,0,0, MT_EXPECT_BEEN_CALLED_FLAG); mt_expect_epilogue;
-#define called_with(...) ,__expect_create_mock_params(current_expect, ((MiniTestMock*)current_expect)->last_call->n_args, __VA_ARGS__),0,0,0,MT_EXPECT_CALLED_WITH_FLAG); mt_expect_epilogue;
+
+#define called_with(...) ,__expect_create_mock_params(current_expect,                 \
+  ((MiniTestMock*)current_expect)->last_call->n_args, __VA_ARGS__),                   \
+  0,mt_sizeof_va_args(mt_va_nargs(__VA_ARGS__),__VA_ARGS__),mt_va_nargs(__VA_ARGS__), \
+  MT_EXPECT_CALLED_WITH_FLAG); mt_expect_epilogue;
 
 #define greater_than(expected) ,expected,0,expected,0,MT_EXPECT_GT_FLAG); mt_expect_epilogue;
 #define less_than(expected) ,expected,0,expected,0,MT_EXPECT_LT_FLAG); mt_expect_epilogue;

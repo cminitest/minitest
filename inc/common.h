@@ -44,9 +44,21 @@
 
 #define mt_splat_args(...) __VA_ARGS__
 
+// todo: autogenerate
 #ifndef mt_va_nargs
+  #define mt_sizeof_va_args_1(n1) (size_t[]){ sizeof(n1) }
+  #define mt_sizeof_va_args_2(n1, n2) (size_t[]){ sizeof(n1), sizeof(n2) }
+  #define mt_sizeof_va_args_definition(n, ...) mt_sizeof_va_args_##n(__VA_ARGS__)
+  #define mt_sizeof_va_args(...) mt_sizeof_va_args_definition(__VA_ARGS__)
+
   #define mt_va_nargs_definition(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, N, ...) N
   #define mt_va_nargs(...) mt_va_nargs_definition(__VA_ARGS__, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1)
+
+  #define mt_mock_argtype_string(v) #v
+  #define mt_mock_function_args_0(...)   char* args[] = {}
+  #define mt_mock_function_args_1(n1)    char* args[] = { mt_mock_argtype_string(n1) }
+  #define mt_mock_function_args_2(n1,n2) char* args[] = { mt_mock_argtype_string(n1), mt_mock_argtype_string(n2) }
+  #define mt_mock_function_args_3(n1,n2,n3) char* args[] = { mt_mock_argtype_string(n1), mt_mock_argtype_string(n2), mt_mock_argtype_string(n3) }
 #endif
 
 #define mt_expect_forward(suffix, type) \
