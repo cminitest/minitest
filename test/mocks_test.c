@@ -258,15 +258,15 @@ describe("MiniTest", minitest_mocks)
       context("float[]")
         mock(test_float_array) no_return
         it("asserts the mock was called")
-          float i[] = {1.1, 6.1, 2.1, 9.1, 4.1, 5.1};
-          float j[] = {6.1, 2.1, 1.1, 9.1, 4.1, 5.1};
+          float i[] = {1.1f, 6.1f, 2.1f, 9.1f, 4.1f, 5.1f};
+          float j[] = {6.1f, 2.1f, 1.1f, 9.1f, 4.1f, 5.1f};
           __wrap_test_float_array(i);
           expect(mock_for(test_float_array)) to have been called_with(j)
         end
 
         it("asserts the mock was not called")
-          float i[] = {1.2, 6.9, 2.1};
-          float j[] = {6.9, 2.1, 5.5};
+          float i[] = {1.2f, 6.9f, 2.1f};
+          float j[] = {6.9f, 2.1f, 5.5f};
           __wrap_test_float_array(i);
           expect(mock_for(test_float_array)) to not have been called_with(j)
         end
