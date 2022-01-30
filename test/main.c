@@ -9,6 +9,7 @@ int main() {
   int result = EXPECTED_FAILURES - minitest.failures;
 
   minitest.clear(&minitest);
+  minitestmocks.clear(&minitestmocks, mt_free_mocks);
 
   return result;
 }

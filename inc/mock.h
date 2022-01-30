@@ -189,6 +189,8 @@
   int __assert_params_equal(MiniTestMock*, MockParam**, size_t*);                                           \
   MiniTestMock* mt_find_node(MiniTestMockSuite*, char*);                                                    \
   void __register_mock_call(MiniTestMock* mock, int cn, int argcount, ...);                                 \
+  void mt_free_mocks(MiniTestMock*);                                                                        \
+  void mt_free_mock_calls(MockCall*);                                                                       \
 
 // =======================================
 //      Mock Params and Assertions
@@ -233,13 +235,19 @@
   mt_expect_handle(mock, MiniTestMock*, void*, void*,, __expect_mock_condition(actual, expected, max_range, max_range_size, flag), NULL, NONE) \
                                                                                             \
   int __expect_mock_condition(MiniTestMock* mock, void* condition, size_t* args_sizet, size_t args_l, mt_expect_flags flag) {  \
+    int result = 0;                                                                         \
     switch(flag) {                                                                          \
       case MT_EXPECT_BEEN_CALLED_FLAG:                                                      \
         return mock->call_count > 0;                                                        \
       case MT_EXPECT_CALLED_WITH_FLAG:                                                      \
-        return __assert_params_equal(                                                       \
+        result = __assert_params_equal(                                                     \
           mock, ((MockParam**)condition), args_sizet                                        \
         );                                                                                  \
+        for (int i = 0; i < mock->calls->n_args; i++) {                                     \
+          free(((MockParam**)condition)[i]->data_type);                                     \
+          free(((MockParam**)condition)[i]->attribute_type);                                \
+        }                                                                                   \
+        return result;                                                                      \
       default:                                                                              \
         return 0;                                                                           \
     }                                                                                       \
@@ -277,6 +285,40 @@
     va_end(valist);                                                                         \
     return params;                                                                          \
   }                                                                                         \
+                                                                                            \
+  void mt_free_mock_calls(MockCall* call) {          \
+    if(call == NULL) { return; }                     \
+    mt_free_mock_calls(call->next);                  \
+    int i = 0;                                       \
+    MockParam param;                                 \
+    do {                                             \
+      param = call->params[i];                       \
+      if (param.data_type == NULL) { break; }        \
+      free(param.data_type);                         \
+      free(param.attribute_type);                    \
+      i++;                                           \
+      param = call->params[i];                       \
+    } while(param.data_type != NULL);                \
+    call = NULL;                                     \
+  }                                                  \
+                                                     \
+  void mt_free_mocks(MiniTestMock* node) {           \
+    if(node == NULL) { return; }                     \
+    mt_free_mocks(node->next);                       \
+    free(node->function);                            \
+    int i = 0;                                       \
+    char* param_name;                                \
+    do {                                             \
+      param_name = node->argt_list[i];               \
+      if(param_name == NULL) { break; }              \
+      free(param_name);                              \
+      i++;                                           \
+      param_name = node->argt_list[i];               \
+    } while(param_name != NULL);                     \
+    mt_free_mock_calls(node->calls);                 \
+    node->calls = NULL;                              \
+    node->last_call = NULL;                          \
+  }                                                  \
   
 /*
   TODO: __mock_##function_name needs to free mock calls if not null
@@ -443,6 +485,7 @@ typedef struct MiniTestMockStruct MiniTestMock;
 
 typedef struct MiniTestMockSuiteStruct {
   MiniTestMock *nodes;
+  void (*clear)(struct MiniTestMockSuiteStruct*, void (*handle)(MiniTestMock*));
 } MiniTestMockSuite;
 
 MiniTestMock* mt_find_node(MiniTestMockSuite *s, char* function_name);
