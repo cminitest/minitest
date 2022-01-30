@@ -11,7 +11,6 @@ mt_mocks_initialize(
 )
 
 void add_ints_spy(int* n1, int* n2) {
-  printf("add_ints_spy: <n1: %d> , <n2: %d>\n", *n1, *n2);
   *n1 = 3;
   *n2 = 3;
 }

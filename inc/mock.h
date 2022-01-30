@@ -42,23 +42,24 @@
 #define mt_rt_set_return_0(return_value)
 #define mt_rt_set_return_1(return_value) data->return_value = return_value;
 
-#define mt_mock_forward(rts, return_type, function_name, ...)        \
+#define mt_mock_forward(rts, return_type, function_name, ...)\
+  typedef struct __##function_name##Struct {                 \
+    mt_rt_struct(rts, return_type)                           \
+    return_type (*handle)(__VA_ARGS__);                      \
+    void (*through_handle) mt_spy_args(mt_va_nargs(__VA_ARGS__),__VA_ARGS__) ; \
+    MiniTestMock* request;                                   \
+  } function_name##Struct;                                   \
+                                                             \
   return_type __real_##function_name(__VA_ARGS__);                   \
   return_type __wrap_##function_name(__VA_ARGS__);                   \
   MiniTestMock* __init_##function_name(MiniTestMockSuite*);          \
-  void __mock_##function_name(MiniTestMockSuite* mt_rt_arg(rts,return_type));      \
+  function_name##Struct* __mock_##function_name(MiniTestMockSuite*); \
   MiniTestMock* __this_##function_name(MiniTestMockSuite*);          \
   int __n_calls_##function_name(MiniTestMockSuite*);                 \
   void __release_##function_name(MiniTestMockSuite*);                \
   typedef return_type (*type_##function_name)(__VA_ARGS__);          \
   type_##function_name __mocked_##function_name(MiniTestMockSuite*); \
                                                                      \
-  typedef struct __##function_name##Struct {                 \
-    mt_rt_struct(rts, return_type)                           \
-    return_type (*handle)(__VA_ARGS__);                      \
-    void (*through_handle) mt_spy_args(mt_va_nargs(__VA_ARGS__),__VA_ARGS__) ;              \
-  } function_name##Struct;                                   \
-                                                             \
 
 #define mt_mock_expected cc->params[i].data
 #define mt_mock_actual   params[i]->data
@@ -161,10 +162,6 @@
     mt_uMockParam data;                     \
   } MockParam;                              \
                                             \
-  typedef struct __MockSpyStruct {          \
-    int called;                             \
-    int calls;                              \
-  } MockSpy;                                \
                                             \
   typedef struct __MockCallStruct {         \
     int call_number;                        \
@@ -179,10 +176,10 @@
     int loaded;                             \
     int released;                           \
     int call_count;                         \
+    int called;                             \
     char*     argt_list[MT_MOCK_MAX_ARGS];  \
     MockCall* calls;                        \
     MockCall* last_call;                    \
-    MockSpy spy;                            \
     struct MiniTestMockStruct* next;        \
   } MiniTestMock;                           \
                                             \
@@ -339,12 +336,11 @@
         function_name##Struct* data = (function_name##Struct*)current_node->data;                         \
         if (current_node->loaded) {                                                                       \
           if(data->through_handle != NULL) {                                                              \
-            current_node->spy.calls += 1;                                                                 \
-            current_node->spy.called = 1;                                                                 \
             data->through_handle mt_spy_arg_ptrs mock_args ;                                              \
           }                                                                                               \
-          if(current_node->released) { mt_rt_real_return(rts) data->handle mock_args ; }                  \
           current_node->call_count += 1;                                                                  \
+          current_node->called = 1;                                                                       \
+          if(current_node->released) { mt_rt_real_return(rts) data->handle mock_args ; }                  \
           __register_mock_call (current_node, current_node->call_count, argc, mt_splat_args mock_args ) ; \
           return mt_rt_return(rts)                                                \
         } else {                                                                  \
@@ -358,22 +354,24 @@
     }                                                                             \
   }                                                                               \
                                                                                   \
-  void __mock_##function_name(MiniTestMockSuite *s mt_rt_arg(rts, return_type return_value)) {   \
+  function_name##Struct* __mock_##function_name(MiniTestMockSuite *s) {           \
     if(s->nodes == NULL) { __init_##function_name(s); }                           \
     MiniTestMock* current_node = mt_find_node(s, #function_name);                 \
     if (current_node == NULL || strcmp(current_node->function, #function_name)!=0) { \
       current_node = __init_##function_name(s);                                   \
     }                                                                             \
     function_name##Struct* data = (function_name##Struct*)current_node->data;     \
-    mt_rt_set_return(rts, return_value)                                           \
-    current_node->loaded = 1;                                                     \
-    current_node->released = 0;                                                   \
-    current_node->call_count = 0;                                                 \
-    current_node->calls = NULL;                                                   \
-    current_node->last_call = NULL;                                               \
-    data->through_handle = NULL;                                                  \
-    current_node->spy.calls  = 0;                                                 \
-    current_node->spy.called = 0;                                                 \
+    if(!current_node->loaded) {                                                   \
+      data->request = current_node;                                               \
+      current_node->loaded = 1;                                                   \
+      current_node->released = 0;                                                 \
+      current_node->call_count = 0;                                               \
+      current_node->called = 0;                                                   \
+      current_node->calls = NULL;                                                 \
+      current_node->last_call = NULL;                                             \
+      data->through_handle = NULL;                                                \
+    }                                                                             \
+    return data;                                                                  \
   }                                                                               \
                                                                                   \
   type_##function_name __mocked_##function_name(MiniTestMockSuite *s) {           \
@@ -417,16 +415,16 @@
 //      Mock Helper Macros
 // =======================================
 
-#define no_return );
-#define and_return(value) ,value);
-#define mock(function_name) __mock_##function_name(&minitestmocks 
+#define no_return ;
+#define and_return(value) ->return_value = value;
+#define mock(function_name)  __mock_##function_name(&minitestmocks)
+#define reset(function_name) __mock_##function_name(&minitestmocks)->request->loaded = 0;
 #define mocked(function_name) __mocked_##function_name(&minitestmocks)
 #define release_mock(function_name) __release_##function_name(&minitestmocks);
 #define mock_total_calls(function_name) __n_calls_##function_name(&minitestmocks)
 #define mock_for(function_name) __this_##function_name(&minitestmocks)
 
-#define spy_for(function_name) (__this_##function_name(&minitestmocks))->spy
-#define spy_on(function_name) ((function_name##Struct*)((__this_##function_name(&minitestmocks))->data))
+#define spy(function_name) (__mock_##function_name(&minitestmocks))
 #define through(handle) -> through_handle = handle;
 
 // =======================================
@@ -441,7 +439,6 @@ int __assert_array_float(float arr_1[], float arr_2[], size_t s1, size_t s2);
 int __double_equal(double, double, double);
 int __float_equal(float, float, float);
 
-typedef struct __MockSpyStruct MockSpy;
 typedef struct MiniTestMockStruct MiniTestMock;
 
 typedef struct MiniTestMockSuiteStruct {
