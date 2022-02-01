@@ -1,6 +1,12 @@
 #ifndef __MINITEST_COMMON_H__
 #define __MINITEST_COMMON_H__ 1
 
+#include <stdio.h>
+#include <stdlib.h>
+#include<stdarg.h>
+#include <string.h>
+#include <math.h>
+#include <time.h>
 #include "autogen.h"
 
 // =======================================
@@ -60,6 +66,22 @@ typedef struct MiniTestStruct MiniTest;
 typedef struct MiniTestSuiteStruct MiniTestSuite;
 typedef struct MiniTestBlockStruct MiniTestBlock;
 typedef struct MiniTestBlockArrayStruct MiniTestBlockArray;
+
+#define MT_LOG_NONE  99
+#define MT_LOG_DEVELOPMENT 6
+#define MT_LOG_FATAL 5
+#define MT_LOG_ERROR 4
+#define MT_LOG_WARN  3
+#define MT_LOG_INFO  2
+#define MT_LOG_DEBUG 1
+#define MT_LOG_ALL   0
+
+void mt_log_dev(const char* message, ...);
+void mt_log_fatal(const char* message, ...);
+void mt_log_error(const char* message, ...);
+void mt_log_warn(const char* message, ...);
+void mt_log_info(const char* message, ...);
+void mt_log_debug(const char* message, ...);
 
 // =======================================
 //               Types

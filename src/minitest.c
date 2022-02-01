@@ -38,11 +38,15 @@ static void insert_block_array(MiniTestBlockArray *a, MiniTestBlock *block) {
     // + 8 for arrays which are reasonably small don't end up doing too many copies
     a->size = (a->size * 3) / 2 + 8;
     a->array = (realloc(a->array, a->size * sizeof(MiniTestBlock*)));
+    mt_log_debug("Block array resized \n\t\t<size: %d>", a->size);
   }
   a->array[a->used++] = block;
+  mt_log_info("Block inserted into array buffer (%d/%d)", a->used, a->size);
 }
 
 static void register_suite(MiniTest *mt, const char *name, void *test_case) {
+  mt_log_debug("Initializing suite \n\t\t<name: \"%s\">", name);
+
   MiniTestSuite *suite = malloc(sizeof(MiniTestSuite));
   suite->name = malloc(strlen(name) + 1);
   strcpy(suite->name, name);
@@ -84,6 +88,7 @@ static void run_before_fixtures(MiniTest *mt, MiniTestBlock* current_block) {
     if (block->before != NULL) {
       before_fixtures[index] = block->before;
       index++;
+      mt_log_debug("Running before fixture \n\t\t<address: %p> \n\t\t<block: \"%s\">", block->before, block->name == NULL ? "Root" :  block->name);
     }
     block = block->previous;
   } while(block != NULL);
@@ -98,6 +103,7 @@ static void run_after_fixtures(MiniTest *mt, MiniTestBlock* current_block) {
   do {
     if (block->after != NULL) {
       (block->after)(&(mt->current->subject));
+      mt_log_debug("Running after fixture \n\t\t<address: %p> \n\t\t<block: \"%s\">", block->after, block->name == NULL ? "Root" :  block->name);
     }    
     block = block->previous;
   } while(block != NULL);
@@ -105,7 +111,7 @@ static void run_after_fixtures(MiniTest *mt, MiniTestBlock* current_block) {
 
 static void register_block(int test_type, MiniTest *mt, const char *name) {
   if (!mt->current) {
-    // todo: errors
+    mt_log_fatal("Block \"%s\" was created outside a describe context. All blocks must have a parent describe block.", name);
     return;
   }
 
@@ -117,6 +123,8 @@ static void register_block(int test_type, MiniTest *mt, const char *name) {
   block->assert_message = NULL;
   block->before = NULL;
   block->after = NULL;
+
+  mt_log_debug("Initializing block \n\t\t<address: %p> \n\t\t<name: \"%s\">", block, block->name);
 
   if (test_type == IT_TYPE) {
     mt->test_cases += 1;
@@ -168,6 +176,12 @@ static void run_it_blocks(int depth, MiniTestBlockArray *blocks) {
     char *color = block->assert_result == TEST_PENDING ? CONSOLE_CYAN : block->assert_result == TEST_PASS ? CONSOLE_GREEN : CONSOLE_RED;
     char *bullet = block->assert_result == TEST_PENDING ? PENDING_BULLET : block->assert_result == TEST_PASS ? SUCCESS_BULLET : FAILURE_BULLET;
 
+    mt_log_info(
+      "Running Assertion \n\t\t<name: \"%s\"> \n\t\t<result: %s>",
+      block->name,
+      (block->assert_result == TEST_PENDING ? "Pending" : block->assert_result == TEST_PASS ? "Passed" : "Failed")
+    );
+
     mt_format_it_prologue(depth, color, bullet, block->name);
     mt_format_it_value(depth, color, bullet, block->name);
 
@@ -182,12 +196,15 @@ static void run_it_blocks(int depth, MiniTestBlockArray *blocks) {
 static void run_blocks(MiniTestBlockArray *blocks) {
   if (!blocks->size) { return; }
 
+  mt_log_info("Running blocks <count: %d>", blocks->used);
+
   for (int i = 0; i < blocks->used; i++) {
     MiniTestBlock *block = blocks->array[i];
 
     mt_format_block_prologue(block->depth, block->block_type, block->name);
 
     if(block->block_type != ROOT_TYPE) {
+      mt_log_info("Running block \n\t\t<name: \"%s\"> \n\t\t<type: %d> \n\t\t<depth: %d>", block->name, block->block_type, block->depth);
       mt_format_block_value(block->depth, block->block_type, block->name);
     }
 
@@ -203,6 +220,8 @@ static void run_suite(MiniTestSuite *suite, MiniTest *mt) {
   minitest.current = suite;
 
   if (!suite) { return; }
+
+  mt_log_info("Running suite \n\t\t<name: \"%s\">", suite->name);
 
   mt_format_suite_prologue(suite->name);
   mt_format_suite_value(suite->name);
@@ -306,6 +325,7 @@ MiniTest minitest = {
   .test_cases = 0,
   .passes = 0,
   .failures = 0,
+  .log_level = MT_LOG_ERROR,
   .output_format = MT_STDIO,
   .suites = NULL,
   .current = NULL,

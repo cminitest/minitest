@@ -48,6 +48,7 @@ char* mt_expect_flag_to_string(mt_expect_flags flag);
 #define mt_expect_definition(suffix, type, arr, comparator, format, handle_type) \
                                                                                  \
   int __expect_assert_##suffix(type actual arr, type expected arr, type max_range arr, mt_expect_flags flag) { \
+    mt_log_debug("Running Assertion \n\t\t<type: %s> \n\t\t<assertion: \"%s\">", #type, #comparator);    \
     switch(flag) {                                                                         \
       case MT_EXPECT_GT_FLAG:                                                              \
         return (actual > expected);                                                        \
@@ -69,6 +70,7 @@ char* mt_expect_flag_to_string(mt_expect_flags flag);
   default_format_handle(suffix, expected_type, arr, handle_type)                                               \
                                                                                                                \
   void __expect_##suffix(MiniTest *mt, actual_type actual arr, size_t actual_size, int negated, expected_type expected arr, size_t expected_size, range_type max_range arr, size_t max_range_size, mt_expect_flags flag) {   \
+    mt_log_debug("Expect \n\t\t<type: %s%s> \n\t\t<negated: %d>", #actual_type, #arr, negated);   \
     mt->assertions += 1;                                                            \
     if (mt->current->current_assertion->assert_result == TEST_FAILURE) { return; }  \
     int result = negated ? !(comparator) : (comparator);                            \
@@ -96,6 +98,7 @@ char* mt_expect_flag_to_string(mt_expect_flags flag);
     return (fa > fb) - (fa < fb);                                                       \
   }                                                                                     \
   int __assert_array_##suffix(type arr_1[], type arr_2[], size_t s1, size_t s2) {       \
+    mt_log_debug("Running Assertion \n\t\t<type: %s[]> \n\t\t<assertion: \"__assert_array_%s\">", #type, #suffix); \
     if (s1/sizeof(type) != s2/sizeof(type)) { return 0; }                               \
     qsort(arr_1, s1/sizeof(type), sizeof(type), __compare_array_##suffix);              \
     qsort(arr_2, s2/sizeof(type), sizeof(type), __compare_array_##suffix);              \

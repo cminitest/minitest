@@ -6,11 +6,6 @@ typedef struct MiniTestStruct MiniTest;
 
 extern MiniTest minitest;
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <math.h>
-#include <time.h>
 #include "common.h"
 #include "macros.h"
 #include "mock.h"
@@ -80,6 +75,7 @@ typedef struct MiniTestStruct {
   unsigned int failures;
 
   int output_format;
+  int log_level;
 
   MiniTestSuite *suites;
   MiniTestSuite *current;

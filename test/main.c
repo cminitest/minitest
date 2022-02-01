@@ -4,6 +4,8 @@
 
 int main() {
   //minitest.output_format = 0xFF;
+  //minitest.log_level = MT_LOG_DEBUG;
+
   minitest.run();
 
   int result = EXPECTED_FAILURES - minitest.failures;

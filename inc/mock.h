@@ -69,6 +69,7 @@
 #define mt_mock_assert_parameter(attribute, condition)                                  \
   if(strcmp(cc->params[i].data_type, params[i]->data_type) != 0) { n_found = 0; break; }\
   if(strcmp(cc->params[i].attribute_type, #attribute) == 0) {                           \
+    mt_log_debug("Asserting parameter \n\t\t<attribute: %s> \n\t\t<caller_data_type: %s> \n\t\t<param: %s> \n\t\t<condition: %s", #attribute, cc->params[i].attribute_type, params[i]->data_type, #condition); \
     if(condition) { n_found += 1; continue; } else { n_found = 0; break; }              \
   }                                                                                     \
   
@@ -333,6 +334,7 @@
 #define mt_define_mock(rts, return_type, function_name, argc, arg_types, mock_args, ...) \
                                                                         \
   MiniTestMock* __init_##function_name(MiniTestMockSuite *s) {          \
+    mt_log_debug("Initializing mock \n\t\t<function: \"%s\"> \n\t\t<nargs: \"%s\"> \n\t\t<args: \"%s\">", #function_name, #argc, #arg_types); \
     MiniTestMock* node = malloc(sizeof(MiniTestMock));                  \
     node->next = NULL;                                                  \
     node->calls = NULL;                                                 \
@@ -367,7 +369,7 @@
   return_type __wrap_##function_name(__VA_ARGS__) {                     \
     function_name##Struct* data;                                        \
     if(minitestmocks.nodes == NULL) {                                   \
-      printf(MT_FUNCTION_NO_RETURN_ERROR, #function_name);              \
+      mt_log_fatal(MT_FUNCTION_NO_RETURN_ERROR, #function_name);        \
       exit(-1);                                                         \
     } else {                                                            \
       MiniTestMock* current_node = minitestmocks.nodes;                 \
@@ -375,6 +377,7 @@
         current_node = current_node->next;                              \
       }                                                                 \
       if (strcmp(current_node->function, #function_name)==0) {          \
+        mt_log_debug("Mock called \n\t\t<function: \"%s\"> \n\t\t<released: %d>", #function_name,current_node->released); \
         function_name##Struct* data = (function_name##Struct*)current_node->data;                         \
         if (current_node->loaded) {                                                                       \
           if(data->through_handle != NULL) {                                                              \
