@@ -339,6 +339,7 @@
     node->next = NULL;                                                  \
     node->calls = NULL;                                                 \
     node->last_call = NULL;                                             \
+    node->loaded = 0;                                                   \
                                                                         \
     mt_mock_function_args_##argc arg_types;                             \
                                                                         \
