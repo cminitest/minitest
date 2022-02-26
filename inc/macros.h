@@ -45,7 +45,7 @@
 #endif
 
 #define MT_STDIO 0x01
-
+#define MT_XML 0x02
 
 //#define do  {
 #define end minitest.step_back(&minitest); }

@@ -25,7 +25,14 @@ static char* type_to_string(int t) {
 // Suites Prologue, output, epilogue
 //
 char* mt_format_suites_prologue() {
-  return NULL;
+  switch(minitest.output_format) {
+    case MT_XML:
+      printf("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n");
+      printf("<testsuites>");
+      return NULL;
+    default:
+      return NULL;
+  }
 }
 
 char* mt_format_suites_value(char* data) {
@@ -33,14 +40,26 @@ char* mt_format_suites_value(char* data) {
 }
 
 char* mt_format_suites_epilogue() {
-  return NULL;
+  switch(minitest.output_format) {
+    case MT_XML:
+      printf("</testsuites>");
+      return NULL;
+    default:
+      return NULL;
+  }
 }
 
 //
 // Suite Prologue, output, epilogue
 //
 char* mt_format_suite_prologue(char* name) {
-  return NULL;
+  switch(minitest.output_format) {
+    case MT_XML:
+      printf("<testsuite name=\"%s\">", name);
+      return NULL;
+    default:
+      return NULL;
+  }
 }
 
 char* mt_format_suite_value(char* name) {
@@ -54,14 +73,27 @@ char* mt_format_suite_value(char* name) {
 }
 
 char* mt_format_suite_epilogue(char* name) {
-  return NULL;
+  switch(minitest.output_format) {
+    case MT_XML:
+      printf("</testsuite>");
+      return NULL;
+    default:
+      return NULL;
+  }
 }
 
 //
 // Block Prologue, output, epilogue
 //
 char* mt_format_block_prologue(int block_depth, int block_type, char* name) {
-  return NULL;
+  if (name == NULL) { return NULL; }
+  switch(minitest.output_format) {
+    case MT_XML:
+      printf("<testsuite id=\"%s\" name=\"%s\">", type_to_string(block_type), name);
+      return NULL;
+    default:
+      return NULL;
+  }
 }
 
 char* mt_format_block_value(int block_depth, int block_type, char* name) {
@@ -75,7 +107,14 @@ char* mt_format_block_value(int block_depth, int block_type, char* name) {
 }
 
 char* mt_format_block_epilogue(int block_depth, int block_type, char* name) {
-  return NULL;
+  if (name == NULL) { return NULL; }
+  switch(minitest.output_format) {
+    case MT_XML:
+      printf("</testsuite>");
+      return NULL;
+    default:
+      return NULL;
+  }
 }
 
 //
@@ -83,7 +122,13 @@ char* mt_format_block_epilogue(int block_depth, int block_type, char* name) {
 //
 
 char* mt_format_it_prologue(int block_depth, char* color, char* bullet, char* name) {
-  return NULL;
+  switch(minitest.output_format) {
+    case MT_XML:
+      printf("<testcase name=\"%s\">", name);
+      return NULL;
+    default:
+      return NULL;
+  }
 }
 
 char* mt_format_it_value(int block_depth, char* color, char* bullet, char* name) {
@@ -97,7 +142,13 @@ char* mt_format_it_value(int block_depth, char* color, char* bullet, char* name)
 }
 
 char* mt_format_it_epilogue(int block_depth, char* color, char* bullet, char* name) {
-  return NULL;
+  switch(minitest.output_format) {
+    case MT_XML:
+      printf("</testcase>");
+      return NULL;
+    default:
+      return NULL;
+  }
 }
 
 //
@@ -108,6 +159,9 @@ char* mt_format_assert_failure_value(int block_depth, char* color, char* assert_
   switch(minitest.output_format) {
     case MT_STDIO:
       printf("%*c %s %s %s\n", block_depth*2, ' ', color, assert_message, CONSOLE_DEFAULT);
+      return NULL;
+    case MT_XML:
+      printf("<failure>%s</failure>", assert_message);
       return NULL;
     default:
       return NULL;
@@ -122,7 +176,7 @@ char* mt_format_summary(MiniTest *mt) {
   switch(minitest.output_format) {
     case MT_STDIO:
       printf(
-        "%d tests, %d assertions, %s%d failures%s\n\n",
+        "\n%d tests, %d assertions, %s%d failures%s\n\n",
         mt->test_cases,
         mt->assertions,
         CONSOLE_RED,

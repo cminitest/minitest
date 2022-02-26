@@ -27,12 +27,12 @@ char* mt_assert_template(int neg, char* format, mt_expect_flags flag) {
   memset(range_str, '\0', 15);
 
   if (flag == MT_EXPECT_RANGE_FLAG) {
-    sprintf(range_str, "-<" mt_template_value ">", format);
+    sprintf(range_str, "-(" mt_template_value ")", format);
   }
 
   sprintf(
     template,
-    "Expected <" mt_template_value "> %s %s <" mt_template_value ">%s",
+    "Expected (" mt_template_value ") %s %s (" mt_template_value ")%s",
     format,
     !neg ? "to" : "to not",
     mt_expect_flag_to_string(flag),

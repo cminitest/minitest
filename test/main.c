@@ -3,7 +3,7 @@
 #define EXPECTED_FAILURES 24
 
 int main() {
-  //minitest.output_format = 0xFF;
+  //minitest.output_format = MT_XML;
   //minitest.log_level = MT_LOG_DEBUG;
 
   minitest.run();
