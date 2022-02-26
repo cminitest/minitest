@@ -29,6 +29,8 @@ char* mt_format_it_epilogue(int block_depth, char* color, char* bullet, char* na
 
 char* mt_format_assert_failure_value(int block_depth, char* color, char* assert_message);
 
+char* mt_format_summary(MiniTest *mt);
+
 typedef struct MiniTestBlockArrayStruct {
   MiniTestBlock **array;
   size_t used;

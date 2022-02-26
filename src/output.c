@@ -113,3 +113,24 @@ char* mt_format_assert_failure_value(int block_depth, char* color, char* assert_
       return NULL;
   }
 }
+
+//
+// Summary
+//
+
+char* mt_format_summary(MiniTest *mt) {
+  switch(minitest.output_format) {
+    case MT_STDIO:
+      printf(
+        "%d tests, %d assertions, %s%d failures%s\n\n",
+        mt->test_cases,
+        mt->assertions,
+        CONSOLE_RED,
+        mt->failures,
+        CONSOLE_DEFAULT
+      );
+      return NULL;
+    default:
+      return NULL;
+  }
+}

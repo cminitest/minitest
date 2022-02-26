@@ -20,7 +20,6 @@ static void insert_block_array(MiniTestBlockArray *a, MiniTestBlock *block);
 static void clear(MiniTest *mt);
 static void free_suite(MiniTestSuite *suite);
 static void free_block(MiniTestBlock *block);
-static void print_summary(MiniTest *mt, double time_spent);
 
 // ============================
 //        Implementation
@@ -236,35 +235,11 @@ static void run_suite(MiniTestSuite *suite, MiniTest *mt) {
 }
 
 static void run() {
-  double time_spent = 0.0;
-  clock_t start_t = clock();
-
   mt_format_suites_prologue();
   mt_format_suites_value(NULL);
   run_suite(minitest.suites, &minitest);
+  mt_format_summary(&minitest);
   mt_format_suites_epilogue();
-
-  clock_t end_t = clock();
-  time_spent += (double)(end_t - start_t) / CLOCKS_PER_SEC;
-
-  print_summary(&minitest, time_spent);
-}
-
-static void print_summary(MiniTest *mt, double time_spent) {
-  printf(
-    "\nFinished tests in %fs, %f tests/s, %f assertions/s.\n\n",
-    time_spent,
-    (mt->test_cases/time_spent),
-    (mt->assertions/time_spent)
-  );
-  printf(
-    "%d tests, %d assertions, %s%d failures%s\n\n",
-    mt->test_cases,
-    mt->assertions,
-    CONSOLE_RED,
-    mt->failures,
-    CONSOLE_DEFAULT
-  );
 }
 
 static void free_block(MiniTestBlock *block) {

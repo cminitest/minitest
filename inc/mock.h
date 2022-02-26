@@ -320,10 +320,6 @@
     node->calls = NULL;                              \
     node->last_call = NULL;                          \
   }                                                  \
-  
-/*
-  TODO: __mock_##function_name needs to free mock calls if not null
-*/
 
 // =======================================
 //      Mock Definition
