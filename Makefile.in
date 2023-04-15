@@ -3,9 +3,9 @@ UNAME       := $(shell uname)
 CC          := @CC@
 LIBNAME			:= libminitest
 LIBEXT      := so
-CFILES      := src/assertions.c src/mocks.c src/minitest.c src/output.c src/log.c
-HFILES			:= inc/assertions.h inc/macros.h inc/minitest.h inc/mock.h inc/setup.h inc/common.h inc/autogen.h
-OBJECTS     := assertions.o mocks.o minitest.o output.o log.o
+CFILES      := src/minitest.c src/assertions.c src/output.c src/log.c
+HFILES			:= inc/macros.h inc/minitest.h inc/common.h inc/assertions.h
+OBJECTS     := minitest.o output.o log.o assertions.o
 CFLAGS			:= @CFLAGS@
 ADDFLAGS    := -O2 -std=c11
 ADDSFLAGS   :=
@@ -26,7 +26,7 @@ else
     SYSLIBDIR := /usr/local/lib
     SYSINCDIR := /usr/local/include
     ADDFLAGS  := $(ADDFLAGS) -fPIC
-    ADDSFLAGS := $(ADDFLAGS) -D LD_WRAP -Wl,--wrap=add_ints,--wrap=person_constructor
+    ADDSFLAGS := $(ADDFLAGS) -D LD_WRAP -Wl
   endif
   
   ifeq ($(UNAME), Darwin)
@@ -53,24 +53,10 @@ uninstall:
 	rm -rf $(SYSINCDIR)/minitest
 
 tests: $(TESTOBJS)
-ifeq ($(TESTWRAPDMP),1)
-	/usr/local/opt/binutils/bin/gobjcopy obj/support.o \
-	--redefine-sym ___wrap_add_ints=___real_add_ints \
-	--redefine-sym ___wrap_person_constructor=___real_person_constructor \
-	obj/support.o
 	$(CC) $(CFLAGS) $(ADDFLAGS) $(ADDSFLAGS) -o bin/testsuite $(TESTOBJS) -lminitest
-else
-	$(CC) $(CFLAGS) $(ADDFLAGS) $(ADDSFLAGS) -o bin/testsuite $(TESTOBJS) -lminitest
-endif
 
 $(TESTOBJS): $(OBJDIR)/%.o : test/%.c
 	$(CC) $(CFLAGS) $(ADDFLAGS) $(ADDSFLAGS) -c $< -o $@
-ifeq ($(TESTWRAPDMP),1)
-	/usr/local/opt/binutils/bin/gobjcopy  \
-	--redefine-sym _add_ints=___wrap_add_ints \
-	--redefine-sym _person_constructor=___wrap_person_constructor \
-	$@
-endif
 
 clean:
 	rm -f *.o

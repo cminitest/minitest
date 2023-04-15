@@ -8,7 +8,6 @@ extern MiniTest minitest;
 
 #include "common.h"
 #include "macros.h"
-#include "mock.h"
 #include "assertions.h"
 
 char* mt_format_suites_prologue();

@@ -6,7 +6,6 @@
 #include <stdarg.h>
 #include <string.h>
 #include <math.h>
-#include "autogen.h"
 
 // =======================================
 //         Constants / Settings
@@ -19,31 +18,6 @@
 #ifndef MT_EXPECT_EPSILON
 #define MT_EXPECT_EPSILON 0.000001
 #endif
-
-#define mt_mock_no_wrap   0
-#define mt_mock_wrap_real 1
-#define mt_mock_wrap_null 2
-
-#ifdef LD_WRAP
-  #undef LD_WRAP
-  #define LD_WRAP mt_mock_wrap_real
-#else
-  #define LD_WRAP mt_mock_no_wrap
-#endif
-
-#define MT_LD_WRAP LD_WRAP
-
-#ifndef MT_MOCK_MAX_ARGS
-  #define MT_MOCK_MAX_ARGS 9
-#endif
-
-#define MT_FUNCTION_NO_RETURN_ERROR "Function %s has not been initialized with a return value."
-
-#define mt_no_return 0
-#define mt_returns   1
-
-#define mt_void_type int
-#define mt_void 1
 
 // =======================================
 //               Macros
@@ -99,9 +73,7 @@ typedef enum {
   MT_EXPECT_LT_FLAG,
   MT_EXPECT_GTE_FLAG,
   MT_EXPECT_LTE_FLAG,
-  MT_EXPECT_RANGE_FLAG,
-  MT_EXPECT_BEEN_CALLED_FLAG,
-  MT_EXPECT_CALLED_WITH_FLAG,
+  MT_EXPECT_RANGE_FLAG
 } mt_expect_flags;
 
 #endif
