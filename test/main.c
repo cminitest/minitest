@@ -1,12 +1,16 @@
 #include "minitest/minitest.h"
 
+#define EXPECTED_FAILURES 24
+
 int main() {
   //minitest.output_format = MT_XML;
-  minitest.log_level = MT_LOG_DEBUG;
+  //minitest.log_level = MT_LOG_DEBUG;
 
   minitest.run();
 
+  int result = EXPECTED_FAILURES - minitest.failures;
+
   minitest.clear(&minitest);
 
-  return 0;
+  return result;
 }
