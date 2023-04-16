@@ -117,6 +117,7 @@ static void register_block(int test_type, MiniTest *mt, const char *name) {
   MiniTestBlock *block = malloc(sizeof(MiniTestBlock));
   block->name = malloc(strlen(name) + 1);
   strcpy(block->name, name);
+  block->it_blocks.size = 0;
   block->it_blocks.used = 0;
   block->children.used = 0;
   block->assert_message = NULL;
