@@ -1,4 +1,4 @@
-#include "minitest.h"
+#include "testsuite.h"
 
 describe("MiniTest", minitest_assertions)
 

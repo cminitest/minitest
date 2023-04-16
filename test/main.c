@@ -1,4 +1,4 @@
-#include "minitest/minitest.h"
+#include "testsuite.h"
 
 #define EXPECTED_FAILURES 24
 

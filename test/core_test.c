@@ -1,4 +1,4 @@
-#include "minitest.h"
+#include "testsuite.h"
 
 void mockSuite() {}
 
