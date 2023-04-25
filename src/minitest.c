@@ -306,7 +306,7 @@ static void clear(MiniTest *mt) {
 static void capture_signal(int signal) {
   mt_log_info(
     "Signal \"%s\" was captured: \n\t Suite: %s \n\t Context: %s \n\t Test Case: %s",
-    sys_signame[signal],
+    strsignal(signal),
     minitest.current->name,
     minitest.current->current_block->name,
     minitest.current->current_assertion->name
