@@ -6,6 +6,8 @@
 #include <stdarg.h>
 #include <string.h>
 #include <math.h>
+#include <signal.h>
+#include <setjmp.h>
 
 // =======================================
 //         Constants / Settings
@@ -49,6 +51,17 @@ typedef struct MiniTestBlockArrayStruct MiniTestBlockArray;
 #define MT_LOG_DEBUG 1
 #define MT_LOG_ALL   0
 
+#define MT_SIGNONE 0
+#define MT_SIGABRT 1
+#define MT_SIGFPE  2
+#define MT_SIGILL  4
+#define MT_SIGINT  8
+#define MT_SIGSEGV 16
+#define MT_SIGTERM 32
+
+#define MT_N_SIGNALS 6
+#define MT_SIGNALS_ARRAY {SIGABRT, SIGFPE, SIGILL, SIGINT, SIGSEGV, SIGTERM}
+
 void mt_log_dev(const char* message, ...);
 void mt_log_fatal(const char* message, ...);
 void mt_log_error(const char* message, ...);
@@ -73,7 +86,8 @@ typedef enum {
   MT_EXPECT_LT_FLAG,
   MT_EXPECT_GTE_FLAG,
   MT_EXPECT_LTE_FLAG,
-  MT_EXPECT_RANGE_FLAG
+  MT_EXPECT_RANGE_FLAG,
+  MT_EXPECT_SIGNAL_FLAG
 } mt_expect_flags;
 
 #endif

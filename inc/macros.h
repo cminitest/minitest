@@ -23,6 +23,14 @@
 #define AND_TYPE 0x05
 #define WHEN_TYPE 0x06
 
+#define MT_JMP_HANDLE_0x01
+#define MT_JMP_HANDLE_0x02 if (!setjmp(minitest.signal_buffer))
+#define MT_JMP_HANDLE_0x03
+#define MT_JMP_HANDLE_0x04
+#define MT_JMP_HANDLE_0x05
+#define MT_JMP_HANDLE_0x06
+#define MT_JMP_HANDLE(type) MT_JMP_HANDLE_##type
+
 #define MT_TO_STRING( str ) #str
 #define MT_CONSTRUCTOR_NAME( TestName ) __construct_ ## TestName
 #define MT_CREATE_UNIQUE_NAME( name, line ) name##line
@@ -48,7 +56,7 @@
 #define MT_XML 0x02
 
 //#define do  {
-#define end minitest.step_back(&minitest); }
+#define end } minitest.step_back(&minitest); }
 
 //
 // DESCRIBE blocks
@@ -58,7 +66,7 @@
   static void __attribute__((constructor)) MT_CONSTRUCTOR_NAME(handle)(void) {\
     minitest.register_suite(&minitest, suite, handle); \
   } \
-  static void handle(MiniTest* mt) { void* current_expect = NULL;
+  static void handle(MiniTest* mt) { void* current_expect = NULL; MT_JMP_HANDLE(0x01) {
 
 #define MT_DEFINE_SUITE( suite, handle, ... ) \
   MT_REGISTER_SUITE( suite, handle, MT_UNIQUE_NAME( MINITEST_ ), __VA_ARGS__ )
@@ -74,7 +82,7 @@
 // behavior blocks
 //
 #define MT_REGISTER_TEST_CASE( test_type, test_case, TestName, ... ) \
-  minitest.register_block(test_type, &minitest, test_case); {
+  minitest.register_block(test_type, &minitest, test_case); { MT_JMP_HANDLE(test_type) {
 #define MT_DEFINE_TEST_CASE( test_type, test_case, ... ) \
   MT_REGISTER_TEST_CASE( test_type, test_case, MT_UNIQUE_NAME( MINITEST_ ), __VA_ARGS__ )
 #define MT_TEST_CASE( test_case_type, testcase, ... ) MT_DEFINE_TEST_CASE( test_case_type, testcase, __VA_ARGS__ )

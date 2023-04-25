@@ -1,6 +1,8 @@
 #ifndef __MINITEST_TESTSUITE_H__
 #define __MINITEST_TESTSUITE_H__ 1
 
+#define EXPECTED_FAILURES 25
+
 #include "minitest/extensions.h"
 
 typedef struct ExpectExtStruct {

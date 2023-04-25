@@ -74,9 +74,12 @@ typedef struct MiniTestStruct {
   unsigned int test_cases;
   unsigned int passes;
   unsigned int failures;
+  unsigned int signals;
 
   int output_format;
   int log_level;
+
+  jmp_buf signal_buffer;
 
   MiniTestSuite *suites;
   MiniTestSuite *current;
@@ -86,6 +89,8 @@ typedef struct MiniTestStruct {
   void (*register_block)(int, struct MiniTestStruct*, const char*);
   void (*run)();
   void (*clear)(struct MiniTestStruct*);
+  void (*init_signals)(struct MiniTestStruct*);
+  void (*terminate_signals)(struct MiniTestStruct*);
 
 } MiniTest;
 
