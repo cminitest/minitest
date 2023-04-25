@@ -318,9 +318,12 @@ static void capture_signal(int signal) {
   char *template = mt_assert_template(1, mt_template_value, MT_EXPECT_SIGNAL_FLAG);
   minitest.current->current_assertion->assert_message = malloc(MT_MAX_ASSERTION_BUFFER);
 
+  char sig_str[3];
+  sprintf(sig_str, "%d", signal);
+
   snprintf(                                                                         
     minitest.current->current_assertion->assert_message, MT_MAX_ASSERTION_BUFFER,
-    template, "Signal", itoa(signal), ""
+    template, "Signal", sig_str, ""
   );
 
   free(template);
