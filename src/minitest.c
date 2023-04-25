@@ -305,8 +305,8 @@ static void clear(MiniTest *mt) {
 
 static void capture_signal(int signal) {
   mt_log_info(
-    "Signal \"%s\" was captured: \n\t Suite: %s \n\t Context: %s \n\t Test Case: %s",
-    strsignal(signal),
+    "Signal \"%d\" was captured: \n\t Suite: %s \n\t Context: %s \n\t Test Case: %s",
+    signal,
     minitest.current->name,
     minitest.current->current_block->name,
     minitest.current->current_assertion->name
@@ -320,7 +320,7 @@ static void capture_signal(int signal) {
 
   snprintf(                                                                         
     minitest.current->current_assertion->assert_message, MT_MAX_ASSERTION_BUFFER,
-    template, "Signal", strsignal(signal), ""
+    template, "Signal", itoa(signal), ""
   );
 
   free(template);
