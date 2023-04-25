@@ -14,9 +14,6 @@ A behavior-driven test library for C.
 
 - An elegant syntax
 - A variety of default assertions
-- Mocks
-- Spies
-- Function Hooks
 - Fixtures
 - Extensible
 - Configurable Output Formats
