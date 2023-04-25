@@ -320,7 +320,7 @@ static void capture_signal(int signal) {
 
   snprintf(                                                                         
     minitest.current->current_assertion->assert_message, MT_MAX_ASSERTION_BUFFER,
-    template, "Signal", sys_signame[signal], ""
+    template, "Signal", strsignal(signal), ""
   );
 
   free(template);
