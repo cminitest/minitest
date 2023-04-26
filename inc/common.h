@@ -6,7 +6,8 @@
 #include <stdarg.h>
 #include <string.h>
 #include <math.h>
-#include "autogen.h"
+#include <signal.h>
+#include <setjmp.h>
 
 // =======================================
 //         Constants / Settings
@@ -19,31 +20,6 @@
 #ifndef MT_EXPECT_EPSILON
 #define MT_EXPECT_EPSILON 0.000001
 #endif
-
-#define mt_mock_no_wrap   0
-#define mt_mock_wrap_real 1
-#define mt_mock_wrap_null 2
-
-#ifdef LD_WRAP
-  #undef LD_WRAP
-  #define LD_WRAP mt_mock_wrap_real
-#else
-  #define LD_WRAP mt_mock_no_wrap
-#endif
-
-#define MT_LD_WRAP LD_WRAP
-
-#ifndef MT_MOCK_MAX_ARGS
-  #define MT_MOCK_MAX_ARGS 9
-#endif
-
-#define MT_FUNCTION_NO_RETURN_ERROR "Function %s has not been initialized with a return value."
-
-#define mt_no_return 0
-#define mt_returns   1
-
-#define mt_void_type int
-#define mt_void 1
 
 // =======================================
 //               Macros
@@ -75,6 +51,17 @@ typedef struct MiniTestBlockArrayStruct MiniTestBlockArray;
 #define MT_LOG_DEBUG 1
 #define MT_LOG_ALL   0
 
+#define MT_SIGNONE 0
+#define MT_SIGABRT 1
+#define MT_SIGFPE  2
+#define MT_SIGILL  4
+#define MT_SIGINT  8
+#define MT_SIGSEGV 16
+#define MT_SIGTERM 32
+
+#define MT_N_SIGNALS 6
+#define MT_SIGNALS_ARRAY {SIGABRT, SIGFPE, SIGILL, SIGINT, SIGSEGV, SIGTERM}
+
 void mt_log_dev(const char* message, ...);
 void mt_log_fatal(const char* message, ...);
 void mt_log_error(const char* message, ...);
@@ -100,8 +87,7 @@ typedef enum {
   MT_EXPECT_GTE_FLAG,
   MT_EXPECT_LTE_FLAG,
   MT_EXPECT_RANGE_FLAG,
-  MT_EXPECT_BEEN_CALLED_FLAG,
-  MT_EXPECT_CALLED_WITH_FLAG,
+  MT_EXPECT_SIGNAL_FLAG
 } mt_expect_flags;
 
 #endif

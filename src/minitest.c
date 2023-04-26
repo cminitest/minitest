@@ -9,7 +9,7 @@ static void step_back(MiniTest *mt);
 static void register_block(int test_type, MiniTest *mt, const char *name);
 
 static void run_suite(MiniTestSuite *suite, MiniTest *mt);
-static void run_blocks(MiniTestBlockArray *blocks);
+static void run_blocks(MiniTest *mt, MiniTestBlockArray *blocks);
 static void run_it_blocks(int depth, MiniTestBlockArray *blocks);
 
 static void run_before_fixtures(MiniTest *mt, MiniTestBlock* current_block);
@@ -20,6 +20,10 @@ static void insert_block_array(MiniTestBlockArray *a, MiniTestBlock *block);
 static void clear(MiniTest *mt);
 static void free_suite(MiniTestSuite *suite);
 static void free_block(MiniTestBlock *block);
+
+static void init_signals(MiniTest *mt);
+static void terminate_signals(MiniTest *mt);
+static void capture_signal(int signal);
 
 // ============================
 //        Implementation
@@ -117,6 +121,7 @@ static void register_block(int test_type, MiniTest *mt, const char *name) {
   MiniTestBlock *block = malloc(sizeof(MiniTestBlock));
   block->name = malloc(strlen(name) + 1);
   strcpy(block->name, name);
+  block->it_blocks.size = 0;
   block->it_blocks.used = 0;
   block->children.used = 0;
   block->assert_message = NULL;
@@ -135,7 +140,6 @@ static void register_block(int test_type, MiniTest *mt, const char *name) {
     block->block_type = IT_TYPE;
     block->assert_result = TEST_PENDING;
     insert_block_array(&(mt->current->current_block->it_blocks), block);
-
     run_before_fixtures(mt, mt->current->current_block);
   } else {
     block->block_type = test_type;
@@ -192,7 +196,7 @@ static void run_it_blocks(int depth, MiniTestBlockArray *blocks) {
   }
 }
 
-static void run_blocks(MiniTestBlockArray *blocks) {
+static void run_blocks(MiniTest *mt, MiniTestBlockArray *blocks) {
   if (!blocks->size) { return; }
 
   mt_log_info("Running blocks <count: %d>", blocks->used);
@@ -209,7 +213,7 @@ static void run_blocks(MiniTestBlockArray *blocks) {
 
     run_it_blocks(block->depth+1, &(block->it_blocks));
 
-    run_blocks(&(block->children));
+    run_blocks(mt, &(block->children));
 
     mt_format_block_epilogue(block->depth, block->block_type, block->name);
   }
@@ -227,7 +231,7 @@ static void run_suite(MiniTestSuite *suite, MiniTest *mt) {
 
   suite->suite(mt);
 
-  run_blocks(&(suite->blocks));
+  run_blocks(mt, &(suite->blocks));
 
   mt_format_suite_epilogue(suite->name);
 
@@ -237,7 +241,11 @@ static void run_suite(MiniTestSuite *suite, MiniTest *mt) {
 static void run() {
   mt_format_suites_prologue();
   mt_format_suites_value(NULL);
+
+  minitest.init_signals(&minitest);
   run_suite(minitest.suites, &minitest);
+  minitest.terminate_signals(&minitest);
+
   mt_format_summary(&minitest);
   mt_format_suites_epilogue();
 }
@@ -295,6 +303,56 @@ static void clear(MiniTest *mt) {
   mt->failures = 0;
 }
 
+static void capture_signal(int signal) {
+  mt_log_info(
+    "Signal \"%d\" was captured: \n\t Suite: %s \n\t Context: %s \n\t Test Case: %s",
+    signal,
+    minitest.current->name,
+    minitest.current->current_block->name,
+    minitest.current->current_assertion->name
+  );
+
+  minitest.failures += 1;
+  minitest.current->current_assertion->assert_result = TEST_FAILURE;
+
+  char *template = mt_assert_template(1, mt_template_value, MT_EXPECT_SIGNAL_FLAG);
+  minitest.current->current_assertion->assert_message = malloc(MT_MAX_ASSERTION_BUFFER);
+
+  char sig_str[3];
+  sprintf(sig_str, "%d", signal);
+
+  snprintf(                                                                         
+    minitest.current->current_assertion->assert_message, MT_MAX_ASSERTION_BUFFER,
+    template, "Signal", sig_str, ""
+  );
+
+  free(template);
+
+  longjmp(minitest.signal_buffer, 1);
+}
+
+static void init_signals(MiniTest *mt) {
+  if (mt->signals == MT_SIGNONE) { return; }
+
+  int signals[] = MT_SIGNALS_ARRAY;
+  for (int i = 0; i < MT_N_SIGNALS; i++) {
+    if (mt->signals & (1 << i)) {
+      signal(signals[i], capture_signal);
+    }
+  }
+}
+
+static void terminate_signals(MiniTest *mt) {
+  if (mt->signals == MT_SIGNONE) { return; }
+
+  int signals[] = MT_SIGNALS_ARRAY;
+  for (int i = 0; i < MT_N_SIGNALS; i++) {
+    if (mt->signals & (1 << i)) {
+      signal(signals[i], SIG_DFL);
+    }
+  }
+}
+
 MiniTest minitest = {
   .assertions = 0,
   .test_cases = 0,
@@ -308,5 +366,8 @@ MiniTest minitest = {
   .register_block = register_block,
   .step_back = step_back,
   .run = run,
-  .clear = clear
+  .clear = clear,
+  .signals = MT_SIGNONE,
+  .init_signals = init_signals,
+  .terminate_signals = terminate_signals
 };

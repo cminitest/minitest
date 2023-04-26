@@ -25,11 +25,6 @@ char* mt_expect_flag_to_string(mt_expect_flags flag);
 #define be_true  ,1, 0,0,0, MT_EXPECT_EQUAL_FLAG); mt_expect_epilogue;
 #define been_called ,0,0,0,0, MT_EXPECT_BEEN_CALLED_FLAG); mt_expect_epilogue;
 
-#define called_with(...) ,__expect_create_mock_params(current_expect,                 \
-  ((MiniTestMock*)current_expect)->last_call->n_args, __VA_ARGS__),                   \
-  0,mt_sizeof_va_args(mt_va_nargs(__VA_ARGS__),__VA_ARGS__),mt_va_nargs(__VA_ARGS__), \
-  MT_EXPECT_CALLED_WITH_FLAG); mt_expect_epilogue;
-
 #define greater_than(expected) ,expected,0,expected,0,MT_EXPECT_GT_FLAG); mt_expect_epilogue;
 #define less_than(expected) ,expected,0,expected,0,MT_EXPECT_LT_FLAG); mt_expect_epilogue;
 #define greater_than_or_equal_to(expected) ,expected,0,expected,0,MT_EXPECT_GTE_FLAG); mt_expect_epilogue;
@@ -139,13 +134,6 @@ mt_expect_array_forward(longarr, long);
 mt_expect_array_forward(doublearr, double);
 mt_expect_array_forward(floatarr, float);
 
-//
-// mocks to support custom assertion types
-//
-void __set_expect_noop(int valid, ...);
-void __set_current_expectation(int valid, MiniTestMock* mock, void** current_expect);
-extern void __expect_mock(MiniTest*, MiniTestMock*, size_t, int, void*, size_t, void*, size_t, mt_expect_flags);
-
 #define expect_generic(actual) _Generic(actual,                  \
                                         MT_EXPECT_EXTENSIONS     \
                                         int: __expect_int,       \
@@ -164,15 +152,11 @@ extern void __expect_mock(MiniTest*, MiniTestMock*, size_t, int, void*, size_t, 
                                         short*: __expect_shortarr,     \
                                         long*: __expect_longarr,       \
                                         double*: __expect_doublearr,   \
-                                        float*: __expect_floatarr,     \
-                                        MiniTestMock*: __expect_mock   \
+                                        float*: __expect_floatarr      \
                                       ) \
-
-#define mt_set_current_expectation(actual, ce) _Generic(actual, MiniTestMock*: __set_current_expectation, default: __set_expect_noop)(1,actual, ce);
 
 #define __expect_call(mt, actual) expect_generic(actual)(mt, (actual), (sizeof(actual)),
 #define expect(actual)               \
-  mt_set_current_expectation(actual, &current_expect) \
   __expect_call(&minitest, actual)   \
 
 #endif

@@ -12,8 +12,8 @@ char* mt_expect_flag_to_string(mt_expect_flags flag) {
       return "be less than or equal to";
     case MT_EXPECT_RANGE_FLAG:
       return "be in range";
-    case MT_EXPECT_BEEN_CALLED_FLAG:
-      return "have been called";
+    case MT_EXPECT_SIGNAL_FLAG:
+      return "have been captured";
     default:
       return "equal";
   }
@@ -51,12 +51,6 @@ int __double_equal(double actual, double expected, double epsilon) {
 
 int __float_equal(float actual, float expected, float epsilon) {
   return fabs(actual - expected) < epsilon;
-}
-
-void __set_expect_noop(int valid, ...) {}
-
-void __set_current_expectation(int valid, MiniTestMock* mock, void** current_expect) {
-  *current_expect = mock;
 }
 
 //
@@ -98,3 +92,4 @@ mt_expect_array(doublearr, double, __assert_array_double(expected, actual, actua
 mt_assert_array(float, float, (__float_equal(arr_1[i],arr_2[i],MT_EXPECT_EPSILON)) );
 mt_expect_array(floatarr, float, __assert_array_float(expected, actual, actual_size, expected_size), NULL);
 
+void __set_expect_noop(int valid, ...) {}
