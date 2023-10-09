@@ -20,11 +20,11 @@ jobs:
     - name: make sharedlib
       run: make sharedlib
 
-    - name: make links
-      run: make links
-
     - name: make install
       run: make install
+
+    - name: make links
+      run: make links
 
     - name: make tests
       run: make tests
