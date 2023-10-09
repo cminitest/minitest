@@ -48,7 +48,7 @@ else
   endif
 endif
 
-all: sharedlib install tests links
+all: sharedlib install links tests
 
 sharedlib:
 	$(CC) $(CFLAGS) $(ADDFLAGS) -c $(CFILES)
