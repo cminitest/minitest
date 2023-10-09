@@ -42,7 +42,7 @@ else
     SYSINCDIR := /usr/local/include
     ADDSFLAGS := $(ADDFLAGS) -D LD_WRAP
     TESTWRAPDMP  := 1
-    SHAREDFLAG   := -dynamiclib -install_name $(LIBNAME).$(LIBMAJOR).dylib -compatibility_version $(LIBMAJOR).$(LIBMINOR) -current_version $(LIBMAJOR).$(LIBMINOR).$(LIBMAINT)
+    SHAREDFLAG   := -dynamiclib -install_name $(LIBNAME).dylib -compatibility_version $(LIBMAJOR).$(LIBMINOR) -current_version $(LIBMAJOR).$(LIBMINOR).$(LIBMAINT)
     LIBVNAME  := $(LIBNAME).$(LIBMAJOR).$(LIBMINOR).$(LIBMAINT).dylib
     LIBEXT    := dylib
   endif
