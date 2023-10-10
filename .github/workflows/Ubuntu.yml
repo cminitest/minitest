@@ -20,6 +20,9 @@ jobs:
     - name: make install
       run: sudo make install
 
+    - name: make links
+      run: sudo make links
+
     - name: Apply Permissions
       run: sudo chown $(whoami) -R /usr/local/lib/libminitest* && sudo chown $(whoami) -R /usr/local/include/minitest*
 

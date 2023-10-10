@@ -2,6 +2,7 @@ UNAME       := $(shell uname)
 
 CC          := @CC@
 LIBNAME			:= libminitest
+LIBVNAME    := libminitest
 LIBEXT      := so
 CFILES      := src/minitest.c src/assertions.c src/output.c src/log.c
 HFILES			:= inc/macros.h inc/minitest.h inc/common.h inc/assertions.h inc/extensions.h
@@ -9,6 +10,11 @@ OBJECTS     := minitest.o output.o log.o assertions.o
 CFLAGS			:= @CFLAGS@
 ADDFLAGS    := -g -O2 -std=c11
 ADDSFLAGS   :=
+
+LIBMAJOR    := 1
+LIBMINOR    := 0
+LIBMAINT    := 0
+SHAREDFLAG  := -shared
 
 OBJDIR      := obj
 TESTFILES   := $(wildcard test/*.c)
@@ -21,12 +27,14 @@ ifeq ($(OS), Windows_NT)
   SYSLIBDIR := /c/Windows/system32
   SYSINCDIR := /usr/include
   ADDFLAGS  := $(ADDFLAGS) -L/c/Windows/system32
+  LIBVNAME  := $(LIBNAME).$(LIBEXT).$(LIBMAJOR).$(LIBMINOR).$(LIBMAINT)
 else
   ifeq ($(UNAME), Linux)
     SYSLIBDIR := /usr/local/lib
     SYSINCDIR := /usr/local/include
     ADDFLAGS  := $(ADDFLAGS) -fPIC
     ADDSFLAGS := $(ADDFLAGS) -D LD_WRAP
+    LIBVNAME  := $(LIBNAME).$(LIBEXT).$(LIBMAJOR).$(LIBMINOR).$(LIBMAINT)
   endif
   
   ifeq ($(UNAME), Darwin)
@@ -34,26 +42,33 @@ else
     SYSINCDIR := /usr/local/include
     ADDSFLAGS := $(ADDFLAGS) -D LD_WRAP
     TESTWRAPDMP  := 1
+    SHAREDFLAG   := -dynamiclib -install_name $(LIBNAME).dylib -compatibility_version $(LIBMAJOR).$(LIBMINOR) -current_version $(LIBMAJOR).$(LIBMINOR).$(LIBMAINT)
+    LIBVNAME  := $(LIBNAME).$(LIBMAJOR).$(LIBMINOR).$(LIBMAINT).dylib
+    LIBEXT    := dylib
   endif
 endif
 
-all: sharedlib install tests
+all: sharedlib install links tests
 
 sharedlib:
 	$(CC) $(CFLAGS) $(ADDFLAGS) -c $(CFILES)
-	$(CC) -shared $(OBJECTS) -o lib/$(LIBNAME).$(LIBEXT)
+	$(CC) $(SHAREDFLAG) $(OBJECTS) -o lib/$(LIBVNAME)
 
 install:
-	cp lib/$(LIBNAME).$(LIBEXT) $(SYSLIBDIR)
+	cp lib/$(LIBVNAME) $(SYSLIBDIR)
 	mkdir $(SYSINCDIR)/minitest
 	cp $(HFILES) $(SYSINCDIR)/minitest
 
 uninstall:
+	rm $(SYSLIBDIR)/$(LIBVNAME)
 	rm $(SYSLIBDIR)/$(LIBNAME).$(LIBEXT)
 	rm -rf $(SYSINCDIR)/minitest
 
 tests: $(TESTOBJS)
 	$(CC) $(CFLAGS) $(ADDFLAGS) $(ADDSFLAGS) -o bin/testsuite $(TESTOBJS) -lminitest
+
+links:
+	ln -s $(SYSLIBDIR)/$(LIBVNAME) $(SYSLIBDIR)/$(LIBNAME).$(LIBEXT)
 
 $(TESTOBJS): $(OBJDIR)/%.o : test/%.c
 	$(CC) $(CFLAGS) $(ADDFLAGS) $(ADDSFLAGS) -c $< -o $@
@@ -61,7 +76,7 @@ $(TESTOBJS): $(OBJDIR)/%.o : test/%.c
 clean:
 	rm -f *.o
 	rm -f obj/*.o
-	rm -f lib/$(LIBNAME).$(LIBEXT)
+	rm -f lib/$(LIBVNAME)
 	rm -f config.log
 	rm -f config.status
 	rm -f configure
